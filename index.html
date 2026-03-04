@@ -358,11 +358,36 @@
     margin-bottom: 20px;
   }
 
-  .handler {
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border);
+  .handler-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    padding: 16px 0 8px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
   }
-  .handler:last-of-type { border-bottom: none; }
+  .handler-group-label:first-of-type {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+
+  .handler {
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin: 4px 0;
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+  .handler:hover {
+    background: var(--bg-elevated);
+  }
+  .handler.has-nav {
+    border-left: 3px solid var(--accent);
+    padding-left: 11px;
+  }
 
   .handler .them {
     font-size: 11px;
@@ -371,11 +396,44 @@
     letter-spacing: 0.8px;
     color: var(--text-muted);
     margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .handler .them .nav-hint {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+    background: var(--accent-muted);
+    padding: 2px 6px;
+    border-radius: 4px;
   }
   .handler .you {
     font-size: 15px;
     color: var(--text-primary);
     line-height: 1.55;
+  }
+  .handler .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    background: var(--accent-muted);
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .handler .nav-btn:hover {
+    background: var(--accent);
+    color: #000;
   }
 
   /* ─── Done state ─── */
@@ -415,73 +473,106 @@
 
 <!-- Handler overlay -->
 <div class="overlay" id="handlerOverlay" role="dialog" aria-modal="true" aria-label="Quick handlers">
-  <div class="overlay-panel">
+  <div class="overlay-panel" id="handlerPanel">
     <h3>Quick Handlers</h3>
-    <div class="handler">
-      <div class="them">Busy / bad time</div>
+
+    <!-- ─── COMMON (top 5, always relevant) ─── -->
+    <div class="handler-group-label">Common</div>
+
+    <div class="handler has-nav" onclick="navFromHandler('done')">
+      <div class="them">Busy / bad time <span class="nav-hint">→ Done</span></div>
       <div class="you">"Totally — can I call you back at [TIME]?"</div>
+      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('done')">→ End call</button>
     </div>
+
     <div class="handler">
-      <div class="them">Not interested (1st)</div>
+      <div class="them">First pushback</div>
       <div class="you">"Totally fair. Can I ask one thing — is it because you've got something in place, you handle it yourself, or bad timing?"</div>
     </div>
-    <div class="handler">
-      <div class="them">Not interested (2nd)</div>
+
+    <div class="handler has-nav" onclick="navFromHandler('exit_after_nos')">
+      <div class="them">Hard no — they mean it <span class="nav-hint">→ Exit</span></div>
       <div class="you">"That makes sense. Appreciate your time. If you ever notice calls slipping through, you've got my number."</div>
+      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('exit_after_nos')">→ Go to exit</button>
     </div>
+
     <div class="handler">
-      <div class="them">Send me info (1st)</div>
+      <div class="them">Send me info — first time</div>
       <div class="you">"For sure. But seeing it live is 10x better — 10 min on Zoom. If not, I'll send a 30-sec clip. What works better?"</div>
     </div>
-    <div class="handler">
-      <div class="them">Send me info (2nd)</div>
+
+    <div class="handler has-nav" onclick="navFromHandler('done')">
+      <div class="them">Send me info — insistent <span class="nav-hint">→ Done</span></div>
       <div class="you">"Totally — what's your email?"</div>
+      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('done')">→ End call</button>
     </div>
-    <div class="handler">
-      <div class="them">Someone already called about this</div>
-      <div class="you">"Yeah, there's a lot of that. What did the other one get wrong?"</div>
-    </div>
-    <div class="handler">
-      <div class="them">Got burned by AI</div>
-      <div class="you">"That's why I'm calling owners instead of guessing. What went wrong?"</div>
-    </div>
+
+    <!-- ─── OBJECTIONS ─── -->
+    <div class="handler-group-label">Objections</div>
+
     <div class="handler">
       <div class="them">I answer all my calls</div>
       <div class="you">"That's dedication. What happens at 10 PM on a Saturday?"</div>
     </div>
+
     <div class="handler">
-      <div class="them">Everything's fine</div>
+      <div class="them">Everything's fine / don't miss many</div>
       <div class="you">"That's better than most. What's your setup?"<br>Then: "What about when you're on a job or it's late?"</div>
     </div>
+
     <div class="handler">
-      <div class="them">Gatekeeper</div>
-      <div class="you">"Oh, you deal with the phones? You probably know more than the owner. What happens to calls after you close?"</div>
+      <div class="them">Someone already called about this</div>
+      <div class="you">"Yeah, there's a lot of that. What did the other one get wrong?"</div>
     </div>
+
     <div class="handler">
-      <div class="them">How much?</div>
-      <div class="you">"Full version — Pro — is $12K/yr at founding rate, normally $18K. That's $1K/mo. Bilingual, ServiceTitan, 24/7, no setup fee."<br><br>"After-hours only version — Lite — is $7,200/yr, $600/mo. Covers evenings and weekends."<br><br>"Month-to-month: Pro $1,500/mo, Lite $900/mo. Annual saves you more."<br><br>"95% answer rate in 30 days or full refund."</div>
+      <div class="them">Got burned by AI / don't trust AI</div>
+      <div class="you">"That's why I'm calling owners instead of guessing. What went wrong?"</div>
     </div>
+
     <div class="handler">
       <div class="them">Need to think about it</div>
       <div class="you">"Totally fair. Is it more the price, or whether the AI actually works? Because if it's whether it works — 95% answer rate in 30 days or full refund. You keep everything we built."</div>
     </div>
+
+    <div class="handler">
+      <div class="them">Gatekeeper — not the owner</div>
+      <div class="you">"Oh, you deal with the phones? You probably know more than the owner. What happens to calls after you close?"</div>
+    </div>
+
+    <!-- ─── PRICING ─── -->
+    <div class="handler-group-label">Pricing</div>
+
+    <div class="handler has-nav" onclick="navFromHandler('pricing')">
+      <div class="them">How much? <span class="nav-hint">→ Pricing flow</span></div>
+      <div class="you">Opens the full pricing flow with downsell ladder.</div>
+      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('pricing')">→ Go to pricing</button>
+    </div>
+
     <div class="handler">
       <div class="them">Too expensive</div>
       <div class="you">"What are you paying for your answering service? This does 10x more. And there's a Lite version — $600/mo, after-hours only."</div>
     </div>
+
     <div class="handler">
       <div class="them">What's the difference between the two?</div>
-      <div class="you">"Pro: bilingual English and Spanish, books jobs in ServiceTitan while the caller's on the phone, and you pick your coverage — 24/7, after-hours, or fallback when your team misses one."<br><br>"Lite: after-hours and weekends only. Same AI, same lead texts — just no bilingual, no ServiceTitan, no daytime coverage."</div>
+      <div class="you">"Pro: bilingual, ServiceTitan booking, choose your coverage — 24/7, after-hours, or fallback."<br><br>"Lite: after-hours and weekends only. Same AI, same lead texts — no bilingual, no ServiceTitan, no daytime."</div>
     </div>
+
+    <!-- ─── QUESTIONS ─── -->
+    <div class="handler-group-label">Questions</div>
+
     <div class="handler">
       <div class="them">What does it do?</div>
       <div class="you">"It answers calls when you can't, finds out what's wrong, and texts you the details. Can I send you a quick clip?"</div>
     </div>
+
     <div class="handler">
       <div class="them">What's this about? / Are you selling something?</div>
       <div class="you">"I'm a developer — I built an AI that answers HVAC calls after hours. Trying to figure out if it solves a real problem. What's your setup?"</div>
     </div>
-    <button type="button" class="btn" style="width:100%;margin-top:20px;" onclick="hideHandlers()">Close</button>
+
+    <button type="button" class="btn" style="width:100%;margin-top:20px;" id="handlerCloseBtn" onclick="hideHandlers()">Close <kbd style="margin-left:6px;font-size:10px;opacity:0.5;">Esc</kbd></button>
   </div>
 </div>
 
@@ -1048,10 +1139,18 @@ function updateProgress() {
 }
 
 function showHandlers() {
-  document.getElementById('handlerOverlay').classList.add('show');
+  const overlay = document.getElementById('handlerOverlay');
+  const panel = document.getElementById('handlerPanel');
+  panel.scrollTop = 0;
+  overlay.classList.add('show');
+  document.getElementById('handlerCloseBtn').focus();
 }
 function hideHandlers() {
   document.getElementById('handlerOverlay').classList.remove('show');
+}
+function navFromHandler(stepKey) {
+  hideHandlers();
+  goTo(stepKey);
 }
 
 function restart() {
@@ -1063,9 +1162,26 @@ function restart() {
 
 document.addEventListener('keydown', (e) => {
   if (e.target.tagName === 'INPUT') return;
+  const overlay = document.getElementById('handlerOverlay');
+  const isOpen = overlay.classList.contains('show');
+
+  // Focus trap when overlay is open
+  if (isOpen && e.key === 'Tab') {
+    const focusable = overlay.querySelectorAll('button, [tabindex]');
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+    return;
+  }
+
   if (e.key === 'h' || e.key === 'H') {
-    const overlay = document.getElementById('handlerOverlay');
-    overlay.classList.contains('show') ? hideHandlers() : showHandlers();
+    isOpen ? hideHandlers() : showHandlers();
   }
   if (e.key === 'Escape') hideHandlers();
 });
