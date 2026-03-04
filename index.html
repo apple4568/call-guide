@@ -459,7 +459,19 @@
     </div>
     <div class="handler">
       <div class="them">How much?</div>
-      <div class="you">"Full version is $12K/yr founding rate, normally $18K. That's $1K/mo. Bilingual, 24/7, no setup. After-hours version is $7,200/yr — $600/mo. 95% answer rate in 30 days or full refund."</div>
+      <div class="you">"Full version — Pro — is $12K/yr at founding rate, normally $18K. That's $1K/mo. Bilingual, ServiceTitan, 24/7, no setup fee."<br><br>"After-hours only version — Lite — is $7,200/yr, $600/mo. Covers evenings and weekends."<br><br>"Month-to-month: Pro $1,500/mo, Lite $900/mo. Annual saves you more."<br><br>"95% answer rate in 30 days or full refund."</div>
+    </div>
+    <div class="handler">
+      <div class="them">Need to think about it</div>
+      <div class="you">"Totally fair. Is it more the price, or whether the AI actually works? Because if it's whether it works — 95% answer rate in 30 days or full refund. You keep everything we built."</div>
+    </div>
+    <div class="handler">
+      <div class="them">Too expensive</div>
+      <div class="you">"What are you paying for your answering service? This does 10x more. And there's a Lite version — $600/mo, after-hours only."</div>
+    </div>
+    <div class="handler">
+      <div class="them">What's the difference between the two?</div>
+      <div class="you">"Pro: bilingual English and Spanish, books jobs in ServiceTitan while the caller's on the phone, and you pick your coverage — 24/7, after-hours, or fallback when your team misses one."<br><br>"Lite: after-hours and weekends only. Same AI, same lead texts — just no bilingual, no ServiceTitan, no daytime coverage."</div>
     </div>
     <div class="handler">
       <div class="them">What does it do?</div>
@@ -782,6 +794,7 @@ const steps = {
         <div class="note warn">That's the call. You're done. Don't keep selling.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
+          <button type="button" class="btn" onclick="goTo('pricing')">They asked "how much?"</button>
         </div>
       </div>
     `
@@ -803,6 +816,101 @@ const steps = {
         <div class="note warn">Then stop talking.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
+          <button type="button" class="btn" onclick="goTo('pricing')">They asked "how much?"</button>
+        </div>
+      </div>
+    `
+  },
+
+  // ─── PRICING (only when THEY ask) ───
+  pricing: {
+    label: 'PRICING — LEAD WITH PRO ANNUAL',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">Step 1 — Lead with Pro founding annual</div>
+        <div class="dialogue">
+          "The full version is <strong>$12,000 for the year</strong> at founding rate — normally $18,000. That's a thousand a month. Bilingual English and Spanish, books jobs in ServiceTitan, 24/7 coverage, no setup fee."
+        </div>
+        <div class="note" style="color:var(--text-secondary);font-size:13px;margin-bottom:20px;">
+          <strong style="color:var(--accent);">Pro</strong> = 24/7 or fallback mode + ServiceTitan booking + bilingual<br>
+          <strong style="color:var(--text-secondary);">Lite</strong> = after-hours &amp; weekends only (no bilingual, no ServiceTitan)
+        </div>
+        <div class="dialogue-sm">
+          "There's also an after-hours version at $7,200 for the year — $600 a month. Covers evenings and weekends."
+        </div>
+        <div class="dialogue-sm">
+          "95% answer rate in 30 days or full refund. You keep everything we built."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">They said yes</button>
+          <button type="button" class="btn" onclick="goTo('pricing_pushback')">Push back on price</button>
+          <button type="button" class="btn" onclick="goTo('pricing_pushback_hard')">Push back hard</button>
+          <button type="button" class="btn" onclick="goTo('pricing_everything_no')">No to everything</button>
+        </div>
+      </div>
+    `
+  },
+
+  pricing_pushback: {
+    label: 'PRICING — DOWNSELL STEP 2',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">They pushed back — compare to answering service</div>
+        <div class="dialogue">
+          "What are you paying for your answering service right now? Most owners say $400-500 — and all they do is take a message."
+        </div>
+        <div class="dialogue-sm">
+          "This qualifies the lead, detects emergencies, texts you everything. And I'm waiving the setup fee for founding clients."
+        </div>
+        <div class="note" style="color:var(--text-secondary);">If they push back on annual commitment:</div>
+        <div class="dialogue-sm">
+          "Month-to-month is an option — Pro is $1,500/mo, Lite is $900/mo. The annual just saves you more."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">They said yes</button>
+          <button type="button" class="btn" onclick="goTo('pricing_pushback_hard')">Still pushing back</button>
+        </div>
+      </div>
+    `
+  },
+
+  pricing_pushback_hard: {
+    label: 'PRICING — DOWNSELL STEP 3',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">Hard push back — drop to Lite, then demo</div>
+        <div class="dialogue">
+          "There's the after-hours version — <strong>$600 a month</strong>. About what answering services charge, and this does 10x more."
+        </div>
+        <div class="note">If still no:</div>
+        <div class="dialogue-sm">
+          "Tell you what — let me show you how it works first. 10 minutes on Zoom. If it's not worth it, you'll know. When's good this week?"
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">Booked demo or said yes</button>
+          <button type="button" class="btn" onclick="goTo('pricing_everything_no')">No to everything</button>
+        </div>
+      </div>
+    `
+  },
+
+  pricing_everything_no: {
+    label: 'PRICING — LAST RESORT',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">Last resort only — free trial</div>
+        <div class="note warn">Only use this if they've said no to every price and you're about to lose them.</div>
+        <div class="dialogue">
+          "Look — I need a few owners to test this and give me honest feedback. What if I set it up on your line for 30 days, no charge? If it works, we talk about the paid version. If it doesn't, you tell me what's broken."
+        </div>
+        <div class="note warn">Never lead with free. Never offer free before they've heard the price and pushed back.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">They agreed</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">Still no — exit</button>
         </div>
       </div>
     `
