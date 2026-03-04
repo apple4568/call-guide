@@ -915,73 +915,102 @@ const steps = {
 
   // ─── PRICING (only when THEY ask) ───
   pricing: {
-    label: 'PRICING — LEAD WITH PRO ANNUAL',
+    label: 'PRICING — ONE NUMBER',
     stepIdx: 5,
     render: () => `
       <div class="fade-in">
-        <div class="label">Step 1 — Lead with Pro founding annual</div>
+        <div class="label">Say ONE number. Then shut up.</div>
         <div class="dialogue">
-          "The full version is <strong>$12,000 for the year</strong> at founding rate — normally $18,000. That's a thousand a month. Bilingual English and Spanish, books jobs in ServiceTitan, 24/7 coverage, no setup fee."
+          "Twelve grand for the year."
+          <span class="beat">Stop. Count to 8. Say nothing.</span>
         </div>
-        <div class="note" style="color:var(--text-secondary);font-size:13px;margin-bottom:20px;">
-          <strong style="color:var(--accent);">Pro</strong> = 24/7 or fallback mode + ServiceTitan booking + bilingual<br>
-          <strong style="color:var(--text-secondary);">Lite</strong> = after-hours &amp; weekends only (no bilingual, no ServiceTitan)
-        </div>
-        <div class="dialogue-sm">
-          "There's also an after-hours version at $7,200 for the year — $600 a month. Covers evenings and weekends."
-        </div>
-        <div class="dialogue-sm">
-          "95% answer rate in 30 days or full refund. You keep everything we built."
+        <div class="note" style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;">
+          They will react. Let them. Their next words tell you where to go.<br>
+          <strong style="color:var(--accent);">"That's it?"</strong> or silence = they're processing, stay quiet.<br>
+          <strong style="color:var(--accent);">"What do I get?"</strong> = go to features.<br>
+          <strong style="color:var(--accent);">"That's a lot"</strong> or wince = go to reframe.
         </div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">They said yes</button>
-          <button type="button" class="btn" onclick="goTo('pricing_pushback')">Push back on price</button>
-          <button type="button" class="btn" onclick="goTo('pricing_pushback_hard')">Push back hard</button>
-          <button type="button" class="btn" onclick="goTo('pricing_everything_no')">No to everything</button>
+          <button type="button" class="btn primary" onclick="goTo('pricing_features')">They asked what they get</button>
+          <button type="button" class="btn" onclick="goTo('pricing_reframe')">Sticker shock — reframe</button>
+          <button type="button" class="btn" onclick="goTo('done')">They said yes</button>
         </div>
       </div>
     `
   },
 
-  pricing_pushback: {
-    label: 'PRICING — DOWNSELL STEP 2',
+  pricing_features: {
+    label: 'PRICING — WHAT DO I GET?',
     stepIdx: 5,
     render: () => `
       <div class="fade-in">
-        <div class="label">They pushed back — compare to answering service</div>
+        <div class="label">Features — only because they asked</div>
         <div class="dialogue">
-          "What are you paying for your answering service right now? Most owners say $400-500 — and all they do is take a message."
+          "It answers every call — 24/7 or just after-hours, your choice. Speaks English and Spanish."
+          <span class="beat">Pause</span>
         </div>
-        <div class="dialogue-sm">
-          "This qualifies the lead, detects emergencies, texts you everything. And I'm waiving the setup fee for founding clients."
+        <div class="dialogue">
+          "Books the job straight into ServiceTitan while the caller's still on the phone. Texts you the lead details."
+          <span class="beat">Pause</span>
         </div>
-        <div class="note" style="color:var(--text-secondary);">If they push back on annual commitment:</div>
-        <div class="dialogue-sm">
-          "Month-to-month is an option — Pro is $1,500/mo, Lite is $900/mo. The annual just saves you more."
+        <div class="dialogue">
+          "No setup fee. That's founding rate — goes up to eighteen once I have case studies."
         </div>
+        <div class="note">Let them respond. Don't stack more.</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">They said yes</button>
-          <button type="button" class="btn" onclick="goTo('pricing_pushback_hard')">Still pushing back</button>
+          <button type="button" class="btn primary" onclick="goTo('done')">They're in</button>
+          <button type="button" class="btn" onclick="goTo('pricing_reframe')">Still too much</button>
+          <button type="button" class="btn" onclick="goTo('pricing_trade')">Want something cheaper</button>
         </div>
       </div>
     `
   },
 
-  pricing_pushback_hard: {
-    label: 'PRICING — DOWNSELL STEP 3',
+  pricing_reframe: {
+    label: 'PRICING — REFRAME THE NUMBER',
     stepIdx: 5,
     render: () => `
       <div class="fade-in">
-        <div class="label">Hard push back — drop to Lite, then demo</div>
+        <div class="label">Anchor to their loss — make the price feel small</div>
         <div class="dialogue">
-          "There's the after-hours version — <strong>$600 a month</strong>. About what answering services charge, and this does 10x more."
+          "What's your average ticket on a repair?"
+          <span class="beat">Wait for their number.</span>
         </div>
-        <div class="note">If still no:</div>
+        <div class="note" style="font-size:14px;color:var(--text-secondary);">Whatever they say, use it:</div>
+        <div class="dialogue">
+          "So one missed call is [THEIR NUMBER]. This catches maybe two, three of those a week. Pays for itself by week two."
+          <span class="beat">Stop. Let the math land.</span>
+        </div>
+        <div class="note">If they don't give a number, use: "Most guys I talk to are at $3,500-4,000 a job."</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">Math clicked — they're in</button>
+          <button type="button" class="btn" onclick="goTo('pricing_trade')">Still too much — trade down</button>
+          <button type="button" class="btn" onclick="goTo('pricing_everything_no')">Hard no on everything</button>
+        </div>
+      </div>
+    `
+  },
+
+  pricing_trade: {
+    label: 'PRICING — TRADE, NOT DISCOUNT',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">Drop features, not price. This is a trade.</div>
+        <div class="dialogue">
+          "There's a lighter version — after-hours and weekends only. Six hundred a month."
+          <span class="beat">Pause.</span>
+        </div>
+        <div class="note" style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+          <strong style="color:var(--accent);">What they lose:</strong> no bilingual, no ServiceTitan booking, no daytime coverage.<br>
+          <strong style="color:var(--text-secondary);">What they keep:</strong> AI answers after-hours, qualifies leads, texts you details, emergency detection.
+        </div>
+        <div class="note">If they push back on annual:</div>
         <div class="dialogue-sm">
-          "Tell you what — let me show you how it works first. 10 minutes on Zoom. If it's not worth it, you'll know. When's good this week?"
+          "Month-to-month is fifteen hundred for Pro, nine hundred for Lite. Annual just saves you more."
         </div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">Booked demo or said yes</button>
+          <button type="button" class="btn primary" onclick="goTo('done')">They committed</button>
           <button type="button" class="btn" onclick="goTo('pricing_everything_no')">No to everything</button>
         </div>
       </div>
@@ -993,12 +1022,14 @@ const steps = {
     stepIdx: 5,
     render: () => `
       <div class="fade-in">
-        <div class="label">Last resort only — free trial</div>
-        <div class="note warn">Only use this if they've said no to every price and you're about to lose them.</div>
+        <div class="label">Last resort — barter, not charity</div>
+        <div class="note warn">Only if they've said no to every price and you're about to lose them.</div>
         <div class="dialogue">
-          "Look — I need a few owners to test this and give me honest feedback. What if I set it up on your line for 30 days, no charge? If it works, we talk about the paid version. If it doesn't, you tell me what's broken."
+          "I'll be straight with you — I need a few owners to test this and tell me what's broken. What if I set it up for 30 days, no charge? You give me honest feedback. If it works, we talk numbers."
+          <span class="beat">Pause.</span>
         </div>
-        <div class="note warn">Never lead with free. Never offer free before they've heard the price and pushed back.</div>
+        <div class="note" style="color:var(--text-secondary);font-size:13px;">This is a barter — free setup in exchange for feedback + potential testimonial. Not a discount on the paid offer.</div>
+        <div class="note warn">Never lead with free. Never offer before they've heard real prices.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('done')">They agreed</button>
           <button type="button" class="btn" onclick="goTo('exit_clean')">Still no — exit</button>
