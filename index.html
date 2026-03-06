@@ -25,6 +25,9 @@
     --accent: #f59e0b;
     --accent-hover: #fbbf24;
     --accent-muted: rgba(245, 158, 11, 0.12);
+    --accent-student: #22c55e;
+    --accent-student-hover: #4ade80;
+    --accent-student-muted: rgba(34, 197, 94, 0.12);
     --green: #22c55e;
     --green-muted: rgba(34, 197, 94, 0.12);
     --red: #ef4444;
@@ -452,6 +455,13 @@
     height: 28px;
     color: var(--green);
   }
+
+  /* ─── Student mode green theme ─── */
+  body.student-mode {
+    --accent: var(--accent-student);
+    --accent-hover: var(--accent-student-hover);
+    --accent-muted: var(--accent-student-muted);
+  }
 </style>
 </head>
 <body>
@@ -545,9 +555,14 @@
     <div class="handler-group-label">Pricing</div>
 
     <div class="handler has-nav" onclick="navFromHandler('pricing')">
-      <div class="them">How much? <span class="nav-hint">→ Pricing flow</span></div>
-      <div class="you">If asked before Step 4 (The Turn): redirect — "I'll get to that — want to make sure it's even relevant for you first. What happens to your calls after hours?" Only route to pricing after the Turn.</div>
+      <div class="them">How much? — after the Turn <span class="nav-hint">→ Pricing flow</span></div>
+      <div class="you">"Twelve grand for the year." Then stop talking.</div>
       <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('pricing')">→ Go to pricing</button>
+    </div>
+
+    <div class="handler">
+      <div class="them">How much? — before the Turn</div>
+      <div class="you">"I'll get to that — want to make sure it's even relevant for you first. What happens to your calls after hours?"<br><span style="color:var(--text-muted);font-size:12px;">Don't route to pricing until after Step 4. Redirect back to pain discovery.</span></div>
     </div>
 
     <div class="handler">
@@ -712,11 +727,8 @@ const steps = {
       <div class="fade-in">
         <div class="label">Say this — fallback, do recon next time</div>
         <div class="dialogue">
-          "Hey <strong>${prospectName || '[NAME]'}</strong> — I've been talking to HVAC owners about how they handle after-hours calls."
+          "Hey <strong>${prospectName || '[NAME]'}</strong> — I'm a developer. I've been tracking missed calls across HVAC companies in [CITY]. Got 30 seconds?"
           <span class="beat">Pause</span>
-        </div>
-        <div class="dialogue">
-          "I'm a developer — I've been tracking missed calls across HVAC companies in [CITY]. Got 30 seconds?"
         </div>
         <div class="note">Wait for permission.</div>
         <div class="actions">
@@ -1097,7 +1109,7 @@ const steps = {
         </div>
         <div class="note">Whatever they say, use it:</div>
         <div class="dialogue-sm">
-          "That's where most owners I talk to feel the gap. Worth 10 minutes to see how they handle it?"
+          "That's where most owners I talk to feel the gap. Worth 10 minutes to see how other HVAC companies handle it?"
         </div>
         <div class="note warn">If they say no again — graceful exit. Don't push three times.</div>
         <div class="actions">
@@ -1248,7 +1260,8 @@ const steps = {
     stepIdx: 2,
     render: () => `
       <div class="fade-in">
-        <div class="label">Three beats. Each pause is a micro-consent checkpoint.</div>
+        <div class="label">The reveal — three beats</div>
+        <div class="note">Each pause is a micro-consent checkpoint. Don't rush.</div>
         <div class="note">Beat 1 — developer + problem:</div>
         <div class="dialogue">
           "I'm a developer — I've been building an AI phone answering system specifically for HVAC companies for the past few months. The tech works, I've been testing it."
@@ -1544,6 +1557,7 @@ const steps = {
 
 function setMode(m) {
   mode = m;
+  document.body.classList.toggle('student-mode', m === 'student');
   document.getElementById('modeStdBtn').className = m === 'standard' ? 'btn primary' : 'btn';
   document.getElementById('modeStuBtn').className = m === 'student' ? 'btn primary' : 'btn';
 }
@@ -1598,6 +1612,8 @@ function restart() {
   prospectName = '';
   reconTime = '';
   currentStep = 0;
+  document.body.classList.remove('student-mode');
+  mode = 'standard';
   goTo('prep');
 }
 
