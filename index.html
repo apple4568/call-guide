@@ -572,6 +572,40 @@
       <div class="you">"I'm a developer — I built an AI that answers HVAC calls after hours. Trying to figure out if it solves a real problem. What's your setup?"</div>
     </div>
 
+    <!-- ─── FREE PILOT (student mode) ─── -->
+    <div class="handler-group-label">Free Pilot — Student Mode</div>
+
+    <div class="handler">
+      <div class="them">What's the catch?</div>
+      <div class="you">"No catch. You run it 30 days and give me honest feedback. At the end, if it worked, I'll ask if you'd say so — a quick video or a text I can quote. No obligation to pay anything."</div>
+    </div>
+
+    <div class="handler">
+      <div class="them">Why is it free?</div>
+      <div class="you">"I have a demo but no proof it works on real HVAC calls at volume. That proof is worth more to me than money right now. Once I have 3 businesses running it and they're happy, I start charging. You'd be getting in before that."</div>
+    </div>
+
+    <div class="handler">
+      <div class="them">How long does the free last?</div>
+      <div class="you">"30 days, no strings. After that I'll ask if you want to continue. If yes, we talk pricing. If no, I remove it and we're done. Zero pressure either way."</div>
+    </div>
+
+    <div class="handler">
+      <div class="them">What if it doesn't work?</div>
+      <div class="you">"That's exactly why I'm calling it a test — I want to know. Real calls are different from controlled tests. If something breaks or sounds off, I fix it fast. You're not risking anything."</div>
+    </div>
+
+    <div class="handler">
+      <div class="them">I don't trust AI</div>
+      <div class="you">"I get that — a lot of it deserves that reputation. That's part of why I'm doing this free. Call the demo number right now. You'll hear it yourself."</div>
+    </div>
+
+    <div class="handler has-nav" onclick="navFromHandler('s_transition')">
+      <div class="them">30-day pilot ended — transition to paid <span class="nav-hint">→ Transition</span></div>
+      <div class="you">Opens the paid conversion script.</div>
+      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('s_transition')">→ Go to transition</button>
+    </div>
+
     <button type="button" class="btn" style="width:100%;margin-top:20px;" id="handlerCloseBtn" onclick="hideHandlers()">Close <kbd style="margin-left:6px;font-size:10px;opacity:0.5;">Esc</kbd></button>
   </div>
 </div>
@@ -580,6 +614,7 @@
 let prospectName = '';
 let reconTime = '';
 let currentStep = 0;
+let mode = 'standard'; // 'standard' | 'student'
 const totalSteps = 7;
 
 const steps = {
@@ -597,6 +632,11 @@ const steps = {
         <div class="input-group">
           <input type="text" id="nameInput" placeholder="Their name" autofocus aria-label="Prospect name">
           <input type="text" class="sm" id="timeInput" placeholder="Recon time" aria-label="Recon call time">
+        </div>
+        <div class="label" style="margin-top:20px;margin-bottom:10px;">Script mode</div>
+        <div class="actions" style="margin-bottom:16px;">
+          <button type="button" class="btn primary" id="modeStdBtn" onclick="setMode('standard')">Standard</button>
+          <button type="button" class="btn" id="modeStuBtn" onclick="setMode('student')">Free Pilot — Student</button>
         </div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="saveName()">Ready to dial</button>
@@ -1116,6 +1156,312 @@ const steps = {
     `
   },
 
+  // ─── STUDENT / FREE PILOT VARIANT ───
+
+  s_opener: {
+    label: 'S — OPENER',
+    stepIdx: 1,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">Pattern interrupt — 7 seconds</div>
+        <div class="dialogue">
+          "Hey <strong>${prospectName || '[NAME]'}</strong>, this is [YOUR NAME] — I'll be upfront, this is a cold call. But I'm not calling to sell you anything. Got 30 seconds?"
+        </div>
+        <div class="note">Wait. Say nothing.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('s_reveal')">They stayed</button>
+          <button type="button" class="btn" onclick="goTo('s_opener_ni')">Not interested</button>
+          <button type="button" class="btn" onclick="goTo('s_opener_busy')">Busy / rushed</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_opener_ni: {
+    label: 'S — OPENER',
+    stepIdx: 1,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">They said not interested — one more line</div>
+        <div class="dialogue">
+          "Totally fair. One more second — I'm actually offering something free. If that's still not interesting, I'll let you go."
+        </div>
+        <div class="note">Most will give you 20 more seconds.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('s_reveal')">They gave you more time</button>
+          <button type="button" class="btn" onclick="goTo('exit_after_nos')">Hard no — exit</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_opener_busy: {
+    label: 'S — OPENER',
+    stepIdx: 1,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">They sound busy — compress to 20 seconds</div>
+        <div class="dialogue">
+          "I'll be 20 seconds. I'm a developer, I built something for HVAC owners and I need your help testing it. Free. That's it."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('s_reveal')">They're listening</button>
+          <button type="button" class="btn" onclick="goTo('exit_after_nos')">Hard no — exit</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_reveal: {
+    label: 'S — THE REVEAL',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">30–40 seconds — say this</div>
+        <div class="dialogue">
+          "I'm a developer — I've been building an AI phone answering system specifically for HVAC companies for the past few months. The tech works, I've been testing it. But I need 2 or 3 real businesses to run it on their actual phone line — with real customer calls — before I feel right about charging anyone."
+          <span class="beat">Pause</span>
+        </div>
+        <div class="dialogue">
+          "So I'm offering it free for 30 days to a handful of HVAC owners. No charge, I set it up, I maintain it. You just tell me honestly if it's working."
+          <span class="beat">Pause. Let them react.</span>
+        </div>
+        <div class="dialogue">
+          "Here's the thing — you know your customers and your business way better than I ever could. I can build the tech, but I need someone who actually knows HVAC to tell me if the AI's asking the right questions, saying the right things. You'd be telling me what works in the real world. That's the trade."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('s_credibility')">They're listening — keep going</button>
+          <button type="button" class="btn" onclick="goTo('s_why_hvac')">They asked "why HVAC?"</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_why_hvac: {
+    label: 'S — WHY HVAC',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">If they ask why HVAC</div>
+        <div class="dialogue">
+          "I spent a month looking at which industry had the worst missed-call problem. HVAC was it — your customers are calling in emergencies. 85% of them won't call back if they hit voicemail. They just call the next guy. At your ticket size, that's one missed call gone."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('s_credibility')">Continue</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_credibility: {
+    label: 'S — CREDIBILITY',
+    stepIdx: 3,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">Get them to call the demo line — this is the pivot</div>
+        <div class="dialogue">
+          "I can show you how it works right now if you want. I'll text you a number — you call it, say something like 'my AC stopped working,' and watch what it does. Takes 90 seconds. That way you can decide if it's even worth your time."
+        </div>
+        <div class="note warn">Getting them to call the demo line is the most important step. Once they hear it, they're evaluating something real — not an idea.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('s_ask')">They called it / ready to hear the ask</button>
+          <button type="button" class="btn" onclick="goTo('s_ask')">Skip demo — just tell me more</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_ask: {
+    label: 'S — THE ASK',
+    stepIdx: 4,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">Specific, low-friction ask</div>
+        <div class="dialogue">
+          "I'm trying to get 3 businesses set up this week. Takes 5 days on my end to get it running — I need your phone number and about 10 minutes to walk through what you'd want the AI to say. You don't touch anything after that."
+          <span class="beat">Pause</span>
+        </div>
+        <div class="dialogue">
+          "Would you be open to being one of the three?"
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('s_close')">Yes / open to it</button>
+          <button type="button" class="btn" onclick="goTo('s_obj_catch')">What's the catch?</button>
+          <button type="button" class="btn" onclick="goTo('s_obj_why_free')">Why is it free?</button>
+          <button type="button" class="btn" onclick="goTo('s_obj_no_time')">No time / sounds like hassle</button>
+          <button type="button" class="btn" onclick="goTo('s_obj_have_system')">Already have a system</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">Not interested — exit</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_obj_catch: {
+    label: 'S — OBJECTION',
+    stepIdx: 4,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">"What's the catch?"</div>
+        <div class="dialogue">
+          "No catch. The deal is: you run it for 30 days and give me honest feedback. If something's off, you tell me. At the end, if it worked for you, I'll ask if you'd be willing to say so — a quick video or a text I can quote. That's it. No obligation to pay anything."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('s_close')">They're satisfied — close</button>
+          <button type="button" class="btn" onclick="goTo('s_ask')">More questions</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_obj_why_free: {
+    label: 'S — OBJECTION',
+    stepIdx: 4,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">"Why is it free?"</div>
+        <div class="dialogue">
+          "Because right now I have a demo but I don't have proof it works on real HVAC calls at volume. That proof is worth more to me than money at this stage. Once I have 3 businesses running it and they're happy, I start charging the next ones. You'd be getting in before that."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('s_close')">They're satisfied — close</button>
+          <button type="button" class="btn" onclick="goTo('s_ask')">More questions</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_obj_no_time: {
+    label: 'S — OBJECTION',
+    stepIdx: 4,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">"No time / sounds like a hassle"</div>
+        <div class="dialogue">
+          "Setup is 10 minutes on your end — total. You answer a few questions about what you want the AI to say. I build it. You don't touch anything after that."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('s_close')">They're satisfied — close</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">Still no — exit</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_obj_have_system: {
+    label: 'S — OBJECTION',
+    stepIdx: 4,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">"Already have a system / we're fine"</div>
+        <div class="dialogue">
+          "That's fair. Even if it just confirms your current setup works better — that's useful for me. And if it catches one or two calls your system misses, you're ahead. Thirty days, no cost."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('s_close')">They're open — close</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">Still no — exit</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_close: {
+    label: 'S — CLOSE',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">Book the setup call — text demo number now</div>
+        <div class="dialogue">
+          "Can I text you the demo number right now? Call it, say your AC broke — takes 90 seconds. If it sounds like something your callers would buy, we do 10 minutes this week and I'll have it live by [DAY]."
+        </div>
+        <div class="note warn">Text the demo number immediately — while they're on the phone.</div>
+        <div class="note">After they call the demo:</div>
+        <div class="dialogue-sm">"What did you think — did it sound like it'd work for your callers?"</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('s_close_yes')">Positive reaction</button>
+          <button type="button" class="btn" onclick="goTo('s_close_concern')">They had concerns</button>
+          <button type="button" class="btn" onclick="goTo('done')">Setup call booked — done</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_close_yes: {
+    label: 'S — CLOSE',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">Positive reaction — book it</div>
+        <div class="dialogue">
+          "Great. Let's get it on your line. I'll have it live by [DAY]. What's the best number to set it up on?"
+        </div>
+        <div class="note warn">Then stop talking. Get the number. Book the 10-minute setup call.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">Setup booked — call done</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_close_concern: {
+    label: 'S — CLOSE',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">They had concerns — lean into it</div>
+        <div class="dialogue">
+          "That's exactly the kind of thing I need to hear. Let's still set it up — your feedback mid-month is actually more useful than a perfect demo. What was off?"
+        </div>
+        <div class="note">Listen. Then:</div>
+        <div class="dialogue-sm">"Perfect — let's get it live and you can tell me if that changes. What's the best number?"</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">Setup booked — call done</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">Hard no — exit</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_transition: {
+    label: 'S — TRANSITION TO PAID',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">After 30-day pilot — converting to paid</div>
+        <div class="dialogue">
+          "Hey <strong>${prospectName || '[NAME]'}</strong>, we're at 30 days. How'd it go?"
+          <span class="beat">Listen. Note specifics — calls answered, jobs booked, emergencies caught.</span>
+        </div>
+        <div class="dialogue">
+          "Glad that worked. Here's where I'm at — I'm starting to charge for this now. For you, since you were one of the first: founding rate. Pro is $1,000 a month, or $12,000 for the year — that's $6,000 off standard and no setup fee."
+          <span class="beat">Pause.</span>
+        </div>
+        <div class="dialogue">"Want to keep it going?"</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('pricing')">Yes — go to pricing flow</button>
+          <button type="button" class="btn" onclick="goTo('s_transition_no')">Needs time / no</button>
+        </div>
+      </div>
+    `
+  },
+
+  s_transition_no: {
+    label: 'S — TRANSITION',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">They need time or said no</div>
+        <div class="dialogue">
+          "Totally fair. I'm holding the founding rate for another week. After that the price goes up — it's not a line, prices actually do increase every 5 clients."
+          <span class="beat">Pause.</span>
+        </div>
+        <div class="note">If they say no entirely: "No problem. Can I ask — was it the results, or more the price?" Then ask for the testimonial regardless.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
+        </div>
+      </div>
+    `
+  },
+
   done: {
     label: 'DONE',
     stepIdx: 6,
@@ -1138,12 +1484,18 @@ const steps = {
   }
 };
 
+function setMode(m) {
+  mode = m;
+  document.getElementById('modeStdBtn').className = m === 'standard' ? 'btn primary' : 'btn';
+  document.getElementById('modeStuBtn').className = m === 'student' ? 'btn primary' : 'btn';
+}
+
 function saveName() {
   const nameEl = document.getElementById('nameInput');
   const timeEl = document.getElementById('timeInput');
   if (nameEl) prospectName = nameEl.value.trim() || '';
   if (timeEl) reconTime = timeEl.value.trim() || '';
-  goTo('opener');
+  goTo(mode === 'student' ? 's_opener' : 'opener');
 }
 
 function goTo(stepKey) {
