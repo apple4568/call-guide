@@ -485,9 +485,10 @@
       <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('done')">→ End call</button>
     </div>
 
-    <div class="handler">
-      <div class="them">First pushback</div>
+    <div class="handler has-nav" onclick="navFromHandler('second_layer')">
+      <div class="them">First pushback <span class="nav-hint">→ Layer 2</span></div>
       <div class="you">"Totally fair. Can I ask one thing — is it because you've got something in place, you handle it yourself, or bad timing?"</div>
+      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('second_layer')">→ Layer 2</button>
     </div>
 
     <div class="handler has-nav" onclick="navFromHandler('exit_after_nos')">
@@ -545,7 +546,7 @@
 
     <div class="handler has-nav" onclick="navFromHandler('pricing')">
       <div class="them">How much? <span class="nav-hint">→ Pricing flow</span></div>
-      <div class="you">Opens the full pricing flow with downsell ladder.</div>
+      <div class="you">If asked before Step 4 (The Turn): redirect — "I'll get to that — want to make sure it's even relevant for you first. What happens to your calls after hours?" Only route to pricing after the Turn.</div>
       <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('pricing')">→ Go to pricing</button>
     </div>
 
@@ -671,7 +672,7 @@ const steps = {
           <span class="beat">Beat — one second of silence</span>
         </div>
         <div class="dialogue">
-          "I'm a developer — can I ask you something real quick?"
+          "I'm a developer — HVAC companies miss 37% of their calls. I built something that fixes that. Got 30 seconds?"
         </div>
         <div class="note">Wait for permission. Say nothing until they respond.</div>
         <div class="actions">
@@ -693,7 +694,7 @@ const steps = {
           <span class="beat">Beat</span>
         </div>
         <div class="dialogue">
-          "I'm a developer — can I ask you something real quick?"
+          "I'm a developer — that answering service takes a message. Doesn't qualify the caller, doesn't book the job. Got 30 seconds?"
         </div>
         <div class="note">Wait for permission.</div>
         <div class="actions">
@@ -715,7 +716,7 @@ const steps = {
           <span class="beat">Pause</span>
         </div>
         <div class="dialogue">
-          "I'm a developer — can I ask you something real quick?"
+          "I'm a developer — I've been tracking missed calls across HVAC companies in [CITY]. Got 30 seconds?"
         </div>
         <div class="note">Wait for permission.</div>
         <div class="actions">
@@ -922,9 +923,14 @@ const steps = {
         <div class="dialogue-sm">
           "I'll send it over today. It's a 30-second clip of how it sounds plus what the text looks like that comes to your phone. Would really appreciate your honest take on it."
         </div>
-        <div class="note warn">That's the call. You're done. Don't keep selling.</div>
+        <div class="note warn">Send the clip immediately — then push ONCE for a follow-up call:</div>
+        <div class="dialogue-sm">
+          "I'll send it right now. When can we do 10 minutes to walk through it — Tuesday or Wednesday work?"
+        </div>
+        <div class="note">"Send me info" twice = take the email and go. One push for the call, then stop.</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
+          <button type="button" class="btn primary" onclick="goTo('done')">Follow-up booked</button>
+          <button type="button" class="btn" onclick="goTo('done')">They only want the clip — done</button>
           <button type="button" class="btn" onclick="goTo('pricing')">They asked "how much?"</button>
         </div>
       </div>
@@ -1078,6 +1084,30 @@ const steps = {
     `
   },
 
+  second_layer: {
+    label: 'LAYER 2 — RE-ENGAGE',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">Second layer — signal expertise, re-ask</div>
+        <div class="note">They pushed back once. Don't exit yet. Ask one expertise question, then re-ask.</div>
+        <div class="dialogue">
+          "Got it. Can I ask — what does your current setup do when someone calls at 9 PM on a Saturday?"
+          <span class="beat">Wait. Let them answer.</span>
+        </div>
+        <div class="note">Whatever they say, use it:</div>
+        <div class="dialogue-sm">
+          "That's where most owners I talk to feel the gap. Worth 10 minutes to see how they handle it?"
+        </div>
+        <div class="note warn">If they say no again — graceful exit. Don't push three times.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('turn')">They opened up — continue</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">Still no — exit</button>
+        </div>
+      </div>
+    `
+  },
+
   exit_clean: {
     label: 'EXIT',
     stepIdx: 6,
@@ -1163,6 +1193,7 @@ const steps = {
     stepIdx: 1,
     render: () => `
       <div class="fade-in">
+        <div class="note warn">REQUIRES RECON: Do one call first. If you got voicemail, add: "I called your shop at [TIME] — went to voicemail." Then lead into the opener below.</div>
         <div class="label">Pattern interrupt — 7 seconds</div>
         <div class="dialogue">
           "Hey <strong>${prospectName || '[NAME]'}</strong>, this is [YOUR NAME] — I'll be upfront, this is a cold call. But I'm not calling to sell you anything. Got 30 seconds?"
@@ -1217,17 +1248,24 @@ const steps = {
     stepIdx: 2,
     render: () => `
       <div class="fade-in">
-        <div class="label">30–40 seconds — say this</div>
+        <div class="label">Three beats. Each pause is a micro-consent checkpoint.</div>
+        <div class="note">Beat 1 — developer + problem:</div>
         <div class="dialogue">
-          "I'm a developer — I've been building an AI phone answering system specifically for HVAC companies for the past few months. The tech works, I've been testing it. But I need 2 or 3 real businesses to run it on their actual phone line — with real customer calls — before I feel right about charging anyone."
-          <span class="beat">Pause</span>
+          "I'm a developer — I've been building an AI phone answering system specifically for HVAC companies for the past few months. The tech works, I've been testing it."
+          <span class="beat">Pause — let them say "okay" or "uh huh." Don't fill it.</span>
         </div>
+        <div class="note">Beat 2 — why you need them:</div>
+        <div class="dialogue">
+          "But I need 2 or 3 real businesses to run it on their actual phone line — with real customer calls — before I feel right about charging anyone."
+          <span class="beat">Pause — wait for their reaction. This is where they lean in or check out.</span>
+        </div>
+        <div class="note">Beat 3 — the offer:</div>
         <div class="dialogue">
           "So I'm offering it free for 30 days to a handful of HVAC owners. No charge, I set it up, I maintain it. You just tell me honestly if it's working."
-          <span class="beat">Pause. Let them react.</span>
+          <span class="beat">Pause. This is the moment. Say nothing. Let it land.</span>
         </div>
-        <div class="dialogue">
-          "Here's the thing — you know your customers and your business way better than I ever could. I can build the tech, but I need someone who actually knows HVAC to tell me if the AI's asking the right questions, saying the right things. You'd be telling me what works in the real world. That's the trade."
+        <div class="dialogue-sm">
+          "Here's the thing — you know your customers and your business way better than I ever could. I can build the tech, but I need someone who actually knows HVAC to tell me if the AI's asking the right questions. That's the trade."
         </div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('s_credibility')">They're listening — keep going</button>
@@ -1277,6 +1315,11 @@ const steps = {
     render: () => `
       <div class="fade-in">
         <div class="label">Specific, low-friction ask</div>
+        <div class="note">Set the competitive scarcity first:</div>
+        <div class="dialogue-sm">
+          "I've already got one HVAC company running it in Austin. I'm looking for two more in DFW — once I have three running, I'm closing the free window."
+          <span class="beat">Pause.</span>
+        </div>
         <div class="dialogue">
           "I'm trying to get 3 businesses set up this week. Takes 5 days on my end to get it running — I need your phone number and about 10 minutes to walk through what you'd want the AI to say. You don't touch anything after that."
           <span class="beat">Pause</span>
@@ -1305,9 +1348,11 @@ const steps = {
         <div class="dialogue">
           "No catch. The deal is: you run it for 30 days and give me honest feedback. If something's off, you tell me. At the end, if it worked for you, I'll ask if you'd be willing to say so — a quick video or a text I can quote. That's it. No obligation to pay anything."
         </div>
+        <div class="note">Now re-ask directly. One push — if they say no again, graceful exit.</div>
+        <div class="dialogue-sm">"Does that make sense? Would you be open to being one of the three?"</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_close')">They're satisfied — close</button>
-          <button type="button" class="btn" onclick="goTo('s_ask')">More questions</button>
+          <button type="button" class="btn primary" onclick="goTo('s_close')">Yes — close</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">No again — exit</button>
         </div>
       </div>
     `
@@ -1322,9 +1367,11 @@ const steps = {
         <div class="dialogue">
           "Because right now I have a demo but I don't have proof it works on real HVAC calls at volume. That proof is worth more to me than money at this stage. Once I have 3 businesses running it and they're happy, I start charging the next ones. You'd be getting in before that."
         </div>
+        <div class="note">Now re-ask directly. One push — if they say no again, graceful exit.</div>
+        <div class="dialogue-sm">"Does that make sense? Would you be open to being one of the three?"</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_close')">They're satisfied — close</button>
-          <button type="button" class="btn" onclick="goTo('s_ask')">More questions</button>
+          <button type="button" class="btn primary" onclick="goTo('s_close')">Yes — close</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">No again — exit</button>
         </div>
       </div>
     `
@@ -1339,9 +1386,11 @@ const steps = {
         <div class="dialogue">
           "Setup is 10 minutes on your end — total. You answer a few questions about what you want the AI to say. I build it. You don't touch anything after that."
         </div>
+        <div class="note">Now re-ask directly. One push — if they say no again, graceful exit.</div>
+        <div class="dialogue-sm">"Would you be open to being one of the three?"</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_close')">They're satisfied — close</button>
-          <button type="button" class="btn" onclick="goTo('exit_clean')">Still no — exit</button>
+          <button type="button" class="btn primary" onclick="goTo('s_close')">Yes — close</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">No again — exit</button>
         </div>
       </div>
     `
@@ -1356,9 +1405,11 @@ const steps = {
         <div class="dialogue">
           "That's fair. Even if it just confirms your current setup works better — that's useful for me. And if it catches one or two calls your system misses, you're ahead. Thirty days, no cost."
         </div>
+        <div class="note">Now re-ask directly. One push — if they say no again, graceful exit.</div>
+        <div class="dialogue-sm">"Would you be open to being one of the three?"</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_close')">They're open — close</button>
-          <button type="button" class="btn" onclick="goTo('exit_clean')">Still no — exit</button>
+          <button type="button" class="btn primary" onclick="goTo('s_close')">Yes — close</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">No again — exit</button>
         </div>
       </div>
     `
@@ -1395,6 +1446,8 @@ const steps = {
           "Great. Let's get it on your line. I'll have it live by [DAY]. What's the best number to set it up on?"
         </div>
         <div class="note warn">Then stop talking. Get the number. Book the 10-minute setup call.</div>
+        <div class="note">Prime the paid frame NOW — before the 30 days start:</div>
+        <div class="dialogue-sm">"By the way — when this works, I want to show you what this goes for commercially. I want you to see the value before we ever talk numbers."</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('done')">Setup booked — call done</button>
         </div>
@@ -1430,6 +1483,11 @@ const steps = {
         <div class="dialogue">
           "Hey <strong>${prospectName || '[NAME]'}</strong>, we're at 30 days. How'd it go?"
           <span class="beat">Listen. Note specifics — calls answered, jobs booked, emergencies caught.</span>
+        </div>
+        <div class="note">Anchor to their specific results first — let them sell themselves:</div>
+        <div class="dialogue-sm">
+          "Before I get to numbers — you mentioned [X calls] at week 2. What was the one call the AI handled that surprised you most?"
+          <span class="beat">Listen. Let them talk. Don't jump to pricing until they've articulated what worked.</span>
         </div>
         <div class="dialogue">
           "Glad that worked. Here's where I'm at — I'm starting to charge for this now. For you, since you were one of the first: founding rate. Pro is $1,000 a month, or $12,000 for the year — that's $6,000 off standard and no setup fee."
