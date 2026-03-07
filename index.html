@@ -348,6 +348,7 @@
     max-height: 80vh;
     overflow-y: auto;
     box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+    -webkit-overflow-scrolling: touch;
   }
   .overlay-panel h3 {
     font-size: 14px;
@@ -355,8 +356,53 @@
     text-transform: uppercase;
     letter-spacing: 1.2px;
     color: var(--accent);
-    margin-bottom: 20px;
+    margin-bottom: 12px;
   }
+
+  /* ─── Handler tab bar ─── */
+  .handler-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    position: sticky;
+    top: -28px;
+    background: var(--bg-surface);
+    padding: 8px 0 12px;
+    z-index: 2;
+    border-bottom: 1px solid var(--border);
+  }
+  .handler-tab {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-base);
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+  .handler-tab:hover {
+    border-color: var(--border-hover);
+    color: var(--text-secondary);
+  }
+  .handler-tab.active {
+    background: var(--accent-muted);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .handler-tab.green { color: var(--green); }
+  .handler-tab.green.active {
+    background: var(--green-muted);
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .handler-section { display: none; }
+  .handler-section.active { display: block; }
 
   .handler-group-label {
     font-size: 10px;
@@ -368,7 +414,7 @@
     border-top: 1px solid var(--border);
     margin-top: 4px;
   }
-  .handler-group-label:first-of-type {
+  .handler-group-label:first-child {
     border-top: none;
     padding-top: 0;
     margin-top: 0;
@@ -399,6 +445,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
   }
   .handler .them .nav-hint {
     font-size: 9px;
@@ -509,135 +556,181 @@
   <div class="overlay-panel" id="handlerPanel">
     <h3>Quick Handlers</h3>
 
-    <!-- ─── COMMON (top 5, always relevant) ─── -->
-    <div class="handler-group-label">Common</div>
-
-    <div class="handler has-nav" onclick="navFromHandler('done')">
-      <div class="them">Busy / bad time <span class="nav-hint">→ Done</span></div>
-      <div class="you">"Totally — can I call you back at [TIME]?"</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('done')">→ End call</button>
+    <div class="handler-tabs" id="handlerTabs">
+      <button type="button" class="handler-tab active" onclick="showTab('common')">Common</button>
+      <button type="button" class="handler-tab" onclick="showTab('objections')">Objections</button>
+      <button type="button" class="handler-tab" onclick="showTab('pricing')">Pricing</button>
+      <button type="button" class="handler-tab" onclick="showTab('questions')">Questions</button>
+      <button type="button" class="handler-tab green" onclick="showTab('pilot')">Free Pilot</button>
+      <button type="button" class="handler-tab" onclick="showTab('nav')">Jump To</button>
     </div>
 
-    <div class="handler">
-      <div class="them">First pushback</div>
-      <div class="you">"Totally fair. Can I ask one thing — is it because you've got something in place, you handle it yourself, or bad timing?"</div>
-    </div>
+    <!-- ─── COMMON ─── -->
+    <div class="handler-section active" id="tab-common">
+      <div class="handler has-nav" onclick="navFromHandler('done')">
+        <div class="them">Busy / bad time <span class="nav-hint">→ Done</span></div>
+        <div class="you">"Totally — can I call you back at [TIME]?"</div>
+        <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('done')">→ End call</button>
+      </div>
 
-    <div class="handler has-nav" onclick="navFromHandler('exit_after_nos')">
-      <div class="them">Hard no — they mean it <span class="nav-hint">→ Exit</span></div>
-      <div class="you">"That makes sense. Appreciate your time. If you ever notice calls slipping through, you've got my number."</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('exit_after_nos')">→ Go to exit</button>
-    </div>
+      <div class="handler">
+        <div class="them">First pushback</div>
+        <div class="you">"Totally fair. Can I ask one thing — is it because you've got something in place, you handle it yourself, or bad timing?"</div>
+      </div>
 
-    <div class="handler">
-      <div class="them">Send me info — first time</div>
-      <div class="you">"For sure. But seeing it live is 10x better — 10 min on Zoom. If not, I'll send a 30-sec clip. What works better?"</div>
-    </div>
+      <div class="handler has-nav" onclick="navFromHandler('exit_after_nos')">
+        <div class="them">Hard no — they mean it <span class="nav-hint">→ Exit</span></div>
+        <div class="you">"That makes sense. Appreciate your time. If you ever notice calls slipping through, you've got my number."</div>
+        <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('exit_after_nos')">→ Go to exit</button>
+      </div>
 
-    <div class="handler has-nav" onclick="navFromHandler('done')">
-      <div class="them">Send me info — insistent <span class="nav-hint">→ Done</span></div>
-      <div class="you">"Totally — what's your email?"</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('done')">→ End call</button>
+      <div class="handler">
+        <div class="them">Send me info — first time</div>
+        <div class="you">"For sure. But seeing it live is 10x better — 10 min on Zoom. If not, I'll send a 30-sec clip. What works better?"</div>
+      </div>
+
+      <div class="handler has-nav" onclick="navFromHandler('done')">
+        <div class="them">Send me info — insistent <span class="nav-hint">→ Done</span></div>
+        <div class="you">"Totally — what's your email?"</div>
+        <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('done')">→ End call</button>
+      </div>
     </div>
 
     <!-- ─── OBJECTIONS ─── -->
-    <div class="handler-group-label">Objections</div>
+    <div class="handler-section" id="tab-objections">
+      <div class="handler">
+        <div class="them">I answer all my calls</div>
+        <div class="you">"That's dedication. What happens at 10 PM on a Saturday?"</div>
+      </div>
 
-    <div class="handler">
-      <div class="them">I answer all my calls</div>
-      <div class="you">"That's dedication. What happens at 10 PM on a Saturday?"</div>
-    </div>
+      <div class="handler">
+        <div class="them">Everything's fine / don't miss many</div>
+        <div class="you">"That's better than most. What's your setup?"<br>Then: "What about when you're on a job or it's late?"</div>
+      </div>
 
-    <div class="handler">
-      <div class="them">Everything's fine / don't miss many</div>
-      <div class="you">"That's better than most. What's your setup?"<br>Then: "What about when you're on a job or it's late?"</div>
-    </div>
+      <div class="handler">
+        <div class="them">Someone already called about this</div>
+        <div class="you">"Yeah, there's a lot of that. What did the other one get wrong?"</div>
+      </div>
 
-    <div class="handler">
-      <div class="them">Someone already called about this</div>
-      <div class="you">"Yeah, there's a lot of that. What did the other one get wrong?"</div>
-    </div>
+      <div class="handler">
+        <div class="them">Got burned by AI / don't trust AI</div>
+        <div class="you">"That's why I'm calling owners instead of guessing. What went wrong?"</div>
+      </div>
 
-    <div class="handler">
-      <div class="them">Got burned by AI / don't trust AI</div>
-      <div class="you">"That's why I'm calling owners instead of guessing. What went wrong?"</div>
-    </div>
+      <div class="handler">
+        <div class="them">Need to think about it</div>
+        <div class="you">"Totally fair. Is it more the price, or whether the AI actually works?"<br><br>If it's whether it works: "95% answer rate in 30 days or full refund. You keep everything we built."</div>
+      </div>
 
-    <div class="handler">
-      <div class="them">Need to think about it</div>
-      <div class="you">"Totally fair. Is it more the price, or whether the AI actually works? Because if it's whether it works — 95% answer rate in 30 days or full refund. You keep everything we built."</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">Gatekeeper — not the owner</div>
-      <div class="you">"Oh, you deal with the phones? You probably know more than the owner. What happens to calls after you close?"</div>
+      <div class="handler">
+        <div class="them">Gatekeeper — not the owner</div>
+        <div class="you">"Oh, you deal with the phones? You probably know more than the owner. What happens to calls after you close?"</div>
+      </div>
     </div>
 
     <!-- ─── PRICING ─── -->
-    <div class="handler-group-label">Pricing</div>
+    <div class="handler-section" id="tab-pricing">
+      <div class="handler has-nav" onclick="navFromHandler('pricing')">
+        <div class="them">How much? <span class="nav-hint">→ Pricing flow</span></div>
+        <div class="you">Opens the full pricing flow with downsell ladder.</div>
+        <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('pricing')">→ Go to pricing</button>
+      </div>
 
-    <div class="handler has-nav" onclick="navFromHandler('pricing')">
-      <div class="them">How much? <span class="nav-hint">→ Pricing flow</span></div>
-      <div class="you">Opens the full pricing flow with downsell ladder.</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('pricing')">→ Go to pricing</button>
-    </div>
+      <div class="handler">
+        <div class="them">Too expensive</div>
+        <div class="you">"What are you paying for your answering service? This does 10x more. And there's a Lite version — $600/mo, after-hours only."</div>
+      </div>
 
-    <div class="handler">
-      <div class="them">Too expensive</div>
-      <div class="you">"What are you paying for your answering service? This does 10x more. And there's a Lite version — $600/mo, after-hours only."</div>
-    </div>
+      <div class="handler">
+        <div class="them">What's the difference between the two?</div>
+        <div class="you">"Pro: bilingual, ServiceTitan booking, 24/7 or after-hours."<br><br>"Lite: after-hours and weekends only. Same AI, same lead texts — no bilingual, no ServiceTitan, no daytime."</div>
+      </div>
 
-    <div class="handler">
-      <div class="them">What's the difference between the two?</div>
-      <div class="you">"Pro: bilingual, ServiceTitan booking, choose your coverage — 24/7, after-hours, or fallback."<br><br>"Lite: after-hours and weekends only. Same AI, same lead texts — no bilingual, no ServiceTitan, no daytime."</div>
+      <div class="handler-group-label">Guarantee</div>
+
+      <div class="handler">
+        <div class="them">What if it doesn't work?</div>
+        <div class="you">"95% answer rate in 30 days or full refund. You keep everything we built — the AI, the phone number, the setup. I eat the cost."</div>
+      </div>
+
+      <div class="handler">
+        <div class="them">That's a big commitment</div>
+        <div class="you">"Tell you what — one missed call at $3,500 pays for two months. If it doesn't catch at least two in the first 30 days, I'll refund you in full. You keep everything."</div>
+      </div>
     </div>
 
     <!-- ─── QUESTIONS ─── -->
-    <div class="handler-group-label">Questions</div>
+    <div class="handler-section" id="tab-questions">
+      <div class="handler">
+        <div class="them">What does it do?</div>
+        <div class="you">"It answers calls when you can't, qualifies the lead, and texts you the details so you can call back and close the job. No more lost calls."</div>
+      </div>
 
-    <div class="handler">
-      <div class="them">What does it do?</div>
-      <div class="you">"It answers calls when you can't, qualifies the lead, and books the job into your system. You get a text with the details. Can I send you a quick clip?"</div>
+      <div class="handler">
+        <div class="them">What's this about? / Are you selling something?</div>
+        <div class="you"><strong>Standard:</strong> "I'm a developer — I built an AI that answers HVAC calls after hours. Trying to figure out if it solves a real problem. What's your setup?"<br><strong>Student:</strong> "I'm a student researching how HVAC companies handle after-hours calls. Trying to figure out if there's a real gap. What's your setup?"</div>
+      </div>
+
+      <div class="handler">
+        <div class="them">How is this different from an answering service?</div>
+        <div class="you">"An answering service takes a name and number. This actually qualifies the call — finds out what's wrong, how urgent it is, and texts you the full picture. You call back ready to close, not playing phone tag."</div>
+      </div>
+
+      <div class="handler">
+        <div class="them">Do you have any customers?</div>
+        <div class="you">"A couple of founding clients testing it now. What's your biggest headache with phones?"</div>
+      </div>
     </div>
 
-    <div class="handler">
-      <div class="them">What's this about? / Are you selling something?</div>
-      <div class="you"><strong>Standard:</strong> "I'm a developer — I built an AI that answers HVAC calls after hours. Trying to figure out if it solves a real problem. What's your setup?"<br><strong>Student:</strong> "I'm a student researching how HVAC companies handle after-hours calls. Trying to figure out if there's a real gap. What's your setup?"</div>
+    <!-- ─── FREE PILOT ─── -->
+    <div class="handler-section" id="tab-pilot">
+      <div class="handler">
+        <div class="them">What's the catch?</div>
+        <div class="you">"No catch. I have a demo but no proof it works on real HVAC calls at volume. That proof is worth more than money right now. You run it 30 days, give me honest feedback. If it worked, I ask for a testimonial. No obligation to pay."</div>
+      </div>
+
+      <div class="handler">
+        <div class="them">Why is it free?</div>
+        <div class="you">"I need 2-3 real businesses running it before I feel right charging anyone. Once they're happy, I start charging. You'd be getting in before that."</div>
+      </div>
+
+      <div class="handler">
+        <div class="them">What if it doesn't work?</div>
+        <div class="you">"That's exactly why I'm calling it a test. If something's off, I fix it fast. You're not risking anything — it's free."</div>
+      </div>
+
+      <div class="handler">
+        <div class="them">I don't have time for setup</div>
+        <div class="you">"Setup is 10 minutes on your end — total. You answer a few questions, I build it, you don't touch it again."</div>
+      </div>
     </div>
 
-    <!-- ─── FREE PILOT (only after discovery) ─── -->
-    <div class="handler-group-label" style="color:var(--green);">Free Pilot (use after discovery only)</div>
+    <!-- ─── JUMP TO ─── -->
+    <div class="handler-section" id="tab-nav">
+      <div class="handler has-nav" onclick="navFromHandler('variantB_opener')">
+        <div class="them">Student flow <span class="nav-hint">→ Variant B</span></div>
+        <div class="you">Jump to the student question-led opener.</div>
+        <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('variantB_opener')">→ Go to Student flow</button>
+      </div>
 
-    <div class="handler">
-      <div class="them">What's the catch?</div>
-      <div class="you">"No catch. I have a demo but no proof it works on real HVAC calls at volume. That proof is worth more than money right now. You run it 30 days, give me honest feedback. If it worked, I ask for a testimonial. No obligation to pay."</div>
-    </div>
+      <div class="handler has-nav" onclick="navFromHandler('variantB_free_offer')">
+        <div class="them">Free pilot offer <span class="nav-hint">→ Free Pilot</span></div>
+        <div class="you">Use only after discovery — they're interested but won't commit to paid.</div>
+        <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('variantB_free_offer')">→ Go to Free Pilot</button>
+      </div>
 
-    <div class="handler">
-      <div class="them">Why is it free?</div>
-      <div class="you">"I need 2-3 real businesses running it before I feel right charging anyone. Once they're happy, I start charging. You'd be getting in before that."</div>
-    </div>
+      <div class="handler has-nav" onclick="navFromHandler('pricing')">
+        <div class="them">Pricing flow <span class="nav-hint">→ Pricing</span></div>
+        <div class="you">Full pricing with downsell ladder and guarantee.</div>
+        <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('pricing')">→ Go to Pricing</button>
+      </div>
 
-    <div class="handler">
-      <div class="them">What if it doesn't work?</div>
-      <div class="you">"That's exactly why I'm calling it a test. If something's off, I fix it fast. You're not risking anything — it's free."</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">I don't have time for setup</div>
-      <div class="you">"Setup is 10 minutes on your end — total. You answer a few questions, I build it, you don't touch it again."</div>
-    </div>
-
-    <div class="handler has-nav" onclick="navFromHandler('variantB_opener')">
-      <div class="them">Switch to student flow <span class="nav-hint">→ Variant B</span></div>
-      <div class="you">Jump to the student question-led opener from anywhere in the call.</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('variantB_opener')">→ Go to Student flow</button>
-    </div>
-
-    <div class="handler has-nav" onclick="navFromHandler('variantB_free_offer')">
-      <div class="them">Jump to free pilot offer <span class="nav-hint">→ Free Pilot</span></div>
-      <div class="you">Use only after discovery — they're interested but won't commit to paid.</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('variantB_free_offer')">→ Go to Free Pilot</button>
+      <div class="handler has-nav" onclick="navFromHandler('exit_clean')">
+        <div class="them">Exit <span class="nav-hint">→ Exit</span></div>
+        <div class="you">Pick from 3 exit types: no gap, after 2 nos, warm but not now.</div>
+        <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('exit_clean')">→ Go to Exit</button>
+      </div>
     </div>
 
     <button type="button" class="btn" style="width:100%;margin-top:20px;" id="handlerCloseBtn" onclick="hideHandlers()">Close</button>
@@ -1028,7 +1121,10 @@ const steps = {
         <div class="dialogue">
           "No setup fee. That's founding rate — goes up to eighteen once I have case studies."
         </div>
-        <div class="note">Let them respond. Don't stack more.</div>
+        <div class="note">Let them respond. Don't stack more unless they need the guarantee:</div>
+        <div class="dialogue-sm">
+          "And if it doesn't hit 95% answer rate in the first 30 days — full refund. You keep everything we built."
+        </div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('done')">They're in</button>
           <button type="button" class="btn" onclick="goTo('pricing_reframe')">Still too much</button>
@@ -1054,6 +1150,10 @@ const steps = {
           <span class="beat">Stop. Let the math land.</span>
         </div>
         <div class="note">If they don't give a number, use: "Most guys I talk to are at $3,500-4,000 a job."</div>
+        <div class="note" style="margin-top:12px;">If still hesitating, add the guarantee:</div>
+        <div class="dialogue-sm">
+          "95% answer rate in 30 days or full refund. You keep everything — the AI, the number, the setup. I eat the cost."
+        </div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('done')">Math clicked — they're in</button>
           <button type="button" class="btn" onclick="goTo('pricing_trade')">Still too much — trade down</button>
@@ -1674,6 +1774,16 @@ function updateProgress() {
     if (i === currentStep) seg.className += ' active';
     prog.appendChild(seg);
   }
+}
+
+function showTab(tabName) {
+  document.querySelectorAll('.handler-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.handler-tab').forEach(t => t.classList.remove('active'));
+  const section = document.getElementById('tab-' + tabName);
+  if (section) section.classList.add('active');
+  document.querySelectorAll('.handler-tab').forEach(t => {
+    if (t.getAttribute('onclick') === "showTab('" + tabName + "')") t.classList.add('active');
+  });
 }
 
 function showHandlers() {
