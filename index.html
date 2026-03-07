@@ -801,6 +801,7 @@ const steps = {
         <div class="note">Wait for permission. Say nothing until they respond.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('q1_voicemail')">They said yes</button>
+          <button type="button" class="btn" onclick="goTo('gatekeeper')">Gatekeeper — not the owner</button>
           <button type="button" class="btn" onclick="goTo('opener')">Try different opener</button>
         </div>
       </div>
@@ -823,6 +824,7 @@ const steps = {
         <div class="note">Wait for permission.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('q1_answering')">They said yes</button>
+          <button type="button" class="btn" onclick="goTo('gatekeeper')">Gatekeeper — not the owner</button>
           <button type="button" class="btn" onclick="goTo('opener')">Try different opener</button>
         </div>
       </div>
@@ -834,18 +836,43 @@ const steps = {
     stepIdx: 1,
     render: () => `
       <div class="fade-in">
-        <div class="label">Say this — fallback, do recon next time</div>
+        <div class="label">Say this — no recon</div>
         <div class="dialogue">
-          "Hey <strong>${prospectName || '[NAME]'}</strong> — I've been talking to HVAC owners about how they handle after-hours calls."
-          <span class="beat">Pause</span>
+          "Hey, is this <strong>${prospectName || '[COMPANY]'}</strong>? Cool — my name's [YOU], I'm a developer. I've been calling HVAC shops in [CITY] and I had a quick question if you've got 30 seconds."
         </div>
-        <div class="dialogue">
-          "I'm a developer — can I ask you something real quick?"
-        </div>
-        <div class="note">Wait for permission.</div>
+        <div class="note">Wait for permission. Say nothing until they respond.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('q1_norecon')">They said yes</button>
+          <button type="button" class="btn" onclick="goTo('gatekeeper')">Gatekeeper — not the owner</button>
           <button type="button" class="btn" onclick="goTo('opener')">Try different opener</button>
+        </div>
+      </div>
+    `
+  },
+
+  gatekeeper: {
+    label: 'GATEKEEPER',
+    stepIdx: 1,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--red-muted);color:var(--red);">Gatekeeper — get to the owner</div>
+        <div class="dialogue">
+          "Yeah — I'm a developer, I've been researching HVAC companies in [CITY] and I just had a quick question for the owner. Is he around?"
+        </div>
+        <div class="note">If they push back:</div>
+        <div class="dialogue">
+          <strong>"He's not available"</strong> → "No worries at all. What's the best time to catch him?"
+        </div>
+        <div class="dialogue">
+          <strong>"Can I take a message?"</strong> → "Honestly it'll be quicker if I just catch him for 30 seconds — when's he usually in?"
+        </div>
+        <div class="dialogue">
+          <strong>"What's this about?"</strong> → "I've been calling HVAC shops about how they handle after-hours calls. Just had a quick question — is he the one who deals with that?"
+        </div>
+        <div class="note">Don't leave a message. Messages from unknown numbers don't get returned. Note the callback time and move on.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('q1_norecon')">Got through to owner</button>
+          <button type="button" class="btn" onclick="goTo('done')">Dead end — next call</button>
         </div>
       </div>
     `
@@ -1322,6 +1349,7 @@ const steps = {
         <div class="note">Wait for permission. Say nothing until they respond.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('variantB_q1_vm')">They said yes</button>
+          <button type="button" class="btn" onclick="goTo('variantB_gatekeeper')">Gatekeeper — not the owner</button>
           <button type="button" class="btn" onclick="goTo('variantB_opener')">Try different opener</button>
         </div>
       </div>
@@ -1344,6 +1372,7 @@ const steps = {
         <div class="note">Wait for permission.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('variantB_q1_ans')">They said yes</button>
+          <button type="button" class="btn" onclick="goTo('variantB_gatekeeper')">Gatekeeper — not the owner</button>
           <button type="button" class="btn" onclick="goTo('variantB_opener')">Try different opener</button>
         </div>
       </div>
@@ -1355,18 +1384,43 @@ const steps = {
     stepIdx: 1,
     render: () => `
       <div class="fade-in">
-        <div class="label" style="background:var(--green-muted);color:var(--green);">Say this — fallback, do recon next time</div>
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Say this — no recon</div>
         <div class="dialogue">
-          "Hey <strong>${prospectName || '[NAME]'}</strong> — I've been talking to HVAC owners about how they handle after-hours calls."
-          <span class="beat">Pause</span>
+          "Hey, is this <strong>${prospectName || '[COMPANY]'}</strong>? Cool — my name's [YOU], I'm a student. I've been calling HVAC shops in [CITY] and I had a quick question if you've got 30 seconds."
         </div>
-        <div class="dialogue">
-          "I'm a student — can I ask you something real quick?"
-        </div>
-        <div class="note">Wait for permission.</div>
+        <div class="note">Wait for permission. Say nothing until they respond.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('variantB_q1_norecon')">They said yes</button>
+          <button type="button" class="btn" onclick="goTo('variantB_gatekeeper')">Gatekeeper — not the owner</button>
           <button type="button" class="btn" onclick="goTo('variantB_opener')">Try different opener</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_gatekeeper: {
+    label: 'VARIANT B — GATEKEEPER',
+    stepIdx: 1,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--red-muted);color:var(--red);">Gatekeeper — get to the owner</div>
+        <div class="dialogue">
+          "Yeah — I'm a student, I've been researching HVAC companies in [CITY] and I just had a quick question for the owner. Is he around?"
+        </div>
+        <div class="note">If they push back:</div>
+        <div class="dialogue">
+          <strong>"He's not available"</strong> → "No worries at all. What's the best time to catch him?"
+        </div>
+        <div class="dialogue">
+          <strong>"Can I take a message?"</strong> → "Honestly it'll be quicker if I just catch him for 30 seconds — when's he usually in?"
+        </div>
+        <div class="dialogue">
+          <strong>"What's this about?"</strong> → "I've been calling HVAC shops about how they handle after-hours calls. Just had a quick question — is he the one who deals with that?"
+        </div>
+        <div class="note">Don't leave a message. Messages from unknown numbers don't get returned. Note the callback time and move on.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_q1_norecon')">Got through to owner</button>
+          <button type="button" class="btn" onclick="goTo('done')">Dead end — next call</button>
         </div>
       </div>
     `
