@@ -928,6 +928,87 @@ const steps = {
           <button type="button" class="btn" onclick="goTo('moneyQ_answering')">Answering service</button>
           <button type="button" class="btn" onclick="goTo('handle_myself')">I handle it myself</button>
           <button type="button" class="btn" onclick="goTo('its_fine')">It's fine / don't miss many</button>
+          <button type="button" class="btn" onclick="goTo('cover_247')">We cover 24/7 / someone's always on</button>
+        </div>
+      </div>
+    `
+  },
+
+  cover_247: {
+    label: 'STEP 2 — THEY COVER 24/7',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">Dig in — find out HOW they cover it</div>
+        <div class="dialogue">
+          "Oh nice — so you've got someone on the phones around the clock? Is that in-house or an answering service?"
+        </div>
+        <div class="actions">
+          <button type="button" class="btn" onclick="goTo('moneyQ_answering')">Answering service</button>
+          <button type="button" class="btn" onclick="goTo('cover_247_self')">Me / my wife / forward to cell</button>
+          <button type="button" class="btn" onclick="goTo('cover_247_staff')">Full staff 24/7</button>
+        </div>
+      </div>
+    `
+  },
+
+  cover_247_self: {
+    label: 'STEP 2 — THEY FORWARD TO CELL',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">They're burning out — surface it</div>
+        <div class="dialogue">
+          "How's that working out? You ever miss any?"
+        </div>
+        <div class="note">They will almost always admit they miss some. Now go to the money question.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('moneyQ')">They admit they miss some</button>
+          <button type="button" class="btn" onclick="goTo('its_fine')">Says it's fine</button>
+        </div>
+      </div>
+    `
+  },
+
+  cover_247_staff: {
+    label: 'STEP 2 — FULL 24/7 STAFF',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">Rare — confirm it's real, then pivot or exit</div>
+        <div class="dialogue">
+          "That's serious — every single call, even 2 AM on a Saturday?"
+        </div>
+        <div class="note">Most will backtrack. If they genuinely have it covered:</div>
+        <div class="dialogue">
+          <strong>If they backtrack:</strong> "So what happens to the ones that slip through?"
+        </div>
+        <div class="dialogue">
+          <strong>If they're truly covered and happy:</strong> "Honestly that's rare — most shops I talk to are nowhere near that. What does that run you, if you don't mind me asking?"
+        </div>
+        <div class="note">If their cost is high ($3K+/mo), you're a massive cost cut. If they're truly happy and cheap — respect it and exit clean.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('moneyQ')">They backtracked — some slip through</button>
+          <button type="button" class="btn" onclick="goTo('cover_247_cost')">Truly covered — asked about cost</button>
+          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Happy and cheap — exit clean</button>
+        </div>
+      </div>
+    `
+  },
+
+  cover_247_cost: {
+    label: 'STEP 2 — COST PIVOT',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label">They're paying a lot — you're the cost cut</div>
+        <div class="dialogue">
+          "Yeah, that's about what I hear. What if you could get the same coverage for a fraction of that — and it never calls in sick?"
+        </div>
+        <div class="note">You're not selling "AI." You're selling the same result for less money and less hassle.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('turn')">They're curious — go to the turn</button>
+          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Not interested — exit clean</button>
         </div>
       </div>
     `
@@ -1480,6 +1561,87 @@ const steps = {
           <button type="button" class="btn" onclick="goTo('variantB_moneyQ_ans')">Answering service</button>
           <button type="button" class="btn" onclick="goTo('variantB_handle_myself')">I handle it myself</button>
           <button type="button" class="btn" onclick="goTo('variantB_its_fine')">It's fine / don't miss many</button>
+          <button type="button" class="btn" onclick="goTo('variantB_cover_247')">We cover 24/7 / someone's always on</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_cover_247: {
+    label: 'VARIANT B — THEY COVER 24/7',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Dig in — find out HOW they cover it</div>
+        <div class="dialogue">
+          "Oh nice — so you've got someone on the phones around the clock? Is that in-house or an answering service?"
+        </div>
+        <div class="actions">
+          <button type="button" class="btn" onclick="goTo('variantB_moneyQ_ans')">Answering service</button>
+          <button type="button" class="btn" onclick="goTo('variantB_cover_247_self')">Me / my wife / forward to cell</button>
+          <button type="button" class="btn" onclick="goTo('variantB_cover_247_staff')">Full staff 24/7</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_cover_247_self: {
+    label: 'VARIANT B — THEY FORWARD TO CELL',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">They're burning out — surface it</div>
+        <div class="dialogue">
+          "How's that working out? You ever miss any?"
+        </div>
+        <div class="note">They will almost always admit they miss some. Now go to the money question.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_moneyQ')">They admit they miss some</button>
+          <button type="button" class="btn" onclick="goTo('variantB_its_fine')">Says it's fine</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_cover_247_staff: {
+    label: 'VARIANT B — FULL 24/7 STAFF',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Rare — confirm it's real, then pivot or exit</div>
+        <div class="dialogue">
+          "That's serious — every single call, even 2 AM on a Saturday?"
+        </div>
+        <div class="note">Most will backtrack. If they genuinely have it covered:</div>
+        <div class="dialogue">
+          <strong>If they backtrack:</strong> "So what happens to the ones that slip through?"
+        </div>
+        <div class="dialogue">
+          <strong>If they're truly covered and happy:</strong> "Honestly that's rare — most shops I talk to are nowhere near that. What does that run you, if you don't mind me asking?"
+        </div>
+        <div class="note">If their cost is high ($3K+/mo), you're a massive cost cut. If they're truly happy and cheap — respect it and exit clean.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_moneyQ')">They backtracked — some slip through</button>
+          <button type="button" class="btn" onclick="goTo('variantB_cover_247_cost')">Truly covered — asked about cost</button>
+          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Happy and cheap — exit clean</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_cover_247_cost: {
+    label: 'VARIANT B — COST PIVOT',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">They're paying a lot — you're the cost cut</div>
+        <div class="dialogue">
+          "Yeah, that's about what I hear. What if you could get the same coverage for a fraction of that — and it never calls in sick?"
+        </div>
+        <div class="note">You're not selling "AI." You're selling the same result for less money and less hassle.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_turn')">They're curious — go to the turn</button>
+          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Not interested — exit clean</button>
         </div>
       </div>
     `
