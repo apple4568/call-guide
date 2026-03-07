@@ -965,6 +965,7 @@ const steps = {
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('moneyQ')">They admit they miss some</button>
           <button type="button" class="btn" onclick="goTo('its_fine')">Says it's fine</button>
+          <button type="button" class="btn ghost" onclick="goTo('cover_247')">← Back</button>
         </div>
       </div>
     `
@@ -984,13 +985,14 @@ const steps = {
           <strong>If they backtrack:</strong> "So what happens to the ones that slip through?"
         </div>
         <div class="dialogue">
-          <strong>If they're truly covered and happy:</strong> "Honestly that's rare — most shops I talk to are nowhere near that. What does that run you, if you don't mind me asking?"
+          <strong>If they're truly covered and happy:</strong> "Honestly that's rare — most shops I talk to are nowhere near that. Do any still slip through the cracks? Even on holidays or when someone calls in sick?"
         </div>
-        <div class="note">If their cost is high ($3K+/mo), you're a massive cost cut. If they're truly happy and cheap — respect it and exit clean.</div>
+        <div class="note">You're looking for ANY gap — holidays, sick days, call volume spikes. If there's a gap, you're the backup. If truly zero gaps — respect it and exit.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('moneyQ')">They backtracked — some slip through</button>
-          <button type="button" class="btn" onclick="goTo('cover_247_cost')">Truly covered — asked about cost</button>
-          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Happy and cheap — exit clean</button>
+          <button type="button" class="btn" onclick="goTo('cover_247_cost')">Admits gaps — open to backup</button>
+          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Truly zero gaps — exit clean</button>
+          <button type="button" class="btn ghost" onclick="goTo('cover_247')">← Back</button>
         </div>
       </div>
     `
@@ -1009,6 +1011,7 @@ const steps = {
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('turn')">They're curious — go to the turn</button>
           <button type="button" class="btn" onclick="goTo('exit_no_gap')">Not interested — exit clean</button>
+          <button type="button" class="btn ghost" onclick="goTo('cover_247_staff')">← Back</button>
         </div>
       </div>
     `
@@ -1598,6 +1601,7 @@ const steps = {
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('variantB_moneyQ')">They admit they miss some</button>
           <button type="button" class="btn" onclick="goTo('variantB_its_fine')">Says it's fine</button>
+          <button type="button" class="btn ghost" onclick="goTo('variantB_cover_247')">← Back</button>
         </div>
       </div>
     `
@@ -1617,13 +1621,14 @@ const steps = {
           <strong>If they backtrack:</strong> "So what happens to the ones that slip through?"
         </div>
         <div class="dialogue">
-          <strong>If they're truly covered and happy:</strong> "Honestly that's rare — most shops I talk to are nowhere near that. What does that run you, if you don't mind me asking?"
+          <strong>If they're truly covered and happy:</strong> "Honestly that's rare — most shops I talk to are nowhere near that. Do any still slip through the cracks? Even on holidays or when someone calls in sick?"
         </div>
-        <div class="note">If their cost is high ($3K+/mo), you're a massive cost cut. If they're truly happy and cheap — respect it and exit clean.</div>
+        <div class="note">You're looking for ANY gap — holidays, sick days, call volume spikes. If there's a gap, you're the backup. If truly zero gaps — respect it and exit.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('variantB_moneyQ')">They backtracked — some slip through</button>
-          <button type="button" class="btn" onclick="goTo('variantB_cover_247_cost')">Truly covered — asked about cost</button>
-          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Happy and cheap — exit clean</button>
+          <button type="button" class="btn" onclick="goTo('variantB_cover_247_cost')">Admits gaps — open to backup</button>
+          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Truly zero gaps — exit clean</button>
+          <button type="button" class="btn ghost" onclick="goTo('variantB_cover_247')">← Back</button>
         </div>
       </div>
     `
@@ -1642,6 +1647,7 @@ const steps = {
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('variantB_turn')">They're curious — go to the turn</button>
           <button type="button" class="btn" onclick="goTo('exit_no_gap')">Not interested — exit clean</button>
+          <button type="button" class="btn ghost" onclick="goTo('variantB_cover_247_staff')">← Back</button>
         </div>
       </div>
     `
