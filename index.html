@@ -25,9 +25,6 @@
     --accent: #f59e0b;
     --accent-hover: #fbbf24;
     --accent-muted: rgba(245, 158, 11, 0.12);
-    --accent-student: #22c55e;
-    --accent-student-hover: #4ade80;
-    --accent-student-muted: rgba(34, 197, 94, 0.12);
     --green: #22c55e;
     --green-muted: rgba(34, 197, 94, 0.12);
     --red: #ef4444;
@@ -456,11 +453,37 @@
     color: var(--green);
   }
 
-  /* ─── Student mode green theme ─── */
-  body.student-mode {
-    --accent: var(--accent-student);
-    --accent-hover: var(--accent-student-hover);
-    --accent-muted: var(--accent-student-muted);
+  /* ─── Touch / iPad ─── */
+  @media (pointer: coarse) {
+    .btn {
+      padding: 14px 24px;
+      font-size: 15px;
+      min-height: 48px;
+    }
+    .btn.ghost {
+      padding: 12px 16px;
+      font-size: 14px;
+      min-height: 44px;
+    }
+    .handler {
+      padding: 16px 14px;
+    }
+    .handler .nav-btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      min-height: 44px;
+    }
+    main {
+      padding: 32px 24px;
+    }
+    .input-group input {
+      font-size: 18px;
+      padding: 14px 16px;
+    }
+    footer .hint { display: none; }
+    footer .bar-actions { width: 100%; justify-content: space-between; }
+    .overlay { padding: 20px; }
+    .overlay-panel { padding: 20px; max-height: 90vh; }
   }
 </style>
 </head>
@@ -474,7 +497,7 @@
 <main id="main" role="region" aria-live="polite"></main>
 
 <footer>
-  <span class="hint">Press <kbd>H</kbd> for handlers &middot; <kbd>Esc</kbd> to close</span>
+  <span class="hint" id="footerHint">Press <kbd>H</kbd> for handlers &middot; <kbd>Esc</kbd> to close</span>
   <div class="bar-actions">
     <button type="button" class="btn ghost" onclick="showHandlers()">Handlers</button>
     <button type="button" class="btn ghost" onclick="restart()">Restart</button>
@@ -495,10 +518,9 @@
       <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('done')">→ End call</button>
     </div>
 
-    <div class="handler has-nav" onclick="navFromHandler('second_layer')">
-      <div class="them">First pushback <span class="nav-hint">→ Layer 2</span></div>
+    <div class="handler">
+      <div class="them">First pushback</div>
       <div class="you">"Totally fair. Can I ask one thing — is it because you've got something in place, you handle it yourself, or bad timing?"</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('second_layer')">→ Layer 2</button>
     </div>
 
     <div class="handler has-nav" onclick="navFromHandler('exit_after_nos')">
@@ -555,14 +577,9 @@
     <div class="handler-group-label">Pricing</div>
 
     <div class="handler has-nav" onclick="navFromHandler('pricing')">
-      <div class="them">How much? — after the Turn <span class="nav-hint">→ Pricing flow</span></div>
-      <div class="you">"Twelve grand for the year." Then stop talking.</div>
+      <div class="them">How much? <span class="nav-hint">→ Pricing flow</span></div>
+      <div class="you">Opens the full pricing flow with downsell ladder.</div>
       <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('pricing')">→ Go to pricing</button>
-    </div>
-
-    <div class="handler">
-      <div class="them">How much? — before the Turn</div>
-      <div class="you">"I'll get to that — want to make sure it's even relevant for you first. What happens to your calls after hours?"<br><span style="color:var(--text-muted);font-size:12px;">Don't route to pricing until after Step 4. Redirect back to pain discovery.</span></div>
     </div>
 
     <div class="handler">
@@ -585,44 +602,45 @@
 
     <div class="handler">
       <div class="them">What's this about? / Are you selling something?</div>
-      <div class="you">"I'm a developer — I built an AI that answers HVAC calls after hours. Trying to figure out if it solves a real problem. What's your setup?"</div>
+      <div class="you"><strong>Standard:</strong> "I'm a developer — I built an AI that answers HVAC calls after hours. Trying to figure out if it solves a real problem. What's your setup?"<br><strong>Student:</strong> "I'm a student researching how HVAC companies handle after-hours calls. Trying to figure out if there's a real gap. What's your setup?"</div>
     </div>
 
-    <!-- ─── FREE PILOT (student mode) ─── -->
-    <div class="handler-group-label">Free Pilot — Student Mode</div>
+    <!-- ─── FREE PILOT (only after discovery) ─── -->
+    <div class="handler-group-label" style="color:var(--green);">Free Pilot (use after discovery only)</div>
 
     <div class="handler">
       <div class="them">What's the catch?</div>
-      <div class="you">"No catch. You run it 30 days and give me honest feedback. At the end, if it worked, I'll ask if you'd say so — a quick video or a text I can quote. No obligation to pay anything."</div>
+      <div class="you">"No catch. I have a demo but no proof it works on real HVAC calls at volume. That proof is worth more than money right now. You run it 30 days, give me honest feedback. If it worked, I ask for a testimonial. No obligation to pay."</div>
     </div>
 
     <div class="handler">
       <div class="them">Why is it free?</div>
-      <div class="you">"I have a demo but no proof it works on real HVAC calls at volume. That proof is worth more to me than money right now. Once I have 3 businesses running it and they're happy, I start charging. You'd be getting in before that."</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">How long does the free last?</div>
-      <div class="you">"30 days, no strings. After that I'll ask if you want to continue. If yes, we talk pricing. If no, I remove it and we're done. Zero pressure either way."</div>
+      <div class="you">"I need 2-3 real businesses running it before I feel right charging anyone. Once they're happy, I start charging. You'd be getting in before that."</div>
     </div>
 
     <div class="handler">
       <div class="them">What if it doesn't work?</div>
-      <div class="you">"That's exactly why I'm calling it a test — I want to know. Real calls are different from controlled tests. If something breaks or sounds off, I fix it fast. You're not risking anything."</div>
+      <div class="you">"That's exactly why I'm calling it a test. If something's off, I fix it fast. You're not risking anything — it's free."</div>
     </div>
 
     <div class="handler">
-      <div class="them">I don't trust AI</div>
-      <div class="you">"I get that — a lot of it deserves that reputation. That's part of why I'm doing this free. Call the demo number right now. You'll hear it yourself."</div>
+      <div class="them">I don't have time for setup</div>
+      <div class="you">"Setup is 10 minutes on your end — total. You answer a few questions, I build it, you don't touch it again."</div>
     </div>
 
-    <div class="handler has-nav" onclick="navFromHandler('s_transition')">
-      <div class="them">30-day pilot ended — transition to paid <span class="nav-hint">→ Transition</span></div>
-      <div class="you">Opens the paid conversion script.</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('s_transition')">→ Go to transition</button>
+    <div class="handler has-nav" onclick="navFromHandler('variantB_opener')">
+      <div class="them">Switch to student flow <span class="nav-hint">→ Variant B</span></div>
+      <div class="you">Jump to the student question-led opener from anywhere in the call.</div>
+      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('variantB_opener')">→ Go to Student flow</button>
     </div>
 
-    <button type="button" class="btn" style="width:100%;margin-top:20px;" id="handlerCloseBtn" onclick="hideHandlers()">Close <kbd style="margin-left:6px;font-size:10px;opacity:0.5;">Esc</kbd></button>
+    <div class="handler has-nav" onclick="navFromHandler('variantB_free_offer')">
+      <div class="them">Jump to free pilot offer <span class="nav-hint">→ Free Pilot</span></div>
+      <div class="you">Use only after discovery — they're interested but won't commit to paid.</div>
+      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('variantB_free_offer')">→ Go to Free Pilot</button>
+    </div>
+
+    <button type="button" class="btn" style="width:100%;margin-top:20px;" id="handlerCloseBtn" onclick="hideHandlers()">Close</button>
   </div>
 </div>
 
@@ -630,7 +648,6 @@
 let prospectName = '';
 let reconTime = '';
 let currentStep = 0;
-let mode = 'standard'; // 'standard' | 'student'
 const totalSteps = 7;
 
 const steps = {
@@ -648,11 +665,6 @@ const steps = {
         <div class="input-group">
           <input type="text" id="nameInput" placeholder="Their name" autofocus aria-label="Prospect name">
           <input type="text" class="sm" id="timeInput" placeholder="Recon time" aria-label="Recon call time">
-        </div>
-        <div class="label" style="margin-top:20px;margin-bottom:10px;">Script mode</div>
-        <div class="actions" style="margin-bottom:16px;">
-          <button type="button" class="btn primary" id="modeStdBtn" onclick="setMode('standard')">Standard</button>
-          <button type="button" class="btn" id="modeStuBtn" onclick="setMode('student')">Free Pilot — Student</button>
         </div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="saveName()">Ready to dial</button>
@@ -672,6 +684,10 @@ const steps = {
           <button type="button" class="btn" onclick="goTo('openerB')">B — Hit answering service</button>
           <button type="button" class="btn" onclick="goTo('openerC')">C — No recon data</button>
         </div>
+        <div class="note" style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">No testimonials yet? Same questions, student identity, free pilot as close.</div>
+        <div class="actions">
+          <button type="button" class="btn" style="border-color:var(--green);color:var(--green);" onclick="goTo('variantB_opener')">D — Student (question-led, free pilot close)</button>
+        </div>
       </div>
     `
   },
@@ -687,7 +703,7 @@ const steps = {
           <span class="beat">Beat — one second of silence</span>
         </div>
         <div class="dialogue">
-          "I'm a developer — HVAC companies miss 37% of their calls. I built something that fixes that. Got 30 seconds?"
+          "I'm a developer — can I ask you something real quick?"
         </div>
         <div class="note">Wait for permission. Say nothing until they respond.</div>
         <div class="actions">
@@ -709,7 +725,7 @@ const steps = {
           <span class="beat">Beat</span>
         </div>
         <div class="dialogue">
-          "I'm a developer — that answering service takes a message. Doesn't qualify the caller, doesn't book the job. Got 30 seconds?"
+          "I'm a developer — can I ask you something real quick?"
         </div>
         <div class="note">Wait for permission.</div>
         <div class="actions">
@@ -727,8 +743,11 @@ const steps = {
       <div class="fade-in">
         <div class="label">Say this — fallback, do recon next time</div>
         <div class="dialogue">
-          "Hey <strong>${prospectName || '[NAME]'}</strong> — I'm a developer. I've been tracking missed calls across HVAC companies in [CITY]. Got 30 seconds?"
+          "Hey <strong>${prospectName || '[NAME]'}</strong> — I've been talking to HVAC owners about how they handle after-hours calls."
           <span class="beat">Pause</span>
+        </div>
+        <div class="dialogue">
+          "I'm a developer — can I ask you something real quick?"
         </div>
         <div class="note">Wait for permission.</div>
         <div class="actions">
@@ -935,14 +954,9 @@ const steps = {
         <div class="dialogue-sm">
           "I'll send it over today. It's a 30-second clip of how it sounds plus what the text looks like that comes to your phone. Would really appreciate your honest take on it."
         </div>
-        <div class="note warn">Send the clip immediately — then push ONCE for a follow-up call:</div>
-        <div class="dialogue-sm">
-          "I'll send it right now. When can we do 10 minutes to walk through it — Tuesday or Wednesday work?"
-        </div>
-        <div class="note">"Send me info" twice = take the email and go. One push for the call, then stop.</div>
+        <div class="note warn">That's the call. You're done. Don't keep selling.</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">Follow-up booked</button>
-          <button type="button" class="btn" onclick="goTo('done')">They only want the clip — done</button>
+          <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
           <button type="button" class="btn" onclick="goTo('pricing')">They asked "how much?"</button>
         </div>
       </div>
@@ -1096,30 +1110,6 @@ const steps = {
     `
   },
 
-  second_layer: {
-    label: 'LAYER 2 — RE-ENGAGE',
-    stepIdx: 2,
-    render: () => `
-      <div class="fade-in">
-        <div class="label">Second layer — signal expertise, re-ask</div>
-        <div class="note">They pushed back once. Don't exit yet. Ask one expertise question, then re-ask.</div>
-        <div class="dialogue">
-          "Got it. Can I ask — what does your current setup do when someone calls at 9 PM on a Saturday?"
-          <span class="beat">Wait. Let them answer.</span>
-        </div>
-        <div class="note">Whatever they say, use it:</div>
-        <div class="dialogue-sm">
-          "That's where most owners I talk to feel the gap. Worth 10 minutes to see how other HVAC companies handle it?"
-        </div>
-        <div class="note warn">If they say no again — graceful exit. Don't push three times.</div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('turn')">They opened up — continue</button>
-          <button type="button" class="btn" onclick="goTo('exit_clean')">Still no — exit</button>
-        </div>
-      </div>
-    `
-  },
-
   exit_clean: {
     label: 'EXIT',
     stepIdx: 6,
@@ -1198,336 +1188,433 @@ const steps = {
     `
   },
 
-  // ─── STUDENT / FREE PILOT VARIANT ───
+  // ─── VARIANT B: STUDENT (question-led, free pilot as close) ───
 
-  s_opener: {
-    label: 'S — OPENER',
+  variantB_opener: {
+    label: 'VARIANT B — OPENER',
     stepIdx: 1,
     render: () => `
       <div class="fade-in">
-        <div class="note warn">REQUIRES RECON: Do one call first. If you got voicemail, add: "I called your shop at [TIME] — went to voicemail." Then lead into the opener below.</div>
-        <div class="label">Pattern interrupt — 7 seconds</div>
-        <div class="dialogue">
-          "Hey <strong>${prospectName || '[NAME]'}</strong>, this is [YOUR NAME] — I'll be upfront, this is a cold call. But I'm not calling to sell you anything. Got 30 seconds?"
-        </div>
-        <div class="note">Wait. Say nothing.</div>
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Student — Pick Your Opener</div>
+        <div class="note" style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;">Same recon openers. "Student" replaces "developer." Ask questions, don't pitch.</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_reveal')">They stayed</button>
-          <button type="button" class="btn" onclick="goTo('s_opener_ni')">Not interested</button>
-          <button type="button" class="btn" onclick="goTo('s_opener_busy')">Busy / rushed</button>
+          <button type="button" class="btn primary" onclick="goTo('variantB_openerA')">A — Got voicemail</button>
+          <button type="button" class="btn" onclick="goTo('variantB_openerB')">B — Hit answering service</button>
+          <button type="button" class="btn" onclick="goTo('variantB_openerC')">C — No recon data</button>
         </div>
       </div>
     `
   },
 
-  s_opener_ni: {
-    label: 'S — OPENER',
+  variantB_openerA: {
+    label: 'VARIANT B — OPENER',
     stepIdx: 1,
     render: () => `
       <div class="fade-in">
-        <div class="label">They said not interested — one more line</div>
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Say this</div>
         <div class="dialogue">
-          "Totally fair. One more second — I'm actually offering something free. If that's still not interesting, I'll let you go."
+          "Hey <strong>${prospectName || '[NAME]'}</strong> — I called your shop at <strong>${reconTime || '[TIME]'}</strong> last night. Went to voicemail."
+          <span class="beat">Beat — one second of silence</span>
         </div>
-        <div class="note">Most will give you 20 more seconds.</div>
+        <div class="dialogue">
+          "I'm a student — I've been researching how HVAC owners handle after-hours calls. Can I ask you something real quick?"
+        </div>
+        <div class="note">Wait for permission. Say nothing until they respond.</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_reveal')">They gave you more time</button>
-          <button type="button" class="btn" onclick="goTo('exit_after_nos')">Hard no — exit</button>
+          <button type="button" class="btn primary" onclick="goTo('variantB_q1_vm')">They said yes</button>
+          <button type="button" class="btn" onclick="goTo('variantB_opener')">Try different opener</button>
         </div>
       </div>
     `
   },
 
-  s_opener_busy: {
-    label: 'S — OPENER',
+  variantB_openerB: {
+    label: 'VARIANT B — OPENER',
     stepIdx: 1,
     render: () => `
       <div class="fade-in">
-        <div class="label">They sound busy — compress to 20 seconds</div>
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Say this</div>
         <div class="dialogue">
-          "I'll be 20 seconds. I'm a developer, I built something for HVAC owners and I need your help testing it. Free. That's it."
+          "Hey <strong>${prospectName || '[NAME]'}</strong> — I called your shop at <strong>${reconTime || '[TIME]'}</strong> last night. Someone picked up, took my name and number."
+          <span class="beat">Beat</span>
         </div>
+        <div class="dialogue">
+          "I'm a student — I've been researching how HVAC owners handle after-hours calls. Can I ask you something real quick?"
+        </div>
+        <div class="note">Wait for permission.</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_reveal')">They're listening</button>
-          <button type="button" class="btn" onclick="goTo('exit_after_nos')">Hard no — exit</button>
+          <button type="button" class="btn primary" onclick="goTo('variantB_q1_ans')">They said yes</button>
+          <button type="button" class="btn" onclick="goTo('variantB_opener')">Try different opener</button>
         </div>
       </div>
     `
   },
 
-  s_reveal: {
-    label: 'S — THE REVEAL',
-    stepIdx: 2,
+  variantB_openerC: {
+    label: 'VARIANT B — OPENER',
+    stepIdx: 1,
     render: () => `
       <div class="fade-in">
-        <div class="label">The reveal — three beats</div>
-        <div class="note">Each pause is a micro-consent checkpoint. Don't rush.</div>
-        <div class="note">Beat 1 — developer + problem:</div>
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Say this — fallback, do recon next time</div>
         <div class="dialogue">
-          "I'm a developer — I've been building an AI phone answering system specifically for HVAC companies for the past few months. The tech works, I've been testing it."
-          <span class="beat">Pause — let them say "okay" or "uh huh." Don't fill it.</span>
-        </div>
-        <div class="note">Beat 2 — why you need them:</div>
-        <div class="dialogue">
-          "But I need 2 or 3 real businesses to run it on their actual phone line — with real customer calls — before I feel right about charging anyone."
-          <span class="beat">Pause — wait for their reaction. This is where they lean in or check out.</span>
-        </div>
-        <div class="note">Beat 3 — the offer:</div>
-        <div class="dialogue">
-          "So I'm offering it free for 30 days to a handful of HVAC owners. No charge, I set it up, I maintain it. You just tell me honestly if it's working."
-          <span class="beat">Pause. This is the moment. Say nothing. Let it land.</span>
-        </div>
-        <div class="dialogue-sm">
-          "Here's the thing — you know your customers and your business way better than I ever could. I can build the tech, but I need someone who actually knows HVAC to tell me if the AI's asking the right questions. That's the trade."
-        </div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_credibility')">They're listening — keep going</button>
-          <button type="button" class="btn" onclick="goTo('s_why_hvac')">They asked "why HVAC?"</button>
-        </div>
-      </div>
-    `
-  },
-
-  s_why_hvac: {
-    label: 'S — WHY HVAC',
-    stepIdx: 2,
-    render: () => `
-      <div class="fade-in">
-        <div class="label">If they ask why HVAC</div>
-        <div class="dialogue">
-          "I spent a month looking at which industry had the worst missed-call problem. HVAC was it — your customers are calling in emergencies. 85% of them won't call back if they hit voicemail. They just call the next guy. At your ticket size, that's one missed call gone."
-        </div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_credibility')">Continue</button>
-        </div>
-      </div>
-    `
-  },
-
-  s_credibility: {
-    label: 'S — CREDIBILITY',
-    stepIdx: 3,
-    render: () => `
-      <div class="fade-in">
-        <div class="label">Get them to call the demo line — this is the pivot</div>
-        <div class="dialogue">
-          "I can show you how it works right now if you want. I'll text you a number — you call it, say something like 'my AC stopped working,' and watch what it does. Takes 90 seconds. That way you can decide if it's even worth your time."
-        </div>
-        <div class="note warn">Getting them to call the demo line is the most important step. Once they hear it, they're evaluating something real — not an idea.</div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_ask')">They called it / ready to hear the ask</button>
-          <button type="button" class="btn" onclick="goTo('s_ask')">Skip demo — just tell me more</button>
-        </div>
-      </div>
-    `
-  },
-
-  s_ask: {
-    label: 'S — THE ASK',
-    stepIdx: 4,
-    render: () => `
-      <div class="fade-in">
-        <div class="label">Specific, low-friction ask</div>
-        <div class="note">Set the competitive scarcity first:</div>
-        <div class="dialogue-sm">
-          "I've already got one HVAC company running it in Austin. I'm looking for two more in DFW — once I have three running, I'm closing the free window."
-          <span class="beat">Pause.</span>
-        </div>
-        <div class="dialogue">
-          "I'm trying to get 3 businesses set up this week. Takes 5 days on my end to get it running — I need your phone number and about 10 minutes to walk through what you'd want the AI to say. You don't touch anything after that."
+          "Hey <strong>${prospectName || '[NAME]'}</strong> — I've been talking to HVAC owners about how they handle after-hours calls."
           <span class="beat">Pause</span>
         </div>
         <div class="dialogue">
-          "Would you be open to being one of the three?"
+          "I'm a student — can I ask you something real quick?"
         </div>
+        <div class="note">Wait for permission.</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_close')">Yes / open to it</button>
-          <button type="button" class="btn" onclick="goTo('s_obj_catch')">What's the catch?</button>
-          <button type="button" class="btn" onclick="goTo('s_obj_why_free')">Why is it free?</button>
-          <button type="button" class="btn" onclick="goTo('s_obj_no_time')">No time / sounds like hassle</button>
-          <button type="button" class="btn" onclick="goTo('s_obj_have_system')">Already have a system</button>
-          <button type="button" class="btn" onclick="goTo('exit_clean')">Not interested — exit</button>
+          <button type="button" class="btn primary" onclick="goTo('variantB_q1_norecon')">They said yes</button>
+          <button type="button" class="btn" onclick="goTo('variantB_opener')">Try different opener</button>
         </div>
       </div>
     `
   },
 
-  s_obj_catch: {
-    label: 'S — OBJECTION',
+  // ─── VARIANT B: FIRST QUESTIONS ───
+
+  variantB_q1_vm: {
+    label: 'VARIANT B — FIRST QUESTION',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Go straight in — no filler</div>
+        <div class="dialogue">
+          "Do you check the missed calls, or just the voicemails?"
+        </div>
+        <div class="note">Most will say "just the voicemails" or pause.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_moneyQ')">They answered</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_q1_ans: {
+    label: 'VARIANT B — FIRST QUESTION',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Go straight in — no filler</div>
+        <div class="dialogue">
+          "When they take a message — do you get it that night, or the next morning?"
+        </div>
+        <div class="note">You're splitting "coverage" from "resolution" — their blind spot.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_moneyQ_ans')">They answered</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_q1_norecon: {
+    label: 'VARIANT B — FIRST QUESTION',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Go straight in — no filler</div>
+        <div class="dialogue">
+          "What happens to your calls after your team goes home for the day?"
+        </div>
+        <div class="actions">
+          <button type="button" class="btn" onclick="goTo('variantB_moneyQ')">Voicemail</button>
+          <button type="button" class="btn" onclick="goTo('variantB_moneyQ_ans')">Answering service</button>
+          <button type="button" class="btn" onclick="goTo('variantB_handle_myself')">I handle it myself</button>
+          <button type="button" class="btn" onclick="goTo('variantB_its_fine')">It's fine / don't miss many</button>
+        </div>
+      </div>
+    `
+  },
+
+  // ─── VARIANT B: MONEY QUESTIONS ───
+
+  variantB_moneyQ: {
+    label: 'VARIANT B — MONEY QUESTION',
+    stepIdx: 3,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">This is the line that cracks them open</div>
+        <div class="dialogue">
+          <strong>"What happens to the ones that don't leave one?"</strong>
+          <span class="beat">Silence. Say nothing. Let it land.</span>
+        </div>
+        <div class="note">After they sit with it:</div>
+        <div class="dialogue-sm">"How long have you been running things this way?"</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_turn')">They responded</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_moneyQ_ans: {
+    label: 'VARIANT B — MONEY QUESTION',
+    stepIdx: 3,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">This is the line that cracks them open</div>
+        <div class="dialogue">
+          <strong>"What happens to the ones that called at 9 PM and needed someone that night?"</strong>
+          <span class="beat">Silence. Let it land.</span>
+        </div>
+        <div class="note">After they sit with it:</div>
+        <div class="dialogue-sm">"How long have you been running things this way?"</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_turn')">They responded</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_handle_myself: {
+    label: 'VARIANT B — DIGGING DEEPER',
+    stepIdx: 3,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">They handle it themselves</div>
+        <div class="dialogue">"How long have you been doing that?"</div>
+        <div class="note">They'll usually say it's exhausting. If not:</div>
+        <div class="dialogue-sm">"What happens at 10 PM on a Saturday?"</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_turn')">Got emotion — move to Turn</button>
+          <button type="button" class="btn" onclick="goTo('variantB_its_fine')">Still says it's fine</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_its_fine: {
+    label: 'VARIANT B — PROBING',
+    stepIdx: 3,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">They say it's fine</div>
+        <div class="dialogue">"That's better than most owners I've talked to. What's your setup?"</div>
+        <div class="note">Then:</div>
+        <div class="dialogue-sm">"What about when you're on a job or it's late?"</div>
+        <div class="note">Last attempt:</div>
+        <div class="dialogue-sm">"If you could change one thing about how calls come in after hours, what would it be?"</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_turn')">Found a gap</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">Genuinely nothing — exit</button>
+        </div>
+      </div>
+    `
+  },
+
+  // ─── VARIANT B: THE TURN ───
+
+  variantB_turn: {
+    label: 'VARIANT B — THE TURN',
     stepIdx: 4,
     render: () => `
       <div class="fade-in">
-        <div class="label">"What's the catch?"</div>
-        <div class="dialogue">
-          "No catch. The deal is: you run it for 30 days and give me honest feedback. If something's off, you tell me. At the end, if it worked for you, I'll ask if you'd be willing to say so — a quick video or a text I can quote. That's it. No obligation to pay anything."
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Wait for emotion before turning</div>
+        <div class="note" style="font-size:14px;color:var(--text-secondary);margin-bottom:28px;">
+          "huh" / "I never thought about that" / "that's frustrating" / "they just call someone else" = GO<br>
+          Still just stating facts = ask one more question about their experience
         </div>
-        <div class="note">Now re-ask directly. One push — if they say no again, graceful exit.</div>
-        <div class="dialogue-sm">"Does that make sense? Would you be open to being one of the three?"</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_close')">Yes — close</button>
-          <button type="button" class="btn" onclick="goTo('exit_clean')">No again — exit</button>
+          <button type="button" class="btn primary" onclick="goTo('variantB_turn_emotional')">They're emotional</button>
+          <button type="button" class="btn" onclick="goTo('variantB_turn_factual')">Still factual but talking</button>
         </div>
       </div>
     `
   },
 
-  s_obj_why_free: {
-    label: 'S — OBJECTION',
+  variantB_turn_emotional: {
+    label: 'VARIANT B — THE TURN',
     stepIdx: 4,
     render: () => `
       <div class="fade-in">
-        <div class="label">"Why is it free?"</div>
+        <div class="label" style="background:var(--green-muted);color:var(--green);">They're feeling it — make the turn</div>
         <div class="dialogue">
-          "Because right now I have a demo but I don't have proof it works on real HVAC calls at volume. That proof is worth more to me than money at this stage. Once I have 3 businesses running it and they're happy, I start charging the next ones. You'd be getting in before that."
+          "I keep hearing that from owners. That's actually why I started researching this — I built something that picks up those calls, qualifies the lead, and texts you the details. Can I send you a 30-second clip? I want to know if it's actually good."
         </div>
-        <div class="note">Now re-ask directly. One push — if they say no again, graceful exit.</div>
-        <div class="dialogue-sm">"Does that make sense? Would you be open to being one of the three?"</div>
+        <div class="note">Small weakness → pivot to competence. You're asking for their opinion, not pitching.</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_close')">Yes — close</button>
-          <button type="button" class="btn" onclick="goTo('exit_clean')">No again — exit</button>
+          <button type="button" class="btn primary" onclick="goTo('variantB_close_clip')">Sure, send it</button>
+          <button type="button" class="btn" onclick="goTo('variantB_close_demo')">Strong interest / asking questions</button>
+          <button type="button" class="btn" onclick="goTo('variantB_free_offer')">Interested but not buying</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">Not interested</button>
         </div>
       </div>
     `
   },
 
-  s_obj_no_time: {
-    label: 'S — OBJECTION',
+  variantB_turn_factual: {
+    label: 'VARIANT B — THE TURN',
     stepIdx: 4,
     render: () => `
       <div class="fade-in">
-        <div class="label">"No time / sounds like a hassle"</div>
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Still factual — hypothetical turn</div>
         <div class="dialogue">
-          "Setup is 10 minutes on your end — total. You answer a few questions about what you want the AI to say. I build it. You don't touch anything after that."
+          "What if something could just pick up those after-hours calls, figure out what's wrong, and text you the details — would that even be useful, or is that not really a problem for you?"
         </div>
-        <div class="note">Now re-ask directly. One push — if they say no again, graceful exit.</div>
-        <div class="dialogue-sm">"Would you be open to being one of the three?"</div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_close')">Yes — close</button>
-          <button type="button" class="btn" onclick="goTo('exit_clean')">No again — exit</button>
-        </div>
-      </div>
-    `
-  },
-
-  s_obj_have_system: {
-    label: 'S — OBJECTION',
-    stepIdx: 4,
-    render: () => `
-      <div class="fade-in">
-        <div class="label">"Already have a system / we're fine"</div>
-        <div class="dialogue">
-          "That's fair. Even if it just confirms your current setup works better — that's useful for me. And if it catches one or two calls your system misses, you're ahead. Thirty days, no cost."
-        </div>
-        <div class="note">Now re-ask directly. One push — if they say no again, graceful exit.</div>
-        <div class="dialogue-sm">"Would you be open to being one of the three?"</div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_close')">Yes — close</button>
-          <button type="button" class="btn" onclick="goTo('exit_clean')">No again — exit</button>
-        </div>
-      </div>
-    `
-  },
-
-  s_close: {
-    label: 'S — CLOSE',
-    stepIdx: 5,
-    render: () => `
-      <div class="fade-in">
-        <div class="label">Book the setup call — text demo number now</div>
-        <div class="dialogue">
-          "Can I text you the demo number right now? Call it, say your AC broke — takes 90 seconds. If it sounds like something your callers would buy, we do 10 minutes this week and I'll have it live by [DAY]."
-        </div>
-        <div class="note warn">Text the demo number immediately — while they're on the phone.</div>
-        <div class="note">After they call the demo:</div>
-        <div class="dialogue-sm">"What did you think — did it sound like it'd work for your callers?"</div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('s_close_yes')">Positive reaction</button>
-          <button type="button" class="btn" onclick="goTo('s_close_concern')">They had concerns</button>
-          <button type="button" class="btn" onclick="goTo('done')">Setup call booked — done</button>
-        </div>
-      </div>
-    `
-  },
-
-  s_close_yes: {
-    label: 'S — CLOSE',
-    stepIdx: 5,
-    render: () => `
-      <div class="fade-in">
-        <div class="label">Positive reaction — book it</div>
-        <div class="dialogue">
-          "Great. Let's get it on your line. I'll have it live by [DAY]. What's the best number to set it up on?"
-        </div>
-        <div class="note warn">Then stop talking. Get the number. Book the 10-minute setup call.</div>
-        <div class="note">Prime the paid frame NOW — before the 30 days start:</div>
-        <div class="dialogue-sm">"By the way — when this works, I want to show you what this goes for commercially. I want you to see the value before we ever talk numbers."</div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">Setup booked — call done</button>
-        </div>
-      </div>
-    `
-  },
-
-  s_close_concern: {
-    label: 'S — CLOSE',
-    stepIdx: 5,
-    render: () => `
-      <div class="fade-in">
-        <div class="label">They had concerns — lean into it</div>
-        <div class="dialogue">
-          "That's exactly the kind of thing I need to hear. Let's still set it up — your feedback mid-month is actually more useful than a perfect demo. What was off?"
-        </div>
-        <div class="note">Listen. Then:</div>
-        <div class="dialogue-sm">"Perfect — let's get it live and you can tell me if that changes. What's the best number?"</div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">Setup booked — call done</button>
-          <button type="button" class="btn" onclick="goTo('exit_clean')">Hard no — exit</button>
-        </div>
-      </div>
-    `
-  },
-
-  s_transition: {
-    label: 'S — TRANSITION TO PAID',
-    stepIdx: 5,
-    render: () => `
-      <div class="fade-in">
-        <div class="label">After 30-day pilot — converting to paid</div>
-        <div class="dialogue">
-          "Hey <strong>${prospectName || '[NAME]'}</strong>, we're at 30 days. How'd it go?"
-          <span class="beat">Listen. Note specifics — calls answered, jobs booked, emergencies caught.</span>
-        </div>
-        <div class="note">Anchor to their specific results first — let them sell themselves:</div>
+        <div class="note">If yes or interested:</div>
         <div class="dialogue-sm">
-          "Before I get to numbers — you mentioned [X calls] at week 2. What was the one call the AI handled that surprised you most?"
-          <span class="beat">Listen. Let them talk. Don't jump to pricing until they've articulated what worked.</span>
+          "I've been working on exactly that. Can I send you a quick clip? I want to know if it's actually good or if I'm kidding myself."
         </div>
-        <div class="dialogue">
-          "Glad that worked. Here's where I'm at — I'm starting to charge for this now. For you, since you were one of the first: founding rate. Pro is $1,000 a month, or $12,000 for the year — that's $6,000 off standard and no setup fee."
-          <span class="beat">Pause.</span>
-        </div>
-        <div class="dialogue">"Want to keep it going?"</div>
         <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('pricing')">Yes — go to pricing flow</button>
-          <button type="button" class="btn" onclick="goTo('s_transition_no')">Needs time / no</button>
+          <button type="button" class="btn primary" onclick="goTo('variantB_close_clip')">Sure, send it</button>
+          <button type="button" class="btn" onclick="goTo('variantB_close_demo')">Strong interest / asking questions</button>
+          <button type="button" class="btn" onclick="goTo('variantB_free_offer')">Interested but not buying</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">Not interested</button>
         </div>
       </div>
     `
   },
 
-  s_transition_no: {
-    label: 'S — TRANSITION',
+  // ─── VARIANT B: CLOSE PATHS ───
+
+  variantB_close_clip: {
+    label: 'VARIANT B — CLOSE',
     stepIdx: 5,
     render: () => `
       <div class="fade-in">
-        <div class="label">They need time or said no</div>
-        <div class="dialogue">
-          "Totally fair. I'm holding the founding rate for another week. After that the price goes up — it's not a line, prices actually do increase every 5 clients."
-          <span class="beat">Pause.</span>
+        <div class="label" style="background:var(--green-muted);color:var(--green);">They want the clip — collect email and stop</div>
+        <div class="dialogue">"What's the best email?"</div>
+        <div class="note">After they give it:</div>
+        <div class="dialogue-sm">
+          "I'll send it over today. It's a 30-second clip of how it sounds plus what the text looks like. Would really appreciate your honest take on it."
         </div>
-        <div class="note">If they say no entirely: "No problem. Can I ask — was it the results, or more the price?" Then ask for the testimonial regardless.</div>
+        <div class="note warn">That's the call. You're done. Don't keep selling.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
+          <button type="button" class="btn" onclick="goTo('pricing')">They asked "how much?"</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_close_demo: {
+    label: 'VARIANT B — CLOSE',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Strong interest — demo live or book Zoom</div>
+        <div class="dialogue">
+          "I can show you right now. I'll text you a number — you call it, say something like 'my AC stopped working,' and watch what it does. Takes 90 seconds."
+        </div>
+        <div class="note warn">Text the demo number NOW while they're still on the line.</div>
+        <div class="note">Or if they prefer Zoom:</div>
+        <div class="dialogue-sm">"I can also show you on a quick Zoom — 10 minutes, I'll call your line live so you can hear it. When's good this week?"</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_after_demo')">They called the demo</button>
+          <button type="button" class="btn" onclick="goTo('done')">Booked Zoom — done</button>
+          <button type="button" class="btn" onclick="goTo('pricing')">They asked "how much?"</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_after_demo: {
+    label: 'VARIANT B — AFTER DEMO',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Let them react — don't fill the silence</div>
+        <div class="dialogue">
+          "What did you think — did it sound like it'd work for your callers?"
+          <span class="beat">Wait for their take.</span>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_demo_close')">Positive — close</button>
+          <button type="button" class="btn" onclick="goTo('variantB_free_offer')">Interested but hesitant</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">Didn't like it</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_demo_close: {
+    label: 'VARIANT B — CLOSE',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">They liked it — try paid first</div>
+        <div class="dialogue">
+          "The full version is twelve grand for the year — founding rate. That's a thousand a month, no setup fee."
+          <span class="beat">Stop. Count to 8. Say nothing.</span>
+        </div>
+        <div class="note" style="font-size:14px;color:var(--text-secondary);">
+          Let them react. Their response tells you where to go.
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">They said yes</button>
+          <button type="button" class="btn" onclick="goTo('pricing_features')">What do I get?</button>
+          <button type="button" class="btn" onclick="goTo('pricing_reframe')">Sticker shock</button>
+          <button type="button" class="btn" onclick="goTo('variantB_free_offer')">No to price — free pilot</button>
+        </div>
+      </div>
+    `
+  },
+
+  // ─── VARIANT B: FREE PILOT (downsell, not frame) ───
+
+  variantB_free_offer: {
+    label: 'VARIANT B — FREE PILOT',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">Free pilot — only after they've heard the product</div>
+        <div class="note warn">Only use after discovery. They're interested but won't commit to paid.</div>
+        <div class="dialogue">
+          "I'll be straight with you — I need 2 or 3 real businesses to test this before I feel right charging for it. What if I set it up on your line for 30 days, no charge? You give me honest feedback. If it works, we talk numbers."
+          <span class="beat">Pause.</span>
+        </div>
+        <div class="note" style="color:var(--text-secondary);font-size:13px;">This is a barter — free setup for feedback + potential testimonial. Not charity.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_close_free')">They agreed</button>
+          <button type="button" class="btn" onclick="goTo('variantB_catch')">What's the catch?</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">Still no — exit</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_catch: {
+    label: 'VARIANT B — OBJECTION',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">No catch — explain the trade</div>
+        <div class="dialogue">
+          "No catch. I have a demo but no proof it works on real HVAC calls at volume. That proof is worth more to me than money right now. You run it 30 days, give me honest feedback. If it worked, I ask for a testimonial. No obligation to pay."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('variantB_close_free')">That makes sense</button>
+          <button type="button" class="btn" onclick="goTo('exit_clean')">Still no</button>
+        </div>
+      </div>
+    `
+  },
+
+  variantB_close_free: {
+    label: 'VARIANT B — CLOSE',
+    stepIdx: 5,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--green-muted);color:var(--green);">You closed it — get details and stop</div>
+        <div class="dialogue">
+          "Perfect. What's the phone number you want it on?"
+          <span class="beat">Get their number. Write it down.</span>
+        </div>
+        <div class="dialogue-sm">
+          "And what's a good email? I'll send you a couple setup questions — takes 10 minutes."
+        </div>
+        <div class="note" style="font-size:14px;color:var(--text-secondary);">Then:</div>
+        <div class="dialogue-sm">
+          "I'll have it live by [DAY — 5 days out]. I'll call you the day it goes live to walk you through what to expect."
+        </div>
+        <div class="note warn">That's it. You're done. Do not keep talking.</div>
+        <div class="note" style="font-size:13px;color:var(--text-muted);margin-top:8px;">
+          Plant the paid frame: "When this works, I want to show you what it goes for commercially."<br>
+          After 30 days: anchor to specific results → founding rate ($12K/yr or $1K/mo).
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">Got details — done</button>
         </div>
       </div>
     `
@@ -1555,19 +1642,12 @@ const steps = {
   }
 };
 
-function setMode(m) {
-  mode = m;
-  document.body.classList.toggle('student-mode', m === 'student');
-  document.getElementById('modeStdBtn').className = m === 'standard' ? 'btn primary' : 'btn';
-  document.getElementById('modeStuBtn').className = m === 'student' ? 'btn primary' : 'btn';
-}
-
 function saveName() {
   const nameEl = document.getElementById('nameInput');
   const timeEl = document.getElementById('timeInput');
   if (nameEl) prospectName = nameEl.value.trim() || '';
   if (timeEl) reconTime = timeEl.value.trim() || '';
-  goTo(mode === 'student' ? 's_opener' : 'opener');
+  goTo('opener');
 }
 
 function goTo(stepKey) {
@@ -1612,8 +1692,6 @@ function restart() {
   prospectName = '';
   reconTime = '';
   currentStep = 0;
-  document.body.classList.remove('student-mode');
-  mode = 'standard';
   goTo('prep');
 }
 
@@ -1644,6 +1722,17 @@ document.addEventListener('keydown', (e) => {
 });
 
 goTo('prep');
+
+// Touch: tap overlay backdrop to close
+document.getElementById('handlerOverlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) hideHandlers();
+});
+
+// Touch: hide keyboard hints on touch devices
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+  const hint = document.getElementById('footerHint');
+  if (hint) hint.style.display = 'none';
+}
 
 // PWA service worker
 if ('serviceWorker' in navigator) {
