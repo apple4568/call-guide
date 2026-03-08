@@ -781,6 +781,9 @@ const steps = {
         <div class="actions">
           <button type="button" class="btn" style="border-color:var(--green);color:var(--green);" onclick="goTo('variantB_opener')">D — Student (question-led, free pilot close)</button>
         </div>
+        <div class="actions" style="margin-top:12px;">
+          <button type="button" class="btn ghost" onclick="goTo('leave_vm')">No answer / hit voicemail</button>
+        </div>
       </div>
     `
   },
@@ -874,7 +877,8 @@ const steps = {
         <div class="note">Don't leave a message. Messages from unknown numbers don't get returned. Note the callback time and move on.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('q1_norecon')">Got through to owner</button>
-          <button type="button" class="btn" onclick="goTo('done')">Dead end — next call</button>
+          <button type="button" class="btn" onclick="goTo('leave_vm')">Dead end — leave VM</button>
+          <button type="button" class="btn ghost" onclick="goTo('done')">Skip — next call</button>
         </div>
       </div>
     `
@@ -1508,7 +1512,8 @@ const steps = {
         <div class="note">Don't leave a message. Messages from unknown numbers don't get returned. Note the callback time and move on.</div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('variantB_q1_norecon')">Got through to owner</button>
-          <button type="button" class="btn" onclick="goTo('done')">Dead end — next call</button>
+          <button type="button" class="btn" onclick="goTo('leave_vm')">Dead end — leave VM</button>
+          <button type="button" class="btn ghost" onclick="goTo('done')">Skip — next call</button>
         </div>
       </div>
     `
@@ -1941,6 +1946,31 @@ const steps = {
         </div>
         <div class="actions">
           <button type="button" class="btn primary" onclick="goTo('done')">Got details — done</button>
+        </div>
+      </div>
+    `
+  },
+
+  leave_vm: {
+    label: 'VOICEMAIL',
+    stepIdx: 1,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--accent-muted);color:var(--accent);">Leave a competitor voicemail</div>
+        <div class="dialogue">
+          "Hey, this is [YOU]. I'm calling in regards to <strong>[COMPETITOR NAME]</strong>. Give me a call back when it's convenient — [YOUR NUMBER]."
+        </div>
+        <div class="note"><strong>That's it.</strong> Don't explain more. Don't pitch. Don't say what you do.</div>
+        <div class="note" style="margin-top:12px;">
+          <strong>Pick a competitor:</strong> Use another HVAC shop in their city from your list. Only name them if you actually called them too.
+        </div>
+        <div class="note" style="margin-top:12px;">
+          <strong>When they call back:</strong> "Yeah — we've been reaching out to HVAC shops in [CITY] about how they handle after-hours calls. [Competitor] was one of the shops we talked to. I wanted to ask you the same question if you've got 30 seconds."
+        </div>
+        <div class="note" style="margin-top:12px;">Then go straight to your first question — they're warm now, skip the opener.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">VM left — next call</button>
+          <button type="button" class="btn ghost" onclick="goTo('opener')">← Back</button>
         </div>
       </div>
     `
