@@ -500,6 +500,132 @@
     color: var(--green);
   }
 
+  /* ─── Audit mode (red/coral) ─── */
+  body.audit-mode {
+    --accent: #ef4444;
+    --accent-hover: #f87171;
+    --accent-muted: rgba(239, 68, 68, 0.12);
+  }
+
+  /* ─── Student mode (green) ─── */
+  body.student-mode {
+    --accent: #22c55e;
+    --accent-hover: #4ade80;
+    --accent-muted: rgba(34, 197, 94, 0.12);
+  }
+
+  /* ─── Mode selector ─── */
+  .mode-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .mode-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    border: 2px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .mode-btn:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+  }
+  .mode-btn.active-standard {
+    border-color: #f59e0b;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.12);
+  }
+  .mode-btn.active-student {
+    border-color: #22c55e;
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.12);
+  }
+  .mode-btn.active-audit {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
+  }
+
+  /* ─── Audit input fields ─── */
+  .audit-fields {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .audit-fields.show { display: flex; }
+  .audit-fields .audit-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .audit-fields input, .audit-fields textarea {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 500;
+    outline: none;
+    transition: border-color var(--transition);
+  }
+  .audit-fields input:focus, .audit-fields textarea:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+  }
+  .audit-fields input::placeholder, .audit-fields textarea::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+  .audit-fields input { width: 200px; }
+  .audit-fields input.sm { width: 120px; }
+  .audit-fields textarea {
+    width: 100%;
+    min-height: 72px;
+    resize: vertical;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Pause markers */
+  .pause-marker {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.12);
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin: 0 2px;
+    vertical-align: middle;
+  }
+  body.audit-mode .pause-marker {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
+  }
+
+  /* Handler tab red variant */
+  .handler-tab.red { color: var(--red); }
+  .handler-tab.red.active {
+    background: var(--red-muted);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
   /* ─── Touch / iPad ─── */
   @media (pointer: coarse) {
     .btn {
@@ -562,6 +688,7 @@
       <button type="button" class="handler-tab" onclick="showTab('pricing')">Pricing</button>
       <button type="button" class="handler-tab" onclick="showTab('questions')">Questions</button>
       <button type="button" class="handler-tab green" onclick="showTab('pilot')">Free Pilot</button>
+      <button type="button" class="handler-tab red" onclick="showTab('audit')">Audit-First</button>
       <button type="button" class="handler-tab" onclick="showTab('nav')">Jump To</button>
     </div>
 
@@ -706,6 +833,40 @@
       </div>
     </div>
 
+    <!-- ─── AUDIT-FIRST ─── -->
+    <div class="handler-section" id="tab-audit">
+      <div class="handler">
+        <div class="them">Not interested</div>
+        <div class="you"><strong>Miyagi method:</strong> "Totally fair — is it because you've got something handling after-hours, you're not missing many calls, or I just caught you at a bad time?"</div>
+      </div>
+
+      <div class="handler has-nav" onclick="navFromHandler('a_answering_service')">
+        <div class="them">We have an answering service <span class="nav-hint">→ Answering svc</span></div>
+        <div class="you">Navigate to the answering service wedge questions.</div>
+        <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('a_answering_service')">→ Go to answering svc</button>
+      </div>
+
+      <div class="handler">
+        <div class="them">Just send me an email</div>
+        <div class="you">Get their email, then: "I'll send it right now. There's a demo number in there — call it, takes 60 seconds. Also, can we do 10 minutes this week? The report makes way more sense when I walk you through it."</div>
+      </div>
+
+      <div class="handler">
+        <div class="them">Don't have time</div>
+        <div class="you">"The fact that you don't have time is exactly why this exists." <span style="display:inline-block;font-size:12px;font-weight:700;color:var(--red);background:var(--red-muted);padding:2px 6px;border-radius:4px;margin-left:4px;">&#9208; 1-2s</span> Let it land.</div>
+      </div>
+
+      <div class="handler">
+        <div class="them">How much?</div>
+        <div class="you">"Depends on what you need — the report will show the gap. Let me send it first, and if it makes sense, I'll walk you through options in 10 minutes."</div>
+      </div>
+
+      <div class="handler">
+        <div class="them">Our phones are fine</div>
+        <div class="you">"I called at [TIME] on [DAY] and it went to voicemail. Worth a look even if it confirms everything's working. Can I send it over?"</div>
+      </div>
+    </div>
+
     <!-- ─── JUMP TO ─── -->
     <div class="handler-section" id="tab-nav">
       <div class="handler has-nav" onclick="navFromHandler('variantB_opener')">
@@ -726,6 +887,12 @@
         <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('pricing')">→ Go to Pricing</button>
       </div>
 
+      <div class="handler has-nav" onclick="navFromHandler('a_opener')">
+        <div class="them">Audit-First flow <span class="nav-hint">→ Variant C</span></div>
+        <div class="you">Jump to the audit-first opener with data reveal.</div>
+        <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('a_opener')">→ Go to Audit flow</button>
+      </div>
+
       <div class="handler has-nav" onclick="navFromHandler('exit_clean')">
         <div class="them">Exit <span class="nav-hint">→ Exit</span></div>
         <div class="you">Pick from 3 exit types: no gap, after 2 nos, warm but not now.</div>
@@ -742,6 +909,22 @@ let prospectName = '';
 let reconTime = '';
 let currentStep = 0;
 const totalSteps = 7;
+let currentMode = 'standard'; // 'standard' | 'student' | 'audit'
+
+// Audit-mode data
+let auditCompany = '';
+let auditScore = '';
+let auditAnswerRate = '';
+let auditCallSummary = '';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.body.classList.remove('audit-mode', 'student-mode');
+  if (mode === 'audit') document.body.classList.add('audit-mode');
+  if (mode === 'student') document.body.classList.add('student-mode');
+  // Re-render prep to show/hide fields
+  goTo('prep');
+}
 
 const steps = {
   prep: {
@@ -750,15 +933,34 @@ const steps = {
     render: () => `
       <div class="fade-in">
         <div class="label">Before you dial</div>
+
+        <div class="mode-selector">
+          <button type="button" class="mode-btn ${currentMode === 'standard' ? 'active-standard' : ''}" onclick="setMode('standard')">Standard</button>
+          <button type="button" class="mode-btn ${currentMode === 'student' ? 'active-student' : ''}" onclick="setMode('student')">Free Pilot</button>
+          <button type="button" class="mode-btn ${currentMode === 'audit' ? 'active-audit' : ''}" onclick="setMode('audit')">Audit-First</button>
+        </div>
+
         <ul class="checklist">
           <li>Stand up. One breath.</li>
           <li>Say their name out loud <strong>3 times</strong>.</li>
           <li>Tap <strong>Record</strong> in OpenPhone.</li>
         </ul>
         <div class="input-group">
-          <input type="text" id="nameInput" placeholder="Their name" autofocus aria-label="Prospect name">
-          <input type="text" class="sm" id="timeInput" placeholder="Recon time" aria-label="Recon call time">
+          <input type="text" id="nameInput" placeholder="Their name" autofocus aria-label="Prospect name" value="${prospectName}">
+          <input type="text" class="sm" id="timeInput" placeholder="Recon time" aria-label="Recon call time" value="${reconTime}">
         </div>
+
+        <div class="audit-fields ${currentMode === 'audit' ? 'show' : ''}" id="auditFields">
+          <div class="audit-row">
+            <input type="text" id="auditCompanyInput" placeholder="Company name" aria-label="Company name" value="${auditCompany}">
+          </div>
+          <div class="audit-row">
+            <input type="number" class="sm" id="auditScoreInput" placeholder="Score 0-10" min="0" max="10" aria-label="Audit score" value="${auditScore}">
+            <input type="number" class="sm" id="auditAnswerRateInput" placeholder="Answer %" min="0" max="100" aria-label="Answer rate percent" value="${auditAnswerRate}">
+          </div>
+          <textarea id="auditCallSummaryInput" placeholder="Call times &amp; results (e.g. 6 PM Tue: voicemail, 9 AM Wed: answered)" aria-label="Call summary">${auditCallSummary}</textarea>
+        </div>
+
         <div class="actions">
           <button type="button" class="btn primary" onclick="saveName()">Ready to dial</button>
         </div>
@@ -1951,6 +2153,198 @@ const steps = {
     `
   },
 
+  // ─── VARIANT C: AUDIT-FIRST (red/coral) ───
+
+  a_opener: {
+    label: 'AUDIT — OPENER',
+    stepIdx: 1,
+    render: () => {
+      const s = auditStats();
+      const name = prospectName || '[NAME]';
+      const company = auditCompany || '[COMPANY]';
+      const totalCalls = s.total || '[X]';
+      const vmCount = s.vm || '[X]';
+      return `
+      <div class="fade-in">
+        <div class="label" style="background:var(--red-muted);color:var(--red);">Audit-First — Opener</div>
+        <div class="note" style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+          NO apology. NO "I know this is out of the blue." State name + finding as one breath. Downward inflection.
+        </div>
+        <div class="dialogue">
+          "Hey <strong>${name}</strong>, this is [YOUR NAME] — I called your shop <strong>${totalCalls}</strong> times this week at different hours. <strong>${vmCount}</strong> of <strong>${totalCalls}</strong> went to voicemail. I put together a free report showing your answer rate and what it's probably costing you. Can I send it over?"
+        </div>
+        <div class="dialogue">
+          <span class="pause-marker">&#9208; 1-3s</span> — state the finding, then wait.
+        </div>
+        <div class="note">Let them process. Their next words tell you where to go.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('a_demo_push')">Yes / sure / send it</button>
+          <button type="button" class="btn" onclick="goTo('a_data_reveal')">What is it? / Tell me more</button>
+          <button type="button" class="btn" onclick="goTo('a_answering_service')">We have an answering service</button>
+          <button type="button" class="btn" onclick="goTo('exit_after_nos')">Not interested — hard no</button>
+          <button type="button" class="btn ghost" onclick="goTo('gatekeeper')">Gatekeeper</button>
+        </div>
+      </div>
+    `}
+  },
+
+  a_data_reveal: {
+    label: 'AUDIT — DATA REVEAL',
+    stepIdx: 2,
+    render: () => {
+      const s = auditStats();
+      const rate = auditAnswerRate ? auditAnswerRate + '%' : '[X]%';
+      // Build call detail string from summary
+      let callDetail = '';
+      if (s.lines.length > 0) {
+        callDetail = s.lines.slice(0, 3).join(', ');
+      } else {
+        callDetail = 'morning, afternoon, after hours';
+      }
+      return `
+      <div class="fade-in">
+        <div class="label" style="background:var(--red-muted);color:var(--red);">Data Reveal — specificity wins</div>
+        <div class="dialogue">
+          "I called your line ${s.total || '3'} times — ${callDetail}. Documented what happened each time. Shows your answer rate vs other HVAC companies in [CITY] and estimates lost revenue."
+          <span class="pause-marker">&#9208; 1-3s</span>
+        </div>
+        <div class="dialogue">
+          "CallRail charges $135/month for call tracking — this is better and it's free."
+          <span class="pause-marker">&#9208; 1-3s</span>
+        </div>
+        <div class="note">Let them react, then add:</div>
+        <div class="dialogue-sm">
+          "50% of customers go with whoever picks up first — not the best, just the fastest."
+          <span class="pause-marker">&#9208; 1-2s</span>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('a_demo_push')">They want the report</button>
+          <button type="button" class="btn" onclick="goTo('a_answering_service')">We have an answering service</button>
+          <button type="button" class="btn" onclick="goTo('exit_after_nos')">Not interested</button>
+        </div>
+      </div>
+    `}
+  },
+
+  a_demo_push: {
+    label: 'AUDIT — DEMO PUSH',
+    stepIdx: 3,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--red-muted);color:var(--red);">They said yes — get email + push demo</div>
+        <div class="dialogue">
+          "What's the best email to send it to?"
+        </div>
+        <div class="note">After they give email:</div>
+        <div class="dialogue">
+          "Also, there's a number in the report — call it right now and hear what your customers would hear instead of voicemail. Takes 60 seconds. Want me to text it to you?"
+          <span class="pause-marker">&#9208; 1-3s</span>
+        </div>
+        <div class="note">If they need context:</div>
+        <div class="dialogue-sm">
+          "It answers the call, figures out what's wrong with their AC, checks the address, and books the job. Your team gets a text before the customer hangs up."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('a_close')">They called demo / want to book</button>
+          <button type="button" class="btn" onclick="goTo('a_followup')">Just send the report — done</button>
+          <button type="button" class="btn" onclick="goTo('pricing')">They asked how much</button>
+        </div>
+      </div>
+    `
+  },
+
+  a_answering_service: {
+    label: 'AUDIT — ANSWERING SERVICE',
+    stepIdx: 2,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--red-muted);color:var(--red);">They answered every call — answering service scenario</div>
+        <div class="dialogue">
+          "Your team actually answered every time I called — which is better than most."
+          <span class="pause-marker">&#9208; 1-2s</span>
+        </div>
+        <div class="note" style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;">Three wedge questions — find the gap:</div>
+        <div class="dialogue">
+          <strong>1.</strong> "Do they know HVAC — or just take a name and number?"
+          <span class="pause-marker">&#9208; 1-2s</span>
+        </div>
+        <div class="dialogue">
+          <strong>2.</strong> "Do they book the job, or just take a message?"
+          <span class="pause-marker">&#9208; 1-2s</span>
+        </div>
+        <div class="dialogue">
+          <strong>3.</strong> "How long before the customer hears a voice?"
+          <span class="pause-marker">&#9208; 1-2s</span>
+        </div>
+        <div class="note">After their answers:</div>
+        <div class="dialogue-sm">
+          "At [$200-600]/month, there might be a better option. I can show you in 10 minutes."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('a_close')">They're curious — book it</button>
+          <button type="button" class="btn" onclick="goTo('a_demo_push')">Send report first</button>
+          <button type="button" class="btn" onclick="goTo('exit_no_gap')">They're happy — exit clean</button>
+        </div>
+      </div>
+    `
+  },
+
+  a_close: {
+    label: 'AUDIT — CLOSE',
+    stepIdx: 4,
+    render: () => `
+      <div class="fade-in">
+        <div class="label" style="background:var(--red-muted);color:var(--red);">Close — book the next step</div>
+        <div class="dialogue">
+          "When's good for a quick 10 minutes — Tuesday or Thursday?"
+          <span class="pause-marker">&#9208; 8s — count silently</span>
+        </div>
+        <div class="note">If they called the demo:</div>
+        <div class="dialogue-sm">
+          "What did you think — would that work for your callers?"
+          <span class="pause-marker">&#9208; 1-3s</span>
+        </div>
+        <div class="note">Then book the time.</div>
+        <div class="note" style="margin-top:16px;">Report-only fallback:</div>
+        <div class="dialogue-sm">
+          "Totally fine — I'll send it over. Call the demo number when you get a chance. I'll follow up Thursday."
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">Booked meeting — done</button>
+          <button type="button" class="btn" onclick="goTo('a_followup')">Report only — follow up later</button>
+          <button type="button" class="btn" onclick="goTo('pricing')">They asked how much</button>
+        </div>
+      </div>
+    `
+  },
+
+  a_followup: {
+    label: 'AUDIT — FOLLOW-UP',
+    stepIdx: 5,
+    render: () => {
+      const name = prospectName || '[NAME]';
+      const company = auditCompany || '[COMPANY]';
+      return `
+      <div class="fade-in">
+        <div class="label" style="background:var(--red-muted);color:var(--red);">Follow-up text + 48hr call</div>
+        <div class="note" style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">Copy this text to send with the report:</div>
+        <div class="dialogue-sm" style="background:var(--bg-elevated);padding:16px;border-radius:var(--radius);border-left:3px solid var(--red);font-size:15px;">
+          Hey ${name}, it's [YOUR NAME]. Here's that call audit for ${company} — answer rate, missed call cost estimate, and a demo number you can call right now to hear the AI in action. Let me know what you think.
+        </div>
+        <div class="note" style="margin-top:20px;font-size:14px;color:var(--text-secondary);">48-hour follow-up call script:</div>
+        <div class="dialogue">
+          "Hey ${name}, it's [YOUR NAME] — I sent over that call audit a couple days ago. Did you get a chance to call the demo number?"
+          <span class="pause-marker">&#9208; 1-3s</span>
+        </div>
+        <div class="note">If yes: "What did you think?" then → close.<br>If no: "Takes 60 seconds — call it right now, I'll wait." then → close.</div>
+        <div class="actions">
+          <button type="button" class="btn primary" onclick="goTo('done')">Done</button>
+          <button type="button" class="btn" onclick="goTo('a_close')">They want to book</button>
+        </div>
+      </div>
+    `}
+  },
+
   leave_vm: {
     label: 'VOICEMAIL',
     stepIdx: 1,
@@ -2006,7 +2400,34 @@ function saveName() {
   const timeEl = document.getElementById('timeInput');
   if (nameEl) prospectName = nameEl.value.trim() || '';
   if (timeEl) reconTime = timeEl.value.trim() || '';
-  goTo('opener');
+
+  // Capture audit fields
+  const compEl = document.getElementById('auditCompanyInput');
+  const scoreEl = document.getElementById('auditScoreInput');
+  const rateEl = document.getElementById('auditAnswerRateInput');
+  const summaryEl = document.getElementById('auditCallSummaryInput');
+  if (compEl) auditCompany = compEl.value.trim() || '';
+  if (scoreEl) auditScore = scoreEl.value.trim() || '';
+  if (rateEl) auditAnswerRate = rateEl.value.trim() || '';
+  if (summaryEl) auditCallSummary = summaryEl.value.trim() || '';
+
+  // Route based on mode
+  if (currentMode === 'audit') {
+    goTo('a_opener');
+  } else if (currentMode === 'student') {
+    goTo('variantB_opener');
+  } else {
+    goTo('opener');
+  }
+}
+
+// Helper: parse audit call summary into stats
+function auditStats() {
+  const lines = auditCallSummary.split(/[,;\n]/).map(s => s.trim()).filter(Boolean);
+  const total = lines.length || 0;
+  const vm = lines.filter(l => /voicemail|vm|no answer/i.test(l)).length;
+  const answered = total - vm;
+  return { total, vm, answered, lines };
 }
 
 function goTo(stepKey) {
@@ -2060,12 +2481,16 @@ function navFromHandler(stepKey) {
 function restart() {
   prospectName = '';
   reconTime = '';
+  auditCompany = '';
+  auditScore = '';
+  auditAnswerRate = '';
+  auditCallSummary = '';
   currentStep = 0;
   goTo('prep');
 }
 
 document.addEventListener('keydown', (e) => {
-  if (e.target.tagName === 'INPUT') return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   const overlay = document.getElementById('handlerOverlay');
   const isOpen = overlay.classList.contains('show');
 
