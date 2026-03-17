@@ -2,36 +2,42 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#09090b">
 <link rel="manifest" href="./manifest.json">
-<title>Call Guide</title>
+<title>Call Guide iPad</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
-    --bg-base: #09090b;
-    --bg-surface: #18181b;
-    --bg-elevated: #27272a;
-    --border: #2e2e33;
-    --border-hover: #3f3f46;
-    --text-primary: #fafafa;
-    --text-secondary: #a1a1aa;
-    --text-muted: #52525b;
+    --bg-base: #000000;
+    --bg-surface: #0a0a0a;
+    --bg-elevated: #171717;
+    --border: #262626;
+    --border-hover: #404040;
+    
+    --text-primary: #ffffff;
+    --text-secondary: #a3a3a3;
+    --text-muted: #52525b; /* Darker than before to aggressively suppress notes */
+    
     --accent: #f59e0b;
     --accent-hover: #fbbf24;
-    --accent-muted: rgba(245, 158, 11, 0.12);
+    --accent-muted: rgba(245, 158, 11, 0.15);
+    
     --green: #22c55e;
-    --green-muted: rgba(34, 197, 94, 0.12);
+    --green-muted: rgba(34, 197, 94, 0.15);
+    
     --red: #ef4444;
-    --red-muted: rgba(239, 68, 68, 0.12);
+    --red-muted: rgba(239, 68, 68, 0.15);
+    
     --blue: #818cf8;
-    --blue-muted: rgba(129, 140, 248, 0.12);
-    --radius: 10px;
+    --blue-muted: rgba(129, 140, 248, 0.15);
+    
+    --radius: 16px;
     --transition: 200ms ease;
   }
 
@@ -40,28 +46,41 @@
     background: var(--bg-base);
     color: var(--text-primary);
     height: 100vh;
+    height: 100dvh; /* Better mobile handling */
     display: flex;
-    flex-direction: column;
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
+    user-select: none; /* Prevent accidental text selection while swiping */
   }
 
-  /* --- Top bar --- */
+  /* --- iPad Layout Core --- */
+  
+  /* Reading Area (Left Pane) */
+  .reader-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    border-right: 1px solid var(--border);
+    background: var(--bg-base);
+    z-index: 10;
+  }
+
+  /* Header inside Reader */
   header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 24px;
-    background: var(--bg-surface);
-    border-bottom: 1px solid var(--border);
+    padding: 20px 48px;
     flex-shrink: 0;
   }
 
   .step-label {
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
     color: var(--text-muted);
   }
   .step-label .current {
@@ -71,12 +90,12 @@
   .progress-bar {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
   }
   .progress-bar .seg {
-    width: 32px;
-    height: 4px;
-    border-radius: 2px;
+    width: 48px;
+    height: 6px;
+    border-radius: 3px;
     background: var(--bg-elevated);
     transition: background var(--transition);
   }
@@ -87,503 +106,407 @@
     background: var(--green);
   }
 
-  /* --- Main content --- */
+  /* Main Script Content */
   main {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 48px 40px;
+    padding: 0 80px; /* Big gutters for iPad */
     overflow-y: auto;
-    max-width: 740px;
     width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* The "Stack Container" for holding the script AND injected handler cards */
+  .stack-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 900px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
-  .fade-in {
-    animation: fadeIn 250ms ease-out;
+  /* Animations for state changes */
+  .stack-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(20px);
+    transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
   }
-  @media (prefers-reduced-motion: reduce) {
-    .fade-in { animation: none; }
+  .stack-layer.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
   }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+  .stack-layer.past {
+    transform: translateX(-20px);
+  }
+  
+  /* Pushed Objections (Breadcrumb style) */
+  .stack-layer.handler-layer {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px;
+    transform: translateY(100px); /* Slides up from bottom */
+    z-index: 20;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  }
+  .stack-layer.handler-layer.active {
+    transform: translateY(0);
   }
 
-  /* Instruction label */
+  /* --- Script Typography --- */
+  
   .label {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 700;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
     color: var(--accent);
     background: var(--accent-muted);
-    padding: 5px 12px;
-    border-radius: 6px;
-    margin-bottom: 24px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin-bottom: 32px;
     width: fit-content;
   }
 
-  /* Say-this dialogue block */
   .dialogue {
-    font-size: 24px;
-    line-height: 1.55;
-    font-weight: 400;
+    font-size: 42px; /* GIANT text for iPad glanceability */
+    line-height: 1.4;
+    font-weight: 500;
     color: var(--text-primary);
-    margin-bottom: 28px;
+    margin-bottom: 32px;
     text-align: left;
+    letter-spacing: -0.5px;
   }
   .dialogue strong {
     color: var(--accent);
-    font-weight: 600;
+    font-weight: 700;
   }
   .dialogue .beat {
-    display: block;
-    margin-top: 14px;
-    font-size: 13px;
-    font-weight: 700;
+    display: inline-block;
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     color: var(--red);
     background: var(--red-muted);
-    padding: 6px 12px;
-    border-radius: 6px;
-    width: fit-content;
+    padding: 8px 16px;
+    border-radius: 8px;
   }
 
-  /* Secondary dialogue (smaller follow-up) */
   .dialogue-sm {
-    font-size: 19px;
-    line-height: 1.55;
+    font-size: 28px;
+    line-height: 1.5;
     color: var(--text-primary);
     margin-bottom: 24px;
     text-align: left;
-    padding-left: 16px;
-    border-left: 3px solid var(--border);
+    padding-left: 24px;
+    border-left: 4px solid var(--border);
   }
 
-  /* Note / hint text */
+  /* Aggressively dim instructions so they don't break reading flow */
   .note {
-    font-size: 13px;
+    font-size: 18px;
     color: var(--text-muted);
-    margin-bottom: 16px;
-    line-height: 1.55;
+    margin-bottom: 24px;
+    line-height: 1.5;
     text-align: left;
   }
   .note.warn {
     color: var(--red);
-    font-weight: 600;
+    font-weight: 700;
   }
 
-  /* Tone markers */
   .tone {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    font-weight: 700;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1.2px;
+    letter-spacing: 1.5px;
     color: var(--blue);
     background: var(--blue-muted);
-    padding: 4px 10px;
-    border-radius: 6px;
-    margin-bottom: 12px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    margin-bottom: 16px;
     width: fit-content;
   }
 
-  /* --- Buttons --- */
+  /* --- Buttons & Inputs --- */
   .actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 8px;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  /* Massive branching buttons */
+  .actions.col {
+    flex-direction: column;
   }
 
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 11px 22px;
+    padding: 24px 32px; /* Massive touch target */
     border-radius: var(--radius);
     border: 1px solid var(--border);
     background: var(--bg-surface);
     color: var(--text-secondary);
     font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 20px;
+    font-weight: 600;
     cursor: pointer;
     transition: all var(--transition);
     outline: none;
+    text-align: left;
+    min-height: 80px; 
   }
-  .btn:hover {
-    background: var(--bg-elevated);
-    border-color: var(--border-hover);
-    color: var(--text-primary);
-  }
-  .btn:focus-visible {
-    box-shadow: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--accent);
+  .btn:active {
+    transform: scale(0.98);
   }
   .btn.primary {
     background: var(--accent);
     color: #000;
     border-color: var(--accent);
-    font-weight: 600;
+    font-weight: 700;
   }
-  .btn.primary:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
-  }
-  .btn.primary:focus-visible {
-    box-shadow: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--accent-hover);
-  }
-  .btn.ghost {
-    background: transparent;
-    border-color: transparent;
-    color: var(--text-muted);
-    padding: 8px 14px;
-    font-size: 13px;
-  }
-  .btn.ghost:hover {
-    color: var(--text-secondary);
-    background: var(--bg-surface);
+  
+  /* Handler Return Button (Giant anchor) */
+  .btn.return-anchor {
+    background: var(--blue);
+    color: #000;
+    border: none;
+    font-size: 24px;
+    font-weight: 800;
+    width: 100%;
+    margin-top: 40px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
   }
 
-  /* --- Inputs --- */
   .input-group {
     display: flex;
-    gap: 10px;
-    margin-bottom: 28px;
+    gap: 16px;
+    margin-bottom: 40px;
   }
   .input-group input {
-    padding: 12px 16px;
+    padding: 24px;
     border-radius: var(--radius);
     border: 1px solid var(--border);
     background: var(--bg-surface);
     color: var(--text-primary);
     font-family: inherit;
-    font-size: 16px;
-    font-weight: 500;
+    font-size: 24px;
+    font-weight: 600;
     outline: none;
-    transition: border-color var(--transition);
-    width: 200px;
+    width: 300px;
   }
   .input-group input:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-muted);
   }
-  .input-group input::placeholder {
-    color: var(--text-muted);
-    font-weight: 400;
-  }
-  .input-group .sm { width: 140px; }
+  .input-group .sm { width: 200px; }
 
-  /* --- Prep checklist --- */
-  .checklist {
-    list-style: none;
-    margin-bottom: 28px;
-    text-align: left;
-  }
-  .checklist li {
-    font-size: 18px;
-    line-height: 2.2;
-    color: var(--text-secondary);
-    padding-left: 28px;
-    position: relative;
-  }
-  .checklist li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--border);
-  }
-  .checklist li strong {
-    color: var(--accent);
-  }
-
-  /* --- Question cards (DISCOVER phase) --- */
-  .q-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-    margin-bottom: 20px;
-  }
-  .q-card {
-    padding: 14px 16px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    background: var(--bg-surface);
-    cursor: pointer;
-    transition: all var(--transition);
-    text-align: left;
-  }
-  .q-card:hover {
-    border-color: var(--border-hover);
-    background: var(--bg-elevated);
-  }
-  .q-card.expanded {
-    border-color: var(--accent);
-    background: var(--bg-elevated);
-  }
-  .q-card .q-text {
-    font-size: 17px;
-    color: var(--text-primary);
-    line-height: 1.5;
-    margin-bottom: 4px;
-  }
-  .q-card .q-when {
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
-  }
-  .q-card .q-responses {
-    display: none;
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid var(--border);
-  }
-  .q-card.expanded .q-responses {
-    display: block;
-  }
-
-  /* Inline response handler */
-  .inline-handler {
-    padding: 10px 14px;
-    border-radius: 8px;
-    margin: 6px 0;
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-  }
-  .inline-handler .ih-them {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--text-muted);
-    margin-bottom: 5px;
-  }
-  .inline-handler .ih-you {
-    font-size: 15px;
-    color: var(--text-primary);
-    line-height: 1.55;
-  }
-  .inline-handler .ih-then {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-top: 6px;
-    font-style: italic;
-  }
-
-  /* --- Bottom bar --- */
-  footer {
-    padding: 10px 24px;
-    background: var(--bg-surface);
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  /* --- Right Dock (Objections & Context) --- */
+  .dock-pane {
+    width: 320px;
     flex-shrink: 0;
-  }
-  footer .hint {
-    font-size: 12px;
-    color: var(--text-muted);
-    letter-spacing: 0.3px;
-  }
-  footer .hint kbd {
-    display: inline-block;
-    padding: 1px 6px;
-    border-radius: 4px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin: 0 2px;
-  }
-  footer .bar-actions {
-    display: flex;
-    gap: 6px;
-  }
-
-  /* --- Handler overlay --- */
-  .overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 100;
-    justify-content: center;
-    align-items: center;
-    padding: 40px;
-  }
-  .overlay.show { display: flex; }
-
-  .overlay-panel {
     background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 28px;
-    max-width: 580px;
-    width: 100%;
-    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid var(--border);
+    height: 100%;
     overflow-y: auto;
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
-    -webkit-overflow-scrolling: touch;
   }
-  .overlay-panel h3 {
+
+  .dock-header {
+    padding: 24px;
     font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg-surface);
+    z-index: 5;
+  }
+
+  .dock-section {
+    padding: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .dock-section-title {
+    font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1.2px;
+    letter-spacing: 1.5px;
     color: var(--accent);
     margin-bottom: 16px;
   }
 
-  .handler-group-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--text-muted);
-    padding: 16px 0 8px;
-    border-top: 1px solid var(--border);
-    margin-top: 4px;
-  }
-  .handler-group-label:first-child {
-    border-top: none;
-    padding-top: 0;
-    margin-top: 0;
-  }
-
-  .handler {
-    padding: 12px 14px;
-    border-radius: 8px;
-    margin: 4px 0;
-    cursor: pointer;
-    transition: background var(--transition);
-  }
-  .handler:hover {
-    background: var(--bg-elevated);
-  }
-  .handler.has-nav {
-    border-left: 3px solid var(--accent);
-    padding-left: 11px;
-  }
-
-  .handler .them {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--text-muted);
-    margin-bottom: 6px;
+  /* Dock "Quick Pick" Buttons */
+  .dock-btn {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .handler .them .nav-hint {
-    font-size: 9px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--accent);
-    background: var(--accent-muted);
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-  .handler .you {
-    font-size: 15px;
-    color: var(--text-primary);
-    line-height: 1.55;
-  }
-  .handler .nav-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 8px;
-    padding: 5px 10px;
-    border-radius: 6px;
-    border: 1px solid var(--accent);
-    background: var(--accent-muted);
-    color: var(--accent);
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 600;
+    flex-direction: column;
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
     cursor: pointer;
+    text-align: left;
     transition: all var(--transition);
   }
-  .handler .nav-btn:hover {
-    background: var(--accent);
-    color: #000;
+  .dock-btn:active {
+    background: var(--border);
+  }
+  .dock-btn .dock-them {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+  .dock-btn .dock-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
   }
 
-  /* --- Done state --- */
-  .done-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--green-muted);
+  /* --- Question Cards in Script --- */
+  .q-grid {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
   }
-  .done-icon svg {
-    width: 28px;
-    height: 28px;
-    color: var(--green);
+  .q-card {
+    padding: 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    cursor: pointer;
+  }
+  .q-card .q-text {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .q-card .q-when {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 8px;
   }
 
-  /* --- Touch / iPad --- */
-  @media (pointer: coarse) {
-    .btn {
-      padding: 14px 24px;
-      font-size: 15px;
-      min-height: 48px;
+  /* Helper for inline responses when a Q card is tapped */
+  .inline-resp {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: none;
+  }
+  .q-card.active .inline-resp {
+    display: block;
+  }
+  
+  .inline-item {
+    padding: 16px;
+    background: var(--bg-elevated);
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  .inline-item .ii-them {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .inline-item .ii-you {
+    font-size: 20px;
+    color: var(--text-primary);
+  }
+
+  /* --- Helpers --- */
+  .swipe-hint {
+    position: absolute;
+    bottom: 24px;
+    right: 48px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  /* --- Portrait Overrides (For holding iPad vertically) --- */
+  @media (max-width: 900px) {
+    body {
+      flex-direction: column;
     }
-    .btn.ghost {
-      padding: 12px 16px;
-      font-size: 14px;
-      min-height: 44px;
+    .reader-pane {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      height: 70vh; /* Re-allocate space */
     }
-    .handler {
-      padding: 16px 14px;
+    .dock-pane {
+      width: 100%;
+      height: 30vh;
+      border-left: none;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      align-items: flex-start;
+      padding: 16px;
+      gap: 16px;
     }
-    .handler .nav-btn {
-      padding: 10px 16px;
-      font-size: 13px;
-      min-height: 44px;
+    .dock-header, .dock-section-title {
+      display: none; /* Hide categorical headers to save vertical space */
+    }
+    .dock-section {
+      display: flex;
+      padding: 0;
+      border: none;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .dock-btn {
+      width: 280px;
+      margin-bottom: 0;
+      flex-shrink: 0;
     }
     main {
-      padding: 32px 24px;
+      padding: 0 32px;
     }
-    .input-group input {
-      font-size: 18px;
-      padding: 14px 16px;
+    .dialogue {
+      font-size: 32px;
     }
-    footer .hint { display: none; }
-    footer .bar-actions { width: 100%; justify-content: space-between; }
-    .overlay { padding: 20px; }
-    .overlay-panel { padding: 20px; max-height: 90vh; }
-    .q-card {
-      padding: 16px 18px;
-    }
-    .q-card .q-text {
+    .btn {
+      padding: 20px 24px;
       font-size: 18px;
     }
   }
@@ -591,183 +514,311 @@
 </head>
 <body>
 
-<header>
-  <span class="step-label"><span class="current" id="stepLabel">PREP</span></span>
-  <nav class="progress-bar" id="progress" aria-label="Call progress"></nav>
-</header>
+<!-- Left: Main Script Sequence -->
+<div class="reader-pane" id="readerPane">
+  <header>
+    <span class="step-label"><span class="current" id="stepLabel">PREP</span></span>
+    <nav class="progress-bar" id="progress" aria-label="Call progress"></nav>
+  </header>
 
-<main id="main" role="region" aria-live="polite"></main>
-
-<footer>
-  <span class="hint" id="footerHint">Press <kbd>H</kbd> for handlers &middot; <kbd>Esc</kbd> to close</span>
-  <div class="bar-actions">
-    <button type="button" class="btn ghost" onclick="showHandlers()">Handlers</button>
-    <button type="button" class="btn ghost" onclick="restart()">Restart</button>
-  </div>
-</footer>
-
-<!-- Handler overlay -->
-<div class="overlay" id="handlerOverlay" role="dialog" aria-modal="true" aria-label="Edge case handlers">
-  <div class="overlay-panel" id="handlerPanel">
-    <h3>Edge Case Handlers</h3>
-
-    <div class="handler-group-label">Objections</div>
-
-    <div class="handler">
-      <div class="them">Someone already called about this</div>
-      <div class="you">"Yeah, there's a lot of that. What did the other one get wrong?"</div>
+  <main>
+    <div class="stack-container" id="stackContainer">
+      <!-- Content layers are injected here via JS -->
     </div>
+  </main>
+  
+  <div class="swipe-hint" id="swipeHint">Swipe Left to Advance --</div>
+</div>
 
-    <div class="handler">
-      <div class="them">"How did you get my number?"</div>
-      <div class="you">"Your shop came up when I was researching HVAC companies in [CITY]. Just Googled around."</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">"Is this a sales call?" / "Are you selling something?"</div>
-      <div class="you">"Not really -- I'm a developer, not a salesman. I built something and I'm trying to find out if it's actually useful. Can I ask you one question?"</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">Got burned by AI / don't trust AI</div>
-      <div class="you">"That's why I'm calling owners instead of guessing. What went wrong?"</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">Need to think about it</div>
-      <div class="you">"Totally fair. Is it more the price, or whether the AI actually works?"<br><br>If it's whether it works: "95% answer rate in 30 days or full refund. You keep everything we built."</div>
-    </div>
-
-    <div class="handler-group-label">Questions</div>
-
-    <div class="handler">
-      <div class="them">What does it do? (quick explainer)</div>
-      <div class="you">"It answers calls when you can't, qualifies the lead, and texts you the details so you can call back and close the job. No more lost calls."</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">How is this different from an answering service?</div>
-      <div class="you">"An answering service takes a name and number. This actually qualifies the call -- finds out what's wrong, how urgent it is, and texts you the full picture. You call back ready to close, not playing phone tag."</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">Do you have any customers?</div>
-      <div class="you">"Not yet -- I'm looking for my first few shops to prove it works. That's why there's no setup fee and you get founding pricing. What's your biggest headache with phones?"</div>
-    </div>
-
-    <div class="handler-group-label">Pricing Edge Cases</div>
-
-    <div class="handler">
-      <div class="them">Too expensive</div>
-      <div class="you">"What are you paying for your answering service? This does 10x more. And there's a Lite version -- $600/mo, after-hours only."</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">What's the difference between the two tiers?</div>
-      <div class="you">"Pro: bilingual, ServiceTitan booking, 24/7 or after-hours."<br><br>"Lite: after-hours and weekends only. Same AI, same lead texts -- no bilingual, no ServiceTitan, no daytime."</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">What if it doesn't work?</div>
-      <div class="you">"95% answer rate in 30 days or full refund. You keep everything we built -- the AI, the phone number, the setup. Zero risk on your end."</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">That's a big commitment</div>
-      <div class="you">"Tell you what -- one missed call at $3,500 pays for two months. If it doesn't catch at least two in the first 30 days, I'll refund you in full. You keep everything."</div>
-    </div>
-
-    <div class="handler-group-label">Free Pilot</div>
-
-    <div class="handler">
-      <div class="them">What's the catch?</div>
-      <div class="you">"No catch. I have a demo but no proof it works on real HVAC calls at volume. That proof is worth more than money right now. You run it 30 days, give me honest feedback. If it worked, I ask for a testimonial. No obligation to pay."</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">Why is it free?</div>
-      <div class="you">"I need 2-3 real businesses running it before I feel right charging anyone. Once they're happy, I start charging. You'd be getting in before that."</div>
-    </div>
-
-    <div class="handler">
-      <div class="them">I don't have time for setup</div>
-      <div class="you">"Setup is 10 minutes on your end -- total. You answer a few questions, I build it, you don't touch it again."</div>
-    </div>
-
-    <div class="handler-group-label">Jump To</div>
-
-    <div class="handler has-nav" onclick="navFromHandler('opener')">
-      <div class="them">Openers <span class="nav-hint">-> Open</span></div>
-      <div class="you">Choose your opener (A/B/C/D/E).</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('opener')">-> Go to Openers</button>
-    </div>
-
-    <div class="handler has-nav" onclick="navFromHandler('discover')">
-      <div class="them">Discover <span class="nav-hint">-> Discover</span></div>
-      <div class="you">Question toolkit for pain discovery.</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('discover')">-> Go to Discover</button>
-    </div>
-
-    <div class="handler has-nav" onclick="navFromHandler('pricing')">
-      <div class="them">Pricing flow <span class="nav-hint">-> Price</span></div>
-      <div class="you">Full pricing with downsell ladder and guarantee.</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('pricing')">-> Go to Pricing</button>
-    </div>
-
-    <div class="handler has-nav" onclick="navFromHandler('free_pilot')">
-      <div class="them">Free pilot offer <span class="nav-hint">-> Free Pilot</span></div>
-      <div class="you">Developer identity, 30-day free test. Use only after discovery.</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('free_pilot')">-> Go to Free Pilot</button>
-    </div>
-
-    <div class="handler has-nav" onclick="navFromHandler('exit_menu')">
-      <div class="them">Exit <span class="nav-hint">-> Close</span></div>
-      <div class="you">Pick from 3 exit types.</div>
-      <button type="button" class="nav-btn" onclick="event.stopPropagation();navFromHandler('exit_menu')">-> Go to Exit</button>
-    </div>
-
-    <button type="button" class="btn" style="width:100%;margin-top:20px;" id="handlerCloseBtn" onclick="hideHandlers()">Close</button>
-  </div>
+<!-- Right: Contextual Objection Dock -->
+<div class="dock-pane" id="dockPane">
+  <div class="dock-header">Live Handlers</div>
+  <!-- Dock content injected dynamically based on context -->
+  <div id="dockContent"></div>
 </div>
 
 <script>
 let prospectName = '';
 let reconTime = '';
-let currentStep = 0;
-const totalSteps = 7; // PREP, OPEN, DISCOVER, CONFIRM, OFFER, PRICE, CLOSE
-const history = [];
+let globalHistory = []; // Stack of base script steps
+let handlerStack = []; // Stack of injected objections
 
-const PHASE_LABELS = ['PREP', 'OPEN', 'DISCOVER', 'CONFIRM', 'OFFER', 'PRICE', 'CLOSE'];
+const totalSteps = 7;
+let currentStepIdx = 0;
 
-function toggleCard(id) {
-  const card = document.getElementById(id);
-  if (!card) return;
-  card.classList.toggle('expanded');
+// Universal Objections (always available in dock)
+const ALWAYS_ON_HANDLERS = [
+  { id: 'busy', label: 'I\'m busy', hint: 'Bad timing vs not interested',
+    them: 'I\'m busy / Call me back',
+    you: '"Totally fair — is it that this is bad time, or this just isn\'t for you?"',
+    warn: 'If bad timing: "When\'s better?" If not: graceful exit.'},
+  { id: 'gatekeeper', label: 'Gatekeeper', hint: 'Not the owner',
+    them: 'I\'m the receptionist / wife',
+    you: '"Oh, you deal with the phones? You probably know more than the owner. What happens to calls after you close?"',
+    warn: ''},
+  { id: 'sales', label: 'Is this a sales call?', hint: 'Defuse pressure',
+    them: 'Are you selling something?',
+    you: '"Not really — I\'m a developer, not a salesman. I built something and I want to see if it\'s actually useful. Can I ask you one question?"',
+    warn: ''}
+];
+
+// Contextual Dock Configuration
+const CONTEXT_DOCKS = {
+  PREP: [],
+  OPEN: ALWAYS_ON_HANDLERS,
+  DISCOVER: ALWAYS_ON_HANDLERS,
+  CONFIRM: ALWAYS_ON_HANDLERS,
+  OFFER: [
+    ...ALWAYS_ON_HANDLERS,
+    { id: 'already_have', label: 'Already got an answering service', hint: 'Differentiation',
+      them: 'We have a service for that',
+      you: '"An answering service just takes a name and number. This qualifies the call and texts you the full picture so you call back ready to close."',
+      warn: ''}
+  ],
+  PRICE: [
+    { id: 'expensive', label: 'Too expensive', hint: 'Anchor to loss',
+      them: 'Too expensive',
+      you: '"What are you paying for an answering service? And think about your average ticket — one missed call is what, $3,500? This catches 2-3 a week."',
+      warn: ''},
+    { id: 'tiers', label: 'What\'s the difference?', hint: 'Pro vs Lite',
+      them: 'Difference between tiers?',
+      you: 'Pro: bilingual, ServiceTitan booking, 24/7 or after-hours. Lite: $600/mo, after-hours only, no bilingual, no ServiceTitan.',
+      warn: ''},
+    { id: 'guarantee', label: 'What if it doesn\'t work?', hint: 'Zero risk',
+      them: 'What if it doesn\'t work?',
+      you: '"95% answer rate in 30 days or full refund. You keep everything we built — the AI, the phone number. Zero risk."',
+      warn: ''}
+  ],
+  CLOSE: [
+    { id: 'catch', label: 'What\'s the catch? (Free)', hint: 'Student angle',
+      them: 'What\'s the catch? Why free?',
+      you: '"I\'m a student. I want proof it works on real HVAC calls. That proof is worth more than money. If it works, I ask for a testimonial. Zero obligation to pay."',
+      warn: ''},
+    { id: 'time', label: 'No time for setup', hint: '10 minutes',
+      them: 'I don\'t have time for setup',
+      you: '"Setup is 10 minutes on your end — total. You answer a few questions, I build it, you don\'t touch it again."',
+      warn: ''}
+  ]
+};
+
+// --- View Rendering ---
+
+function updateProgress() {
+  const prog = document.getElementById('progress');
+  if(!prog) return;
+  prog.innerHTML = '';
+  for (let i = 0; i < totalSteps; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    if (i < currentStepIdx) seg.className += ' done';
+    if (i === currentStepIdx) seg.className += ' active';
+    prog.appendChild(seg);
+  }
 }
 
-const steps = {
+function renderDock(stepKey) {
+  const step = steps[stepKey];
+  if(!step) return;
+  const phase = step.phase;
+  const handlers = CONTEXT_DOCKS[phase] || [];
+  
+  const dockBody = document.getElementById('dockContent');
+  if(!dockBody) return;
+  
+  dockBody.innerHTML = '';
+  if(handlers.length === 0) {
+    dockBody.innerHTML = '<div style="padding:24px;color:var(--text-muted);font-size:14px;">No specific handlers for this phase.</div>';
+    return;
+  }
+  
+  handlers.forEach(h => {
+    const btn = document.createElement('button');
+    btn.className = 'dock-btn';
+    btn.innerHTML = \`
+      <div class="dock-them">${h.label}</div>
+      <div class="dock-hint">${h.hint}</div>
+    \`;
+    btn.onclick = () => injectHandlerCard(h);
+    dockBody.appendChild(btn);
+  });
+}
 
+function injectHandlerCard(handlerObj) {
+  handlerStack.push(handlerObj);
+  
+  // Create a new layer inside stackContainer
+  const container = document.getElementById('stackContainer');
+  
+  // Mark existing layers as "past" (push them back visually)
+  const existingLayers = container.querySelectorAll('.stack-layer.active');
+  existingLayers.forEach(el => {
+    el.classList.remove('active');
+    el.classList.add('past');
+  });
+  
+  const layer = document.createElement('div');
+  layer.className = 'stack-layer handler-layer';
+  // Trigger reflow then active
+  
+  layer.innerHTML = \`
+    <div class="label" style="background:var(--red-muted);color:var(--red);">Objection</div>
+    <div class="dialogue" style="font-size:28px;color:var(--text-secondary);">If they say: "${handlerObj.them}"</div>
+    <div class="dialogue">${handlerObj.you}</div>
+    ${handlerObj.warn ? \`<div class="note warn">${handlerObj.warn}</div>\` : ''}
+    <button type="button" class="btn return-anchor" onclick="dismissHandler()">
+      Return to script
+    </button>
+  \`;
+  
+  container.appendChild(layer);
+  requestAnimationFrame(() => layer.classList.add('active'));
+}
+
+function dismissHandler() {
+  if (handlerStack.length === 0) return;
+  handlerStack.pop();
+  
+  const container = document.getElementById('stackContainer');
+  const layers = container.querySelectorAll('.stack-layer');
+  if (layers.length === 0) return;
+  
+  // Remove the top most
+  const topLayer = layers[layers.length - 1];
+  topLayer.classList.remove('active');
+  
+  setTimeout(() => {
+    topLayer.remove();
+    // Re-activate the underlying layer
+    const remaining = container.querySelectorAll('.stack-layer');
+    if (remaining.length > 0) {
+      remaining[remaining.length - 1].classList.remove('past');
+      remaining[remaining.length - 1].classList.add('active');
+    }
+  }, 300); // match CSS transition duration
+}
+
+function goTo(stepKey) {
+  // Clear any open handler overlays
+  handlerStack = []; 
+  
+  const step = steps[stepKey];
+  if (!step) return;
+  
+  // Manage structural history
+  globalHistory.push(stepKey);
+  currentStepIdx = step.idx;
+  
+  document.getElementById('stepLabel').textContent = step.phase;
+  updateProgress();
+  renderDock(stepKey);
+  
+  const container = document.getElementById('stackContainer');
+  // Clean sweep for base layer moves
+  container.innerHTML = ''; 
+  
+  const layer = document.createElement('div');
+  layer.className = 'stack-layer';
+  layer.innerHTML = step.render();
+  
+  container.appendChild(layer);
+  requestAnimationFrame(() => layer.classList.add('active'));
+  
+  // Focus inputs if any
+  const input = layer.querySelector('input');
+  if (input) setTimeout(() => input.focus(), 50);
+}
+
+function goBack() {
+  if (handlerStack.length > 0) {
+    dismissHandler();
+    return;
+  }
+  
+  if (globalHistory.length <= 1) return;
+  globalHistory.pop(); // pop current
+  const prev = globalHistory.pop(); // pop to get previous, goTo will re-push it
+  goTo(prev);
+}
+
+// --- Swipe Logic (iPad Glass Navigation) ---
+
+let touchstartX = 0;
+let touchendX = 0;
+let touchstartY = 0;
+let touchendY = 0;
+
+function handleGesture() {
+  const xDiff = touchendX - touchstartX;
+  const yDiff = Math.abs(touchendY - touchstartY);
+  
+  // Must be mostly horizontal swipe
+  if (yDiff > Math.abs(xDiff)) return; 
+  
+  // Swipe Left -> Next (like turning a page)
+  if (xDiff < -100) {
+    const activeLayer = document.querySelector('.stack-layer.active');
+    if(activeLayer) {
+        // Find the primary button and click it if it exists
+        const nextBtn = activeLayer.querySelector('.btn.primary');
+        if(nextBtn) nextBtn.click();
+    }
+  }
+  
+  // Swipe Right -> Back
+  if (xDiff > 100) {
+    goBack();
+  }
+}
+
+document.addEventListener('touchstart', e => {
+  touchstartX = e.changedTouches[0].screenX;
+  touchstartY = e.changedTouches[0].screenY;
+});
+
+document.addEventListener('touchend', e => {
+  touchendX = e.changedTouches[0].screenX;
+  touchendY = e.changedTouches[0].screenY;
+  // Ignore swipe if we tapped an input/button
+  if(['INPUT', 'BUTTON'].includes(e.target.tagName)) return;
+  handleGesture();
+});
+
+// Key bindings for desktop testing fallback
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowLeft') goBack();
+  if (e.key === 'ArrowRight') {
+    const activeLayer = document.querySelector('.stack-layer.active');
+    if(activeLayer) {
+        const nextBtn = activeLayer.querySelector('.btn.primary');
+        if(nextBtn) nextBtn.click();
+    }
+  }
+  if (e.key === 'Escape') dismissHandler();
+});
+
+// --- Content Definitions ---
+
+const steps = {
   // ========================================
   // PREP
   // ========================================
   prep: {
-    label: 'PREP',
-    stepIdx: 0,
+    phase: 'PREP',
+    idx: 0,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Before you dial</div>
-        <ul class="checklist">
-          <li>Stand up. One breath.</li>
-          <li>Say their name out loud <strong>3 times</strong>.</li>
-          <li>Tap <strong>Record</strong> in OpenPhone.</li>
-        </ul>
-        <div class="input-group">
-          <input type="text" id="nameInput" placeholder="Their name" autofocus aria-label="Prospect name">
-          <input type="text" class="sm" id="timeInput" placeholder="Recon time" aria-label="Recon call time">
-        </div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="saveName()">Ready to dial</button>
-        </div>
+      <div class="label">Before you dial</div>
+      <div class="note" style="margin-bottom:40px; font-size:24px;">
+        1. Stand up. One breath.<br>
+        2. Say their name out loud <strong>3 times</strong>.<br>
+        3. Tap <strong>Record</strong> in OpenPhone.
+      </div>
+      <div class="input-group">
+        <input type="text" id="nameInput" placeholder="Their name" autofocus aria-label="Prospect name">
+        <input type="text" class="sm" id="timeInput" placeholder="Recon time" aria-label="Recon call time">
+      </div>
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="saveName()">Ready to dial</button>
       </div>
     `
   },
@@ -776,408 +827,184 @@ const steps = {
   // OPEN - choose your opener
   // ========================================
   opener: {
-    label: 'OPEN',
-    stepIdx: 1,
+    phase: 'OPEN',
+    idx: 1,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Choose your opener</div>
-        <div class="tone">TONE: Calm, unhurried</div>
-        <div class="actions" style="flex-direction:column;">
-          <button type="button" class="btn primary" onclick="goTo('openA')" style="justify-content:flex-start;text-align:left;">A -- Got voicemail (recon)</button>
-          <button type="button" class="btn" onclick="goTo('openB')" style="justify-content:flex-start;text-align:left;">B -- Hit answering service (recon)</button>
-          <button type="button" class="btn" onclick="goTo('openC')" style="justify-content:flex-start;text-align:left;">C -- No recon data</button>
-          <button type="button" class="btn" style="border-color:var(--green);color:var(--green);justify-content:flex-start;text-align:left;" onclick="goTo('openD')">D -- Developer free pilot</button>
-          <button type="button" class="btn ghost" onclick="goTo('openE')" style="justify-content:flex-start;text-align:left;">E -- No answer -> leave voicemail</button>
-        </div>
-        <div class="actions" style="margin-top:12px;">
-          <button type="button" class="btn ghost" onclick="goTo('prep')">Back to Prep</button>
-        </div>
+      <div class="label">Choose your opener</div>
+      <div class="tone">TONE: Calm, unhurried</div>
+      <div class="actions col">
+        <button type="button" class="btn primary" onclick="goTo('openA')">A — Got voicemail (recon)</button>
+        <button type="button" class="btn" onclick="goTo('openB')">B — Hit answering service (recon)</button>
+        <button type="button" class="btn" onclick="goTo('openC')">C — No recon data</button>
+      </div>
+      
+      <div class="actions" style="margin-top:40px;">
+        <button type="button" class="btn" style="border-color:var(--green);color:var(--green);" onclick="goTo('openD')">Student / Free Pilot Opener</button>
+        <button type="button" class="btn ghost" onclick="goTo('openE')">No answer -> leave VM</button>
       </div>
     `
   },
 
   // --- Opener A: Got voicemail ---
   openA: {
-    label: 'OPEN',
-    stepIdx: 1,
+    phase: 'OPEN',
+    idx: 1,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Say this</div>
-        <div class="tone">TONE: Calm, slow</div>
-        <div class="dialogue">
-          "Hey <strong>${prospectName || '[NAME]'}</strong>, this is [YOU]. I called your shop at <strong>${reconTime || '[TIME]'}</strong> last night. Went to voicemail."
-          <span class="beat">Beat -- one second of silence</span>
-        </div>
-        <div class="dialogue">
-          "I've been talking to HVAC owners about what happens to their calls after hours. Can I ask you something real quick?"
-        </div>
-        <div class="note">Wait for permission. Say nothing until they respond.</div>
-
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
-          <div class="inline-handler">
-            <div class="ih-them">IF: "I'm busy"</div>
-            <div class="ih-you">"Totally fair -- is it that this is bad timing, or this just isn't for you?"</div>
-            <div class="ih-then">If bad timing: "When's a better time? I'll call you back."<br>If not for them: graceful exit.</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: "How did you get my number?"</div>
-            <div class="ih-you">"Your shop came up when I was researching HVAC companies in [CITY]. Just Googled around."</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: "Is this a sales call?"</div>
-            <div class="ih-you">"Not really -- I'm a developer, not a salesman. I built something and I'm trying to find out if it's actually useful. Can I ask you one question?"</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: Gatekeeper -- not the owner</div>
-            <div class="ih-you">"Oh, you deal with the phones? You probably know more than the owner. What happens to calls after you close?"</div>
-            <div class="ih-then">If they won't engage: "No worries -- what's the best time to catch the owner?"</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: "What's this about?"</div>
-            <div class="ih-you">"I've been talking to HVAC owners about what happens to their calls after hours. Just had a quick question -- is that something you deal with?"</div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('discover')">They said yes -- go to Discover</button>
-          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Hard no -- exit</button>
-          <button type="button" class="btn ghost" onclick="goTo('opener')">Back</button>
-        </div>
+      <div class="label">Say this</div>
+      <div class="tone">TONE: Calm, slow</div>
+      <div class="dialogue">
+        "Hey <strong>${prospectName || '[NAME]'}</strong>, this is [YOU]. I called your shop at <strong>${reconTime || '[TIME]'}</strong> last night. Went to voicemail."
+        <span class="beat">Beat — one second of silence</span>
+      </div>
+      <div class="dialogue">
+        "I've been talking to HVAC owners about what happens to their calls after hours. Can I ask you something real quick?"
+      </div>
+      <div class="note">Wait for permission. Say nothing until they respond.</div>
+      
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('discover')">They said yes -- DISCOVER</button>
+        <button type="button" class="btn" onclick="goTo('exit_no_gap')">Hard no -- Exit</button>
       </div>
     `
   },
 
   // --- Opener B: Hit answering service ---
   openB: {
-    label: 'OPEN',
-    stepIdx: 1,
+    phase: 'OPEN',
+    idx: 1,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Say this</div>
-        <div class="tone">TONE: Calm, slow</div>
-        <div class="dialogue">
-          "Hey <strong>${prospectName || '[NAME]'}</strong>, this is [YOU]. I called your shop at <strong>${reconTime || '[TIME]'}</strong> last night. Someone picked up, took my name."
-          <span class="beat">Beat</span>
-        </div>
-        <div class="dialogue">
-          "I've been talking to HVAC owners about what happens to their calls after hours. Can I ask you something real quick?"
-        </div>
-        <div class="note">Wait for permission.</div>
+      <div class="label">Say this</div>
+      <div class="tone">TONE: Calm, slow</div>
+      <div class="dialogue">
+        "Hey <strong>${prospectName || '[NAME]'}</strong>, this is [YOU]. I called your shop at <strong>${reconTime || '[TIME]'}</strong> last night. Someone picked up, took my name."
+        <span class="beat">Beat</span>
+      </div>
+      <div class="dialogue">
+        "I've been talking to HVAC owners about what happens to their calls after hours. Can I ask you something real quick?"
+      </div>
+      <div class="note">Wait for permission.</div>
 
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
-          <div class="inline-handler">
-            <div class="ih-them">IF: "I'm busy"</div>
-            <div class="ih-you">"Totally fair -- is it that this is bad timing, or this just isn't for you?"</div>
-            <div class="ih-then">If bad timing: "When's a better time? I'll call you back."</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: Gatekeeper</div>
-            <div class="ih-you">"Oh, you deal with the phones? You probably know more than the owner. What happens to calls after you close?"</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: "What's this about?"</div>
-            <div class="ih-you">"I've been talking to HVAC owners about what happens to their calls after hours. Just had a quick question."</div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('discover')">They said yes -- go to Discover</button>
-          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Hard no -- exit</button>
-          <button type="button" class="btn ghost" onclick="goTo('opener')">Back</button>
-        </div>
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('discover')">They said yes -- DISCOVER</button>
+        <button type="button" class="btn" onclick="goTo('exit_no_gap')">Hard no -- Exit</button>
       </div>
     `
   },
 
   // --- Opener C: No recon ---
   openC: {
-    label: 'OPEN',
-    stepIdx: 1,
+    phase: 'OPEN',
+    idx: 1,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Say this -- no recon</div>
-        <div class="tone">TONE: Casual, friendly</div>
-        <div class="dialogue">
-          "Hey, is this <strong>${prospectName || '[COMPANY]'}</strong>?"
-          <span class="beat">Wait for yes</span>
-          "I know I'm calling out of the blue -- I've been talking to HVAC owners in [CITY] about what happens to their calls after hours. Can I ask you something real quick?"
-        </div>
-        <div class="note">Wait for permission. Say nothing until they respond.</div>
+      <div class="label">Say this — no recon</div>
+      <div class="tone">TONE: Casual, friendly</div>
+      <div class="dialogue">
+        "Hey, is this <strong>${prospectName || '[COMPANY]'}</strong>?"
+        <span class="beat">Wait for yes</span>
+      </div>
+      <div class="dialogue">
+        "I know I'm calling out of the blue... I've been talking to HVAC owners in [CITY] about what happens to their calls after hours. Can I ask you something real quick?"
+      </div>
+      <div class="note">Wait for permission. Say nothing until they respond.</div>
 
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
-          <div class="inline-handler">
-            <div class="ih-them">IF: "I'm busy"</div>
-            <div class="ih-you">"Totally fair -- is it that this is bad timing, or this just isn't for you?"</div>
-            <div class="ih-then">If bad timing: "When's a better time? I'll call you back."</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: Gatekeeper</div>
-            <div class="ih-you">"Yeah -- I've been calling HVAC companies in [CITY] and had a quick question for the owner. Is he around?"</div>
-            <div class="ih-then">"He's not available" -> "What's the best time to catch him?"<br>"Can I take a message?" -> "Honestly it'll be quicker if I just catch him for 30 seconds."</div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('discover')">They said yes -- go to Discover</button>
-          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Hard no -- exit</button>
-          <button type="button" class="btn ghost" onclick="goTo('opener')">Back</button>
-        </div>
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('discover')">They said yes -- DISCOVER</button>
+        <button type="button" class="btn" onclick="goTo('exit_no_gap')">Hard no -- Exit</button>
       </div>
     `
   },
 
-  // --- Opener D: Developer free pilot ---
+  // --- Opener D: Student + free pilot ---
   openD: {
-    label: 'OPEN',
-    stepIdx: 1,
+    phase: 'OPEN',
+    idx: 1,
     render: () => `
-      <div class="fade-in">
-        <div class="label" style="background:var(--green-muted);color:var(--green);">Developer -- free pilot opener</div>
-        <div class="tone">TONE: Casual, genuine</div>
-        <div class="dialogue">
-          "Hey <strong>${prospectName || '[NAME]'}</strong> -- I'm a developer. I built an AI that answers HVAC calls after hours. Looking for 2-3 shops to test it free for 30 days. Can I ask you a couple questions?"
-        </div>
-        <div class="note">If you did recon, lead with the voicemail/answering service observation first, then this line.</div>
+      <div class="label" style="background:var(--green-muted);color:var(--green);">Student + free pilot</div>
+      <div class="tone">TONE: Casual, genuine, unhurried</div>
+      <div class="dialogue">
+        "Hey <strong>${prospectName || '[NAME]'}</strong> — I'm a college student researching how HVAC companies handle calls after hours. Can I ask you <strong>one quick question</strong>?"
+      </div>
+      <div class="note">If you did recon, lead with the voicemail/answering service observation first.</div>
 
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
-          <div class="inline-handler">
-            <div class="ih-them">IF: "I'm busy"</div>
-            <div class="ih-you">"Totally fair -- is it that this is bad timing, or this just isn't for you?"</div>
-            <div class="ih-then">If bad timing: "When's a better time? I'll call you back."</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: "What's the catch?"</div>
-            <div class="ih-you">"No catch. I need proof it works on real calls before I charge anyone. Your feedback is worth more than money right now."</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: Gatekeeper</div>
-            <div class="ih-you">"I'm a developer calling about after-hours calls -- is the owner around?"</div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('discover')">They said yes -- go to Discover</button>
-          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Not interested</button>
-          <button type="button" class="btn ghost" onclick="goTo('opener')">Back</button>
-        </div>
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('discover')">They said yes -- DISCOVER</button>
+        <button type="button" class="btn" onclick="goTo('exit_no_gap')">Not interested -- Exit</button>
       </div>
     `
   },
 
   // --- Opener E: No answer -- leave voicemail ---
   openE: {
-    label: 'OPEN',
-    stepIdx: 1,
+    phase: 'OPEN',
+    idx: 1,
     render: () => `
-      <div class="fade-in">
-        <div class="label" style="background:var(--accent-muted);color:var(--accent);">Leave a competitor voicemail</div>
-        <div class="dialogue">
-          "Hey, this is [YOU]. I'm calling in regards to <strong>[COMPETITOR NAME]</strong>. Give me a call back when it's convenient -- [YOUR NUMBER]."
-        </div>
-        <div class="note"><strong>That's it.</strong> Don't explain more. Don't pitch. Don't say what you do.</div>
-        <div class="note" style="margin-top:12px;">
-          <strong>Pick a competitor:</strong> Use another HVAC shop in their city from your list. Only name them if you actually called them too.
-        </div>
-        <div class="note" style="margin-top:12px;">
-          <strong>When they call back:</strong> "Yeah -- we've been reaching out to HVAC shops in [CITY] about how they handle after-hours calls. [Competitor] was one of the shops we talked to. I wanted to ask you the same question if you've got 30 seconds."
-        </div>
-        <div class="note" style="margin-top:12px;">Then go straight to Discover -- they're warm now, skip the opener.</div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">VM left -- next call</button>
-          <button type="button" class="btn ghost" onclick="goTo('opener')">Back</button>
-        </div>
+      <div class="label" style="background:var(--accent-muted);color:var(--accent);">Leave a competitor VM</div>
+      <div class="dialogue">
+        "Hey, this is [YOU]. I'm calling in regards to <strong>[COMPETITOR NAME]</strong>. Give me a call back when it's convenient — [YOUR NUMBER]."
+      </div>
+      <div class="note warn">That's it. Don't explain more. Don't pitch.</div>
+      <div class="note">Pick a competitor: Use another HVAC shop you actually called.</div>
+      <div class="note">When they call back: "Yeah we've been reaching out to HVAC shops... [Competitor] was one of them. Wanted to ask you the same question..." Then go straight to Discover.</div>
+      
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('done')">VM left -- Next call</button>
       </div>
     `
   },
 
   // ========================================
-  // DISCOVER - question toolkit
+  // DISCOVER
   // ========================================
   discover: {
-    label: 'DISCOVER',
-    stepIdx: 2,
+    phase: 'DISCOVER',
+    idx: 2,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Question toolkit -- pick what fits</div>
-        <div class="tone">TONE: Curious, unhurried</div>
-        <div class="note" style="font-size:14px;color:var(--text-secondary);margin-bottom:12px;">
-          Stay here as long as they're talking. Don't rush to pitch. The more they talk about their problems, the more they sell themselves.
-        </div>
-        <div class="note" style="font-size:13px;color:var(--accent);margin-bottom:12px;">
-          <strong>Value statement (use before your first question):</strong> "Most shops I talk to are losing 3-5 calls a week after hours. The ones that don't leave a voicemail just call the next guy on Google."<br>[Pause. Then ask your first question.]
-        </div>
-        <div class="note" style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">
-          <strong>Power move -- mirroring:</strong> Repeat their last 2-3 words as a question. "Goes to voicemail..." [silence]. They'll elaborate without you asking.<br>
-          <strong>Short answers?</strong> Use: "Can you give me an example?" or "Can you be more specific?"
-        </div>
-
-        <div class="note" style="font-weight:600;margin-bottom:8px;">Opening questions -- tap to see likely responses:</div>
-        <div class="q-grid">
-
-          <div class="q-card" id="qc1" onclick="toggleCard('qc1')">
-            <div class="q-text">"What's your setup for calls after hours right now?"</div>
-            <div class="q-when">USE WHEN: you don't know their setup yet</div>
-            <div class="q-responses">
-              <div class="inline-handler">
-                <div class="ih-them">IF: "Voicemail"</div>
-                <div class="ih-you"><strong>"What happens to the ones that don't leave one?"</strong></div>
-                <div class="ih-then">This is the money question. Let the silence land.</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: "Answering service"</div>
-                <div class="ih-you">"Are you happy with them? What do they actually do with the call?"</div>
-                <div class="ih-then">Then: "What happens to the ones that called at 9 PM and needed someone that night?"</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: "I answer them all"</div>
-                <div class="ih-you">"Even at 10 PM on a Saturday? What happens when you're on a job?"</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: "Wife / office manager handles it"</div>
-                <div class="ih-you">"Does that ever cause issues? What happens when she's not available?"</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: "It's fine / don't miss many"</div>
-                <div class="ih-you">"That's better than most. What's your actual setup -- voicemail, forwarding, or...?"</div>
-              </div>
+      <div class="label">Question toolkit</div>
+      <div class="tone">TONE: Curious, unhurried</div>
+      <div class="note">Stay here as long as they're talking. The more they talk, the more they sell themselves.</div>
+      
+      <div class="q-grid">
+        <div class="q-card" onclick="this.classList.toggle('active')">
+          <div class="q-text">"What's your setup for calls after hours right now?"</div>
+          <div class="q-when">USE WHEN: you don't know their setup yet</div>
+          <div class="inline-resp">
+            <div class="inline-item">
+              <div class="ii-them">If VoIP/Voicemail:</div>
+              <div class="ii-you">"What happens to the ones that don't leave one?" (Money question. Silence.)</div>
             </div>
-          </div>
-
-          <div class="q-card" id="qc2" onclick="toggleCard('qc2')">
-            <div class="q-text">"What happens when a call comes in and nobody picks up?"</div>
-            <div class="q-when">USE WHEN: they mentioned voicemail or missed calls</div>
-            <div class="q-responses">
-              <div class="inline-handler">
-                <div class="ih-them">IF: "Goes to voicemail"</div>
-                <div class="ih-you"><strong>"What happens to the ones that don't leave one?"</strong></div>
-                <div class="ih-then">The money question. Silence after this.</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: "They usually call back"</div>
-                <div class="ih-you">"That's what most guys hope. Do you have a way to track which ones actually do?"</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: "We don't miss calls"</div>
-                <div class="ih-you">"Really? Every single one, even 2 AM on a Saturday?"</div>
-              </div>
+            <div class="inline-item">
+              <div class="ii-them">If Answering Service:</div>
+              <div class="ii-you">"Are you happy with them? What happens to the ones that called at 9 PM and needed someone that night?"</div>
             </div>
-          </div>
-
-          <div class="q-card" id="qc3" onclick="toggleCard('qc3')">
-            <div class="q-text">"What's the biggest headache with phones right now?"</div>
-            <div class="q-when">USE WHEN: you want to go broad, find unexpected pain</div>
-            <div class="q-responses">
-              <div class="inline-handler">
-                <div class="ih-them">IF: Spam / robocalls</div>
-                <div class="ih-you">"That's brutal. Aside from the spam -- what about the legit calls? You catching all of those?"</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: Volume overwhelm</div>
-                <div class="ih-you">"When you're slammed -- what happens to the calls that come in while you're on another one?"</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: No-shows / tire-kickers</div>
-                <div class="ih-you">"What if those calls were qualified before they got to you -- so you only called back the real ones?"</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: "Phones are fine"</div>
-                <div class="ih-you">"Better than most guys I talk to. What about after hours specifically -- what's that look like?"</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="q-card" id="qc4" onclick="toggleCard('qc4')">
-            <div class="q-text">"How many calls would you say come in after hours in a typical week?"</div>
-            <div class="q-when">USE WHEN: you want to quantify the problem</div>
-            <div class="q-responses">
-              <div class="inline-handler">
-                <div class="ih-them">IF: They give a number</div>
-                <div class="ih-you">"And how many of those turn into jobs vs. just disappear?"</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: "I don't know"</div>
-                <div class="ih-you">"Most owners don't. That's kind of the problem -- you can't see what you're missing."</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: "Not many"</div>
-                <div class="ih-you">"Even a few at your average ticket -- what is that, $3-4K? That adds up fast."</div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="note" style="font-weight:600;margin-top:16px;margin-bottom:8px;">Deeper questions -- use after initial answers:</div>
-        <div class="q-grid">
-
-          <div class="q-card" id="qc5" onclick="toggleCard('qc5')">
-            <div class="q-text">"How long have you been dealing with that?"</div>
-            <div class="q-when">USE WHEN: they admitted a problem</div>
-            <div class="q-responses">
-              <div class="inline-handler">
-                <div class="ih-them">Any answer</div>
-                <div class="ih-you">Let them talk. The longer the answer, the deeper the pain. Follow with: "What have you tried to fix it?"</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="q-card" id="qc6" onclick="toggleCard('qc6')">
-            <div class="q-text">"What have you tried to fix it?"</div>
-            <div class="q-when">USE WHEN: after they describe the problem</div>
-            <div class="q-responses">
-              <div class="inline-handler">
-                <div class="ih-them">IF: "Nothing"</div>
-                <div class="ih-you">"Is that because it hasn't been bad enough, or you just haven't found something that works?"</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: They tried something</div>
-                <div class="ih-you">"What didn't work about it?"</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="q-card" id="qc7" onclick="toggleCard('qc7')">
-            <div class="q-text">"If you could change one thing about how calls work, what would it be?"</div>
-            <div class="q-when">USE WHEN: you need one more angle</div>
-            <div class="q-responses">
-              <div class="inline-handler">
-                <div class="ih-them">Any answer</div>
-                <div class="ih-you">Whatever they say is what you build the offer around. Remember their exact words.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="q-card" id="qc8" onclick="toggleCard('qc8')">
-            <div class="q-text">"What does your busiest season look like -- does the phone situation get worse?"</div>
-            <div class="q-when">USE WHEN: they're talking but haven't committed to having a problem</div>
-            <div class="q-responses">
-              <div class="inline-handler">
-                <div class="ih-them">IF: Summer is chaos</div>
-                <div class="ih-you">"So imagine that -- but every call gets answered and qualified before it hits your phone."</div>
-              </div>
-              <div class="inline-handler">
-                <div class="ih-them">IF: "It's pretty steady"</div>
-                <div class="ih-you">"Is there anything else about the phones that bugs you?"</div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
-          <div class="inline-handler">
-            <div class="ih-them">IF: They ask about price early</div>
-            <div class="ih-you">"I'll get to that -- but first, I wanna make sure this actually fits what you need."</div>
-            <div class="ih-then">Continue with a discovery question.</div>
           </div>
         </div>
 
-        <div class="actions" style="margin-top:20px;">
-          <button type="button" class="btn primary" onclick="goTo('confirm')">Found their pain -- Confirm it</button>
-          <button type="button" class="btn" style="border-color:var(--green);color:var(--green);" onclick="goTo('free_pilot')">They'd try it free -- skip to Free Pilot</button>
-          <button type="button" class="btn" onclick="goTo('exit_no_gap')">No gap found -- exit clean</button>
-          <button type="button" class="btn ghost" onclick="goTo('opener')">Back</button>
+        <div class="q-card" onclick="this.classList.toggle('active')">
+          <div class="q-text">"What happens when a call comes in and nobody picks up?"</div>
+          <div class="q-when">USE WHEN: they mentioned voicemail or missed calls</div>
+          <div class="inline-resp">
+            <div class="inline-item">
+              <div class="ii-them">"They usually call back"</div>
+              <div class="ii-you">"That's what most guys hope. Do you have a way to track which ones actually do?"</div>
+            </div>
+          </div>
         </div>
+
+        <div class="q-card" onclick="this.classList.toggle('active')">
+          <div class="q-text">"What's the biggest headache with phones right now?"</div>
+          <div class="q-when">USE WHEN: you want to go broad, find unexpected pain</div>
+          <div class="inline-resp">
+            <div class="inline-item">
+              <div class="ii-them">Spam / robocalls</div>
+              <div class="ii-you">"Brutal. Aside from the spam — what about the legit calls? You catching all of those?"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('confirm')">Found pain -- CONFIRM</button>
+        <button type="button" class="btn ghost" onclick="goTo('exit_no_gap')">No gap found -- Exit</button>
       </div>
     `
   },
@@ -1186,254 +1013,186 @@ const steps = {
   // CONFIRM
   // ========================================
   confirm: {
-    label: 'CONFIRM',
-    stepIdx: 3,
+    phase: 'CONFIRM',
+    idx: 3,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Confirm what you heard</div>
-        <div class="tone">TONE: Slower than discovery. Genuine -- like you're making sure you didn't misunderstand.</div>
-        <div class="dialogue">
-          "So what I'm hearing is <strong>[their pain -- use their exact words]</strong>. Is that right?"
-        </div>
-        <div class="note">Wait for them to confirm. Listen for <strong>"that's right"</strong> or <strong>"exactly"</strong> -- that means they feel understood. "You're right" or "sure" is a brush-off -- you haven't confirmed yet.</div>
-        <div class="dialogue-sm">
-          "Is there anything else that's been bugging you about the phones, or is that the main thing?"
-        </div>
-        <div class="note">Then bridge naturally: "If there was a way to fix that without you having to change anything day-to-day, would you even want to hear about it?"</div>
-        <div class="note">Their "yes" is a micro-commitment. Now move to Offer.</div>
+      <div class="label">Confirm what you heard</div>
+      <div class="tone">TONE: Slower, making sure you didn't misunderstand.</div>
+      <div class="dialogue">
+        "So what I'm hearing is <strong>[their exact words for their pain]</strong>. Is that right?"
+      </div>
+      <div class="note warn">Listen for "that's right" or "exactly". "You're right" or "sure" is a brush-off.</div>
+      <div class="dialogue-sm">
+        "Is there anything else that's been bugging you about the phones, or is that the main thing?"
+      </div>
+      <div class="note">Bridge naturally: "If there was a way to fix that without you changing anything, would you want to hear about it?" (Micro-commitment)</div>
 
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
-          <div class="inline-handler">
-            <div class="ih-them">IF: They add more pain</div>
-            <div class="ih-you">Explore it. Go back to Discover if needed -- there's no rush.</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: "Yeah, that's pretty much it"</div>
-            <div class="ih-you">Move to Offer.</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: "It's not that big a deal"</div>
-            <div class="ih-you">"Totally fair. It might not be. Most owners don't realize how much it adds up until they see the numbers."</div>
-            <div class="ih-then">If still no energy -- exit clean.</div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('offer')">They confirmed -- go to Offer</button>
-          <button type="button" class="btn" onclick="goTo('discover')">More to explore -- back to Discover</button>
-          <button type="button" class="btn" onclick="goTo('exit_no_gap')">No real pain -- exit clean</button>
-        </div>
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('offer')">They confirmed -- OFFER</button>
+        <button type="button" class="btn" style="border-color:var(--green);color:var(--green);" onclick="goTo('free_pilot')">Student path -- Free Pilot</button>
       </div>
     `
   },
 
   // ========================================
-  // OFFER - "would that be useful?"
+  // OFFER
   // ========================================
   offer: {
-    label: 'OFFER',
-    stepIdx: 4,
+    phase: 'OFFER',
+    idx: 4,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Would this be useful?</div>
-        <div class="tone">TONE: Genuine curiosity, not pitching</div>
-        <div class="dialogue">
-          "What if you had something that <strong>[addresses their specific pain]</strong> -- answers every call, qualifies the lead, texts you the details so you can call back and close. Would that actually be useful? Or is this honestly not a big enough problem?"
-        </div>
-        <div class="note">The "or is this not a big enough problem?" is critical -- it gives them an exit, which paradoxically makes them more likely to say yes.</div>
+      <div class="label">Would this be useful?</div>
+      <div class="tone">TONE: Genuine curiosity, not pitching</div>
+      <div class="dialogue">
+        "What if you had something that <strong>[addresses their specific pain]</strong> — answers every call, qualifies the lead, texts you the details so you can call back and close."
+      </div>
+      <div class="dialogue">
+        "Would that actually be useful? Or is this honestly not a big enough problem?"
+      </div>
+      <div class="note">The "or is this not a big enough problem?" gives them an exit, making them more likely to say yes.</div>
 
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
-          <div class="inline-handler">
-            <div class="ih-them">IF: "Yeah, that would help" / interest</div>
-            <div class="ih-you">"Want me to show you how it works? 10 minutes on Zoom, I'll run a live demo with your actual business info."</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: "How much?"</div>
-            <div class="ih-you">Go to Price.</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: "Send me info"</div>
-            <div class="ih-you">"Sure thing. I've got a 30-second clip that shows exactly how it sounds. What's your email? I'll send it over today."</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: "Not really a problem"</div>
-            <div class="ih-you">Respect it. Go to exit.</div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('close_demo')">They want a demo</button>
-          <button type="button" class="btn" onclick="goTo('close_clip')">Send the clip</button>
-          <button type="button" class="btn" onclick="goTo('pricing')">They asked "how much?"</button>
-          <button type="button" class="btn" onclick="goTo('free_pilot')">Try free pilot offer</button>
-          <button type="button" class="btn" onclick="goTo('exit_no_gap')">Not interested -- exit</button>
-          <button type="button" class="btn ghost" onclick="goTo('confirm')">Back</button>
-        </div>
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('close_demo')">They want a demo</button>
+        <button type="button" class="btn" onclick="goTo('close_clip')">Send the clip</button>
+        <button type="button" class="btn" onclick="goTo('pricing')">They asked "how much?"</button>
+        <button type="button" class="btn" onclick="goTo('free_pilot')">Try free pilot offer</button>
       </div>
     `
   },
 
   // --- Close: Send clip ---
   close_clip: {
-    label: 'OFFER',
-    stepIdx: 4,
+    phase: 'OFFER',
+    idx: 4,
     render: () => `
-      <div class="fade-in">
-        <div class="label">They want the clip -- collect email and stop</div>
-        <div class="dialogue">"What's the best email?"</div>
-        <div class="note">After they give it:</div>
-        <div class="dialogue-sm">
-          "I'll send it over today. It's a 30-second clip of how it sounds plus what the text looks like that comes to your phone. Would really appreciate your honest take on it."
-        </div>
-        <div class="note warn">That's the call. You're done. Don't keep selling.</div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
-          <button type="button" class="btn" onclick="goTo('pricing')">They asked "how much?"</button>
-          <button type="button" class="btn ghost" onclick="goTo('offer')">Back</button>
-        </div>
+      <div class="label">Send clip — collect email and stop</div>
+      <div class="dialogue">"What's the best email?"</div>
+      <div class="note">After they give it:</div>
+      <div class="dialogue-sm">
+        "I'll send it over today. It's a 30-sec clip of how it sounds plus what the text looks like. Would really appreciate your honest take on it."
+      </div>
+      <div class="note warn">That's the call. You're done. Don't keep selling.</div>
+      
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
+        <button type="button" class="btn" onclick="goTo('pricing')">They asked "how much?"</button>
       </div>
     `
   },
 
   // --- Close: Book demo ---
   close_demo: {
-    label: 'OFFER',
-    stepIdx: 4,
+    phase: 'OFFER',
+    idx: 4,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Strong interest -- book the Zoom demo</div>
-        <div class="dialogue">
-          "Tell you what -- I can show you exactly how it works on a quick Zoom call. Takes about 10 minutes. I'll call your line live so you can hear the AI answer and see the text come through. When's good this week?"
-        </div>
-        <div class="note">If they give a time:</div>
-        <div class="dialogue-sm">
-          "Perfect. I'll send you a calendar invite. What's your email?"
-        </div>
-        <div class="note warn">Then stop talking.</div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
-          <button type="button" class="btn" onclick="goTo('pricing')">They asked "how much?"</button>
-          <button type="button" class="btn ghost" onclick="goTo('offer')">Back</button>
-        </div>
+      <div class="label">Book the Zoom demo</div>
+      <div class="dialogue">
+        "Tell you what — I can show you exactly how it works on a quick Zoom call. Takes about 10 minutes. I'll call your line live. When's good this week?"
+      </div>
+      <div class="note">If they give a time:</div>
+      <div class="dialogue-sm">
+        "Perfect. I'll send you a calendar invite. What's your email?"
+      </div>
+      <div class="note warn">Then stop talking.</div>
+      
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
+        <button type="button" class="btn" onclick="goTo('pricing')">They asked "how much?"</button>
       </div>
     `
   },
 
   // ========================================
-  // PRICE (only when they ask or clearly interested)
+  // PRICE
   // ========================================
   pricing: {
-    label: 'PRICE',
-    stepIdx: 5,
+    phase: 'PRICE',
+    idx: 5,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Say ONE number. Then shut up.</div>
-        <div class="tone">TONE: Matter-of-fact. Like reading a receipt. No drama.</div>
-        <div class="dialogue">
-          "The founding rate is twelve thousand for the year. I'm only offering that to the first 3 shops -- after that, it goes to eighteen with a setup fee."
-          <span class="beat">Stop. Count to 8. Say nothing.</span>
-        </div>
-        <div class="note" style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;">
-          They will react. Let them. Their next words tell you where to go.<br>
-          <strong style="color:var(--accent);">"That's it?"</strong> or silence = they're processing, stay quiet.<br>
-          <strong style="color:var(--accent);">"What do I get?"</strong> = go to features.<br>
-          <strong style="color:var(--accent);">"That's a lot"</strong> or wince = go to reframe.
-        </div>
+      <div class="label">Pricing — Say ONE number. Shut up.</div>
+      <div class="tone">TONE: Matter-of-fact. Like reading a receipt.</div>
+      <div class="dialogue">
+        "The founding rate is twelve thousand for the year. I'm only offering that to the first 3 shops — after that, it goes to eighteen with a setup fee."
+        <span class="beat">Stop. Count to 8. Say nothing.</span>
+      </div>
+      <div class="note">
+        <strong>"That's it?"</strong> or silence = processing, stay quiet.<br>
+        <strong>"What do I get?"</strong> = go to features.<br>
+        <strong>"That's a lot"</strong> or wince = go to reframe.
+      </div>
 
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('pricing_features')">They asked what they get</button>
-          <button type="button" class="btn" onclick="goTo('pricing_reframe')">Sticker shock -- reframe</button>
-          <button type="button" class="btn" onclick="goTo('done')">They said yes</button>
-          <button type="button" class="btn ghost" onclick="goTo('offer')">Back</button>
-        </div>
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('pricing_features')">Asked what they get</button>
+        <button type="button" class="btn" onclick="goTo('pricing_reframe')">Sticker shock -- Reframe</button>
+        <button type="button" class="btn ghost" onclick="goTo('done')">They said yes</button>
       </div>
     `
   },
 
   pricing_features: {
-    label: 'PRICE',
-    stepIdx: 5,
+    phase: 'PRICE',
+    idx: 5,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Features -- only because they asked</div>
-        <div class="dialogue">
-          "It answers every call -- 24/7 or just after-hours, your choice. Speaks English and Spanish."
-          <span class="beat">Pause</span>
-        </div>
-        <div class="dialogue">
-          "Books the job straight into ServiceTitan while the caller's still on the phone. Texts you the lead details."
-          <span class="beat">Pause</span>
-        </div>
-        <div class="dialogue">
-          "No setup fee. That's the founding rate for the first 3 shops -- goes up to eighteen once I have case studies."
-        </div>
-        <div class="note">Let them respond. Don't stack more unless they need the guarantee:</div>
-        <div class="dialogue-sm">
-          "And if it doesn't hit 95% answer rate in the first 30 days -- full refund. You keep everything we built."
-        </div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">They're in</button>
-          <button type="button" class="btn" onclick="goTo('pricing_reframe')">Still too much</button>
-          <button type="button" class="btn" onclick="goTo('pricing_trade')">Want something cheaper</button>
-          <button type="button" class="btn ghost" onclick="goTo('pricing')">Back</button>
-        </div>
+      <div class="label">Features (Only because they asked)</div>
+      <div class="dialogue">
+        "It answers every call — 24/7 or just after-hours. Speaks English and Spanish."
+        <span class="beat">Pause</span>
+      </div>
+      <div class="dialogue">
+        "Books the job straight into ServiceTitan while they're on the phone. Texts you lead details."
+      </div>
+      <div class="note">Don't stack more unless they need the guarantee:</div>
+      <div class="dialogue-sm">
+        "And if it doesn't hit 95% answer rate in 30 days — full refund."
+      </div>
+      
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('done')">They're in</button>
+        <button type="button" class="btn" onclick="goTo('pricing_reframe')">Too much -- Reframe</button>
+        <button type="button" class="btn" onclick="goTo('pricing_trade')">Want cheaper -- Trade Down</button>
       </div>
     `
   },
 
   pricing_reframe: {
-    label: 'PRICE',
-    stepIdx: 5,
+    phase: 'PRICE',
+    idx: 5,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Anchor to their loss -- make the price feel small</div>
-        <div class="dialogue">
-          "What's your average ticket on a repair?"
-          <span class="beat">Wait for their number.</span>
-        </div>
-        <div class="note" style="font-size:14px;color:var(--text-secondary);">Whatever they say, use it:</div>
-        <div class="dialogue">
-          "So one missed call is [THEIR NUMBER]. This catches maybe two, three of those a week. Pays for itself by week two."
-          <span class="beat">Stop. Let the math land.</span>
-        </div>
-        <div class="note">If they don't give a number, use: "Most guys I talk to are at $3,500-4,000 a job."</div>
-        <div class="note" style="margin-top:12px;">If still hesitating, add the guarantee:</div>
-        <div class="dialogue-sm">
-          "95% answer rate in 30 days or full refund. You keep everything -- the AI, the number, the setup. Zero risk on your end."
-        </div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">Math clicked -- they're in</button>
-          <button type="button" class="btn" onclick="goTo('pricing_trade')">Still too much -- trade down</button>
-          <button type="button" class="btn" onclick="goTo('free_pilot')">Hard no -- try free pilot</button>
-          <button type="button" class="btn ghost" onclick="goTo('pricing')">Back</button>
-        </div>
+      <div class="label">Anchor to their loss</div>
+      <div class="dialogue">
+        "What's your average ticket on a repair?"
+        <span class="beat">Wait for their number.</span>
+      </div>
+      <div class="dialogue">
+        "So one missed call is [THEIR NUMBER]. This catches maybe two, three of those a week. Pays for itself by week two."
+        <span class="beat">Stop. Let the math land.</span>
+      </div>
+      
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('done')">Math clicked -- In</button>
+        <button type="button" class="btn" onclick="goTo('pricing_trade')">Still too much -- Trade Down</button>
+        <button type="button" class="btn" onclick="goTo('free_pilot')">Hard no -- Free Pilot</button>
       </div>
     `
   },
 
   pricing_trade: {
-    label: 'PRICE',
-    stepIdx: 5,
+    phase: 'PRICE',
+    idx: 5,
     render: () => `
-      <div class="fade-in">
-        <div class="label">Drop features, not price. This is a trade.</div>
-        <div class="dialogue">
-          "There's a lighter version -- after-hours and weekends only. Six hundred a month."
-          <span class="beat">Pause.</span>
-        </div>
-        <div class="note" style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
-          <strong style="color:var(--accent);">What they lose:</strong> no bilingual, no ServiceTitan booking, no daytime coverage.<br>
-          <strong style="color:var(--text-secondary);">What they keep:</strong> AI answers after-hours, qualifies leads, texts you details, emergency detection.
-        </div>
-        <div class="note">If they push back on annual:</div>
-        <div class="dialogue-sm">
-          "Month-to-month is fifteen hundred for Pro, nine hundred for Lite. Annual just saves you more."
-        </div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">They committed</button>
-          <button type="button" class="btn" onclick="goTo('free_pilot')">No to everything -- try free pilot</button>
-          <button type="button" class="btn ghost" onclick="goTo('pricing_reframe')">Back</button>
-        </div>
+      <div class="label">Drop features, not price. Trade.</div>
+      <div class="dialogue">
+        "There's a lighter version — after-hours and weekends only. Six hundred a month."
+        <span class="beat">Pause.</span>
+      </div>
+      <div class="note">
+        <strong>They lose:</strong> no bilingual, no ServiceTitan, no daytime.<br>
+        <strong>They keep:</strong> AI answers after-hours, qualifies leads, texts details.
+      </div>
+      
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('done')">Committed</button>
+        <button type="button" class="btn" onclick="goTo('free_pilot')">No to all -- Free Pilot</button>
       </div>
     `
   },
@@ -1442,70 +1201,40 @@ const steps = {
   // FREE PILOT
   // ========================================
   free_pilot: {
-    label: 'PRICE',
-    stepIdx: 5,
+    phase: 'PRICE',
+    idx: 5,
     render: () => `
-      <div class="fade-in">
-        <div class="label" style="background:var(--green-muted);color:var(--green);">Free pilot -- developer identity</div>
-        <div class="tone">TONE: Vulnerable, genuine. You're asking for a favor, not closing a deal.</div>
-        <div class="note warn">Only use after discovery. They're interested but won't commit to paid.</div>
-        <div class="dialogue">
-          "Here's what I'm thinking -- I'll build it for you, you run it 30 days, free. All I ask is honest feedback. If it works, we talk about a paid version. If not, you keep everything and Zero risk on your end."
-          <span class="beat">Pause.</span>
-        </div>
-        <div class="note" style="color:var(--text-secondary);font-size:13px;">This is a barter -- free setup for feedback + potential testimonial. Not charity.</div>
-        <div class="note warn">Never lead with free. Never offer before they've heard real prices.</div>
-
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
-          <div class="inline-handler">
-            <div class="ih-them">IF: "What's the catch?"</div>
-            <div class="ih-you">"No catch. I have a demo but no proof it works on real HVAC calls at volume. That proof is worth more to me than money right now. You run it 30 days, give me honest feedback. If it worked, I ask for a testimonial. No obligation to pay."</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: "Why is it free?"</div>
-            <div class="ih-you">"I need 2-3 real businesses running it before I feel right charging anyone. Once they're happy, I start charging. You'd be getting in before that."</div>
-          </div>
-          <div class="inline-handler">
-            <div class="ih-them">IF: "I don't have time for setup"</div>
-            <div class="ih-you">"Setup is 10 minutes on your end -- total. You answer a few questions, I build it, you don't touch it again."</div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('close_free')">They agreed</button>
-          <button type="button" class="btn" onclick="goTo('exit_after_nos')">Still no -- exit</button>
-          <button type="button" class="btn ghost" onclick="goTo('offer')">Back</button>
-        </div>
+      <div class="label" style="background:var(--green-muted);color:var(--green);">Free pilot — student identity</div>
+      <div class="tone">TONE: Genuine, vulnerable. Asking for help with proof.</div>
+      <div class="dialogue">
+        "So this is exactly what I built it for. I'll set it up free, you run it 30 days, tell me what's broken. If it works, I'll ask for a testimonial. Zero risk on your end."
+        <span class="beat">Pause — let them process.</span>
+      </div>
+      
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('close_free')">They agreed</button>
+        <button type="button" class="btn ghost" onclick="goTo('exit_after_nos')">Still no -- Exit</button>
       </div>
     `
   },
 
   close_free: {
-    label: 'CLOSE',
-    stepIdx: 6,
+    phase: 'CLOSE',
+    idx: 6,
     render: () => `
-      <div class="fade-in">
-        <div class="label" style="background:var(--green-muted);color:var(--green);">You closed it -- get details and stop</div>
-        <div class="dialogue">
-          "Perfect. What's the phone number you want it on?"
-          <span class="beat">Get their number. Write it down.</span>
-        </div>
-        <div class="dialogue-sm">
-          "And what's a good email? I'll send you a couple setup questions -- takes 10 minutes."
-        </div>
-        <div class="note" style="font-size:14px;color:var(--text-secondary);">Then:</div>
-        <div class="dialogue-sm">
-          "I'll have it live by [DAY -- 5 days out]. I'll call you the day it goes live to walk you through what to expect."
-        </div>
-        <div class="note warn">That's it. You're done. Do not keep talking.</div>
-        <div class="note" style="font-size:13px;color:var(--text-muted);margin-top:8px;">
-          Plant the paid frame: "When this works, I want to show you what it goes for commercially."<br>
-          After 30 days: anchor to specific results -> founding rate ($12K/yr or $1K/mo).
-        </div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">Got details -- done</button>
-          <button type="button" class="btn ghost" onclick="goTo('free_pilot')">Back</button>
-        </div>
+      <div class="label" style="background:var(--green-muted);color:var(--green);">Closed it — get details and stop</div>
+      <div class="dialogue">
+        "Perfect. What's the phone number you want it on?"
+        <span class="beat">Write it down.</span>
+      </div>
+      <div class="dialogue-sm">
+        "And what's a good email? I'll send you a couple setup questions — takes 10 minutes."
+      </div>
+      <div class="note warn">That's it. You're done. Do not keep talking.</div>
+      <div class="note">Plant the paid frame: "When this works, I want to show you what it goes for commercially."</div>
+      
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('done')">Got details -- Done</button>
       </div>
     `
   },
@@ -1513,73 +1242,30 @@ const steps = {
   // ========================================
   // EXIT
   // ========================================
-  exit_menu: {
-    label: 'CLOSE',
-    stepIdx: 6,
-    render: () => `
-      <div class="fade-in">
-        <div class="label">Pick the exit that fits</div>
-        <div class="actions" style="flex-direction:column;">
-          <button type="button" class="btn primary" onclick="goTo('exit_no_gap')">No gap found -- good conversation</button>
-          <button type="button" class="btn" onclick="goTo('exit_after_nos')">After 2 nos</button>
-          <button type="button" class="btn" onclick="goTo('exit_warm')">Warm but not now</button>
-        </div>
-        <div class="actions" style="margin-top:12px;">
-          <button type="button" class="btn ghost" onclick="goTo('offer')">Back</button>
-        </div>
-      </div>
-    `
-  },
-
   exit_no_gap: {
-    label: 'CLOSE',
-    stepIdx: 6,
+    phase: 'CLOSE',
+    idx: 6,
     render: () => `
-      <div class="fade-in">
-        <div class="label">No gap found -- leave the door open</div>
-        <div class="dialogue">
-          "Sounds like you've got it handled. If that ever changes, you've got my number."
-        </div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
-          <button type="button" class="btn ghost" onclick="goTo('discover')">Back to Discover</button>
-        </div>
+      <div class="label">No gap found — leave door open</div>
+      <div class="dialogue">
+        "Sounds like you've got it handled. If that ever changes, you've got my number."
+      </div>
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
       </div>
     `
   },
 
   exit_after_nos: {
-    label: 'CLOSE',
-    stepIdx: 6,
+    phase: 'CLOSE',
+    idx: 6,
     render: () => `
-      <div class="fade-in">
-        <div class="label">After 2 nos -- exit clean</div>
-        <div class="dialogue">
-          "I hear you. Appreciate your time. If you notice calls slipping, call me."
-        </div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
-          <button type="button" class="btn ghost" onclick="goTo('offer')">Back</button>
-        </div>
+      <div class="label">After 2 nos — exit clean</div>
+      <div class="dialogue">
+        "I hear you. Appreciate your time. If you notice calls slipping, call me."
       </div>
-    `
-  },
-
-  exit_warm: {
-    label: 'CLOSE',
-    stepIdx: 6,
-    render: () => `
-      <div class="fade-in">
-        <div class="label">Warm but not now</div>
-        <div class="dialogue">
-          "Totally fair. Mind if I follow up in a couple weeks? What day works?"
-        </div>
-        <div class="note">If yes: "What's the best email for a calendar hold?"</div>
-        <div class="note">If no: "No worries at all. You've got my number. Take care."</div>
-        <div class="actions">
-          <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
-          <button type="button" class="btn ghost" onclick="goTo('offer')">Back</button>
-        </div>
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('done')">Call done</button>
       </div>
     `
   },
@@ -1588,28 +1274,25 @@ const steps = {
   // DONE
   // ========================================
   done: {
-    label: 'CLOSE',
-    stepIdx: 6,
+    phase: 'CLOSE',
+    idx: 6,
     render: () => `
-      <div class="fade-in" style="display:flex;flex-direction:column;align-items:flex-start;">
-        <div class="done-icon">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <div class="dialogue" style="color:var(--green);">Call complete.</div>
-        <div class="dialogue-sm" style="margin-bottom:20px;">
-          "Appreciate your time, <strong>${prospectName || '[NAME]'}</strong>. Have a good one."
-        </div>
-        <div class="note" style="font-size:15px;color:var(--text-secondary);">
-          Take a breath. Say the next name 3 times.
-        </div>
-        <div class="note" style="font-size:13px;color:var(--text-muted);margin-top:12px;">
-          <strong>Quick log:</strong> (1) Name, (2) Outcome (demo/clip/pilot/no/callback), (3) Their main pain in their words, (4) Follow-up date.
-        </div>
-        <div class="actions" style="margin-top:16px;">
-          <button type="button" class="btn primary" onclick="restart()">Next call</button>
-        </div>
+      <div class="done-icon" style="width: 80px; height: 80px; border-radius: 50%; background: var(--green-muted); display: flex; align-items: center; justify-content: center; margin-bottom: 32px;">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width: 40px; height: 40px; color: var(--green);">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <div class="dialogue" style="color:var(--green);">Call complete.</div>
+      <div class="dialogue-sm" style="margin-bottom:20px;">
+        "Appreciate your time, <strong>${prospectName || '[NAME]'}</strong>. Have a good one."
+      </div>
+      <div class="note" style="font-size:18px;color:var(--text-secondary);">
+        Take a breath. Say the next name 3 times.
+      </div>
+      <div class="note warn">Log: (1) Name, (2) Outcome, (3) Main pain, (4) Follow-up.</div>
+      
+      <div class="actions" style="margin-top:40px;">
+        <button type="button" class="btn primary" onclick="restart()">Next call</button>
       </div>
     `
   }
@@ -1623,111 +1306,15 @@ function saveName() {
   goTo('opener');
 }
 
-function goTo(stepKey) {
-  const step = steps[stepKey];
-  if (!step) return;
-  history.push(stepKey);
-  currentStep = step.stepIdx;
-  document.getElementById('stepLabel').textContent = step.label;
-  document.getElementById('main').innerHTML = step.render();
-  updateProgress();
-  document.getElementById('main').scrollTop = 0;
-  const input = document.querySelector('#main input');
-  if (input) setTimeout(() => input.focus(), 50);
-}
-
-function goBack() {
-  if (history.length <= 1) return;
-  history.pop(); // remove current
-  const prev = history[history.length - 1];
-  const step = steps[prev];
-  if (!step) return;
-  currentStep = step.stepIdx;
-  document.getElementById('stepLabel').textContent = step.label;
-  document.getElementById('main').innerHTML = step.render();
-  updateProgress();
-  document.getElementById('main').scrollTop = 0;
-}
-
-function updateProgress() {
-  const prog = document.getElementById('progress');
-  prog.innerHTML = '';
-  for (let i = 0; i < totalSteps; i++) {
-    const seg = document.createElement('div');
-    seg.className = 'seg';
-    if (i < currentStep) seg.className += ' done';
-    if (i === currentStep) seg.className += ' active';
-    prog.appendChild(seg);
-  }
-}
-
-function showHandlers() {
-  const overlay = document.getElementById('handlerOverlay');
-  const panel = document.getElementById('handlerPanel');
-  panel.scrollTop = 0;
-  overlay.classList.add('show');
-  document.getElementById('handlerCloseBtn').focus();
-}
-function hideHandlers() {
-  document.getElementById('handlerOverlay').classList.remove('show');
-}
-function navFromHandler(stepKey) {
-  hideHandlers();
-  goTo(stepKey);
-}
-
 function restart() {
   prospectName = '';
   reconTime = '';
-  currentStep = 0;
-  history.length = 0;
+  currentStepIdx = 0;
+  globalHistory.length = 0;
+  handlerStack.length = 0;
   goTo('prep');
 }
 
-document.addEventListener('keydown', (e) => {
-  if (e.target.tagName === 'INPUT') return;
-  const overlay = document.getElementById('handlerOverlay');
-  const isOpen = overlay.classList.contains('show');
-
-  // Focus trap when overlay is open
-  if (isOpen && e.key === 'Tab') {
-    const focusable = overlay.querySelectorAll('button, [tabindex]');
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-    return;
-  }
-
-  if (e.key === 'h' || e.key === 'H') {
-    isOpen ? hideHandlers() : showHandlers();
-  }
-  if (e.key === 'Escape') hideHandlers();
-  if (e.key === 'ArrowLeft') goBack();
-});
-
+// Start app
 goTo('prep');
-
-// Touch: tap overlay backdrop to close
-document.getElementById('handlerOverlay').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) hideHandlers();
-});
-
-// Touch: hide keyboard hints on touch devices
-if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-  const hint = document.getElementById('footerHint');
-  if (hint) hint.style.display = 'none';
-}
-
-// PWA service worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js');
-}
-</script>
-</body>
-</html>
+</script></body></html>
