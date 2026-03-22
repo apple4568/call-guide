@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#111110">
+<title>Blackout Method</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+@font-face { font-family: 'Inter'; font-weight: 400; src: url('https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 600; src: url('https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fAZ9hiA.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 700; src: url('https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYAZ9hiA.woff2') format('woff2'); }
+@font-face { font-family: 'Space Grotesk'; font-weight: 700; src: url('https://fonts.gstatic.com/s/spacegrotesk/v16/V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2') format('woff2'); }
+
+:root {
+  --bg: #111110;
+  --surface: #1C1C1A;
+  --surface-elevated: #262624;
+  --text-primary: #EEEEEC;
+  --text-secondary: #A3A3A0;
+  --text-muted: #737370;
+  --accent: #FF3D00;
+  --accent-subtle: rgba(255,61,0,0.12);
+  --accent-text: #FF5722;
+  --border: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.15);
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overscroll-behavior: none;
+  padding-bottom: calc(80px + var(--safe-bottom));
+}
+
+/* === HEADER === */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(17,17,16,0.92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+.header-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.header h1 {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+.header .subtitle {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 1px;
+  display: none;
+}
+
+/* === PROGRESS === */
+.progress-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.progress-track {
+  width: 80px;
+  height: 4px;
+  background: var(--surface-elevated);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+.progress-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* === CONTROLS (top bar — desktop) === */
+.controls-desktop {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* === FLOATING ACTION BAR (mobile) === */
+.fab-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: rgba(17,17,16,0.96);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  padding: 8px 12px;
+  padding-bottom: max(8px, var(--safe-bottom));
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn:active { transform: scale(0.95); background: var(--surface-elevated); }
+.btn-accent {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  flex: 1;
+  max-width: 200px;
+}
+.btn-accent:active { background: #e63600; }
+.btn-sm {
+  font-size: 12px;
+  padding: 10px 12px;
+  min-width: 44px;
+}
+.btn-danger {
+  color: #f87171;
+  border-color: rgba(248,113,113,0.3);
+}
+.btn.active {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+/* === INSTRUCTIONS (collapsible on mobile) === */
+.instructions {
+  max-width: 720px;
+  margin: 0 auto 16px;
+  padding: 0 16px;
+}
+.instructions-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 16px;
+}
+.instructions-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.instructions-toggle h3 {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+.instructions-toggle .arrow {
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+.instructions-content {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+}
+.instructions-content.open {
+  max-height: 200px;
+}
+.instructions-content p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* === SCRIPT CONTENT === */
+.script-area {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.phase {
+  margin-bottom: 28px;
+}
+.phase-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.phase-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.line {
+  margin-bottom: 14px;
+  line-height: 2.0;
+}
+.line-label {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  background: var(--accent-subtle);
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-right: 6px;
+  margin-bottom: 4px;
+  vertical-align: middle;
+}
+.stage-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+/* === WORD TOKENS === */
+.word {
+  display: inline-block;
+  font-size: 16px;
+  line-height: 2.0;
+  padding: 4px 2px;
+  margin: 0 1px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.12s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.word:active:not(.blacked) {
+  background: var(--accent-subtle);
+  transform: scale(0.95);
+}
+.word.blacked {
+  background: var(--accent);
+  color: transparent;
+  border-radius: 3px;
+  min-width: 2ch;
+  cursor: default;
+}
+.word.blacked::selection { background: transparent; }
+
+/* Test mode */
+.test-mode .word:not(.blacked) {
+  color: transparent;
+  background: var(--surface-elevated);
+  border-radius: 3px;
+}
+.test-mode .word:not(.blacked):active {
+  color: var(--text-primary);
+  background: var(--accent-subtle);
+}
+
+/* === RESPONSIVE === */
+@media (min-width: 601px) {
+  .fab-bar { display: none !important; }
+  .header .subtitle { display: block; }
+  .progress-track { width: 120px; }
+  .header { padding: 16px 24px; }
+  .script-area { padding: 24px; }
+  .instructions { padding: 0 24px; }
+  body { padding-bottom: 24px; }
+}
+@media (max-width: 600px) {
+  .controls-desktop { display: none; }
+  .fab-bar { display: flex; }
+  .phase-title { font-size: 16px; }
+  .word { font-size: 15px; padding: 5px 2px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <h1>Blackout Method</h1>
+      <div class="subtitle">Tap words to black them out, then recite from memory</div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-text" id="progressText">0 / 0</span>
+    </div>
+  </div>
+</div>
+
+<!-- Desktop controls -->
+<div class="controls-desktop">
+  <button class="btn btn-accent" onclick="blackoutRandom(1)">Black Out Next</button>
+  <button class="btn btn-sm" onclick="blackoutRandom(5)">+5</button>
+  <button class="btn btn-sm" id="btnTestDesktop" onclick="toggleTestMode()">Test</button>
+  <button class="btn btn-sm" onclick="revealAll()">Reveal</button>
+  <button class="btn btn-sm btn-danger" onclick="resetAll()">Reset</button>
+</div>
+
+<div class="instructions">
+  <div class="instructions-box">
+    <div class="instructions-toggle" onclick="toggleInstructions()">
+      <h3>How To Use</h3>
+      <span class="arrow" id="instrArrow">+</span>
+    </div>
+    <div class="instructions-content" id="instrContent">
+      <p><strong>Read aloud</strong> the full script. Fill in blacked-out words from memory.</p>
+      <p><strong>Tap any word</strong> to black it out. Use the bottom bar buttons to black out randomly.</p>
+      <p><strong>Test Mode</strong> hides ALL remaining words — tap to peek.</p>
+    </div>
+  </div>
+</div>
+
+<div class="script-area" id="scriptArea"></div>
+
+<!-- Mobile floating action bar -->
+<div class="fab-bar">
+  <button class="btn btn-accent" onclick="blackoutRandom(1)">Next</button>
+  <button class="btn btn-sm" onclick="blackoutRandom(5)">+5</button>
+  <button class="btn btn-sm" id="btnTestMobile" onclick="toggleTestMode()">Test</button>
+  <button class="btn btn-sm" onclick="revealAll()">Show</button>
+  <button class="btn btn-sm btn-danger" onclick="resetAll()">Reset</button>
+</div>
+
+<script>
+const SCRIPT_DATA = [
+  {
+    phase: "Prep",
+    title: "Before You Dial",
+    lines: [
+      { label: "ACTION", text: "Stand up. One breath. Say their name out loud three times. Tap Record." }
+    ]
+  },
+  {
+    phase: "Open",
+    title: "Opener D — Student / Free Pilot",
+    lines: [
+      { label: "YOU", text: "Hey NAME, I'm a college student researching how HVAC companies handle calls after hours. Can I ask you one quick question?" },
+      { label: "NOTE", text: "Wait for permission. Say nothing until they respond.", isNote: true }
+    ]
+  },
+  {
+    phase: "Open",
+    title: "If They Sound Busy",
+    lines: [
+      { label: "YOU", text: "Totally fair. Is it that this is a bad time, or this just isn't for you?" },
+      { label: "NOTE", text: "Bad timing: When's better? Schedule callback. Lock it with a text at five minutes before.", isNote: true }
+    ]
+  },
+  {
+    phase: "Discover",
+    title: "Question Toolkit",
+    note: "Stay here as long as they're talking. Tone: curious, unhurried.",
+    lines: [
+      { label: "Q1", text: "What's your setup for calls after hours right now?" },
+      { label: "FOLLOW", text: "If voicemail: What happens to the ones that don't leave one?" },
+      { label: "FOLLOW", text: "If answering service: Are you happy with them? What happens to the ones that called at 9 PM and needed someone that night?" },
+      { label: "Q2", text: "What happens when a call comes in and nobody picks up?" },
+      { label: "FOLLOW", text: "They usually call back: That's what most guys hope. Do you have a way to track which ones actually do?" },
+      { label: "Q3", text: "What's the biggest headache with phones right now?" },
+      { label: "FOLLOW", text: "Spam robocalls: Brutal. Aside from the spam, what about the legit calls? You catching all of those?" }
+    ]
+  },
+  {
+    phase: "Confirm",
+    title: "Mirror What You Heard",
+    lines: [
+      { label: "YOU", text: "So what I'm hearing is THEIR EXACT WORDS FOR THEIR PAIN. Is that right?" },
+      { label: "NOTE", text: "Listen for that's right or exactly. You're right or sure is a brush-off.", isNote: true },
+      { label: "YOU", text: "Is there anything else that's been bugging you about the phones, or is that the main thing?" }
+    ]
+  },
+  {
+    phase: "Bridge",
+    title: "Transition to Offer",
+    lines: [
+      { label: "YOU", text: "If there was a way to fix that without you changing anything, would you want to hear about it?" }
+    ]
+  },
+  {
+    phase: "Offer",
+    title: "Would This Be Useful?",
+    note: "Tone: genuine curiosity, not pitching.",
+    lines: [
+      { label: "YOU", text: "What if you had something that answers every call, qualifies the lead, texts you the details so you can call back and close. Would that actually be useful? Or is this honestly not a big enough problem?" },
+      { label: "NOTE", text: "The or is this not a big enough problem gives them an exit, making them more likely to say yes.", isNote: true }
+    ]
+  },
+  {
+    phase: "Close",
+    title: "Free Pilot Offer",
+    note: "Tone: genuine, vulnerable. Asking for help with proof.",
+    lines: [
+      { label: "YOU", text: "I'll be straight with you. I need a few owners to test this and tell me what's broken. I'll set it up free, you run it 30 days, tell me what's broken. If it works, I'll ask for a testimonial. Zero risk on your end." },
+      { label: "DEMO", text: "I can show you how it works right now if you want. I'll text you a number, you call it, say something like my AC stopped working, and watch what it does. Takes 90 seconds." }
+    ]
+  },
+  {
+    phase: "Close",
+    title: "After They Call Demo",
+    lines: [
+      { label: "YOU", text: "What did you think? Did it sound like it'd work for your callers?" },
+      { label: "YES", text: "Great. Let's get it on your line. I'll have it live by Friday. What's the best number to set it up on?" },
+      { label: "CONCERNS", text: "That's exactly the kind of thing I need to hear. Let's still set it up. Your feedback is more useful than a perfect demo. What was off?" }
+    ]
+  },
+  {
+    phase: "Handlers",
+    title: "Key Objection Responses",
+    lines: [
+      { label: "NOT INTERESTED", text: "I get it, this one's on me. Caught you out of the blue. Mind if I ask, is it because you've got something in place, you handle it in-house, or I just caught you at a bad time?" },
+      { label: "SALES CALL?", text: "I mean, kind of? I'll be honest. I did build something. But I genuinely called to learn. I'm a developer, not a salesperson." },
+      { label: "WHAT'S THE CATCH", text: "No catch. You run it for 30 days and give me honest feedback. At the end, if it worked, I'll ask for a testimonial. No obligation to pay anything." },
+      { label: "SEND ME INFO", text: "Totally. I'll send you a quick video of how it sounds plus what the text looks like. What's the best email? Would really appreciate your honest take on it." },
+      { label: "WHY FREE?", text: "I have a demo but I don't have proof it works on real HVAC calls at volume. That proof is worth more than money right now. Once I have 3 businesses running it, I start charging. You'd be getting in before that." },
+      { label: "DON'T TRUST AI", text: "I get that. That's part of why I'm doing this free. Call the demo number right now. You'll hear it yourself." },
+      { label: "ALREADY HAVE", text: "Even if it just confirms your current setup works better, that's useful for me. And if it catches one or two calls your system misses, you're ahead. Thirty days, no cost." }
+    ]
+  },
+  {
+    phase: "Exit",
+    title: "Graceful Exits",
+    lines: [
+      { label: "NO GAP", text: "Sounds like you've got it handled. If that ever changes, you've got my number." },
+      { label: "HARD NO", text: "I hear you. Appreciate your time. If you notice calls slipping, call me." },
+      { label: "CALLBACK", text: "Is this your cell? I'll text you at five minutes before so you know it's me and not a spam call." }
+    ]
+  }
+];
+
+const scriptArea = document.getElementById('scriptArea');
+let allWords = [];
+let blackedCount = 0;
+let testMode = false;
+
+function renderScript() {
+  scriptArea.innerHTML = '';
+  allWords = [];
+
+  SCRIPT_DATA.forEach(section => {
+    const phase = document.createElement('div');
+    phase.className = 'phase';
+
+    const label = document.createElement('div');
+    label.className = 'phase-label';
+    label.textContent = section.phase;
+    phase.appendChild(label);
+
+    const title = document.createElement('div');
+    title.className = 'phase-title';
+    title.textContent = section.title;
+    phase.appendChild(title);
+
+    if (section.note) {
+      const note = document.createElement('div');
+      note.className = 'stage-note';
+      note.textContent = section.note;
+      phase.appendChild(note);
+    }
+
+    section.lines.forEach(line => {
+      const lineDiv = document.createElement('div');
+      lineDiv.className = 'line';
+
+      if (line.isNote) {
+        const noteSpan = document.createElement('span');
+        noteSpan.className = 'stage-note';
+        noteSpan.style.display = 'block';
+        noteSpan.style.marginBottom = '10px';
+        noteSpan.textContent = line.text;
+        lineDiv.appendChild(noteSpan);
+      } else {
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'line-label';
+        labelSpan.textContent = line.label;
+        lineDiv.appendChild(labelSpan);
+
+        const words = line.text.split(/\s+/);
+        words.forEach((w, i) => {
+          const span = document.createElement('span');
+          span.className = 'word';
+          span.textContent = w;
+          span.dataset.index = allWords.length;
+          span.addEventListener('click', () => toggleBlackout(span));
+          lineDiv.appendChild(span);
+          allWords.push(span);
+          if (i < words.length - 1) {
+            lineDiv.appendChild(document.createTextNode(' '));
+          }
+        });
+      }
+      phase.appendChild(lineDiv);
+    });
+    scriptArea.appendChild(phase);
+  });
+  updateProgress();
+}
+
+function toggleBlackout(span) {
+  if (testMode) return;
+  if (span.classList.contains('blacked')) {
+    span.classList.remove('blacked');
+    blackedCount--;
+  } else {
+    span.classList.add('blacked');
+    blackedCount++;
+  }
+  updateProgress();
+}
+
+function blackoutRandom(count) {
+  const visible = allWords.filter(w => !w.classList.contains('blacked'));
+  const toBlack = Math.min(count, visible.length);
+  for (let i = 0; i < toBlack; i++) {
+    const idx = Math.floor(Math.random() * visible.length);
+    visible[idx].classList.add('blacked');
+    visible.splice(idx, 1);
+    blackedCount++;
+  }
+  updateProgress();
+}
+
+function revealAll() {
+  allWords.forEach(w => w.classList.remove('blacked'));
+  blackedCount = 0;
+  updateProgress();
+}
+
+function resetAll() {
+  testMode = false;
+  scriptArea.classList.remove('test-mode');
+  document.getElementById('btnTestDesktop').classList.remove('active');
+  document.getElementById('btnTestDesktop').textContent = 'Test';
+  document.getElementById('btnTestMobile').classList.remove('active');
+  document.getElementById('btnTestMobile').textContent = 'Test';
+  revealAll();
+}
+
+function toggleTestMode() {
+  testMode = !testMode;
+  scriptArea.classList.toggle('test-mode', testMode);
+  ['btnTestDesktop', 'btnTestMobile'].forEach(id => {
+    const btn = document.getElementById(id);
+    btn.classList.toggle('active', testMode);
+    btn.textContent = testMode ? 'Exit' : 'Test';
+  });
+}
+
+function updateProgress() {
+  const total = allWords.length;
+  const pct = total > 0 ? (blackedCount / total * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = blackedCount + ' / ' + total;
+}
+
+function toggleInstructions() {
+  const content = document.getElementById('instrContent');
+  const arrow = document.getElementById('instrArrow');
+  const isOpen = content.classList.toggle('open');
+  arrow.textContent = isOpen ? '−' : '+';
+}
+
+// Keyboard shortcuts (desktop)
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.code === 'Space') { e.preventDefault(); blackoutRandom(1); }
+  if (e.key === 't' || e.key === 'T') { e.preventDefault(); toggleTestMode(); }
+  if (e.key === 'r' || e.key === 'R') { e.preventDefault(); resetAll(); }
+});
+
+// Prevent double-tap zoom on mobile
+document.addEventListener('dblclick', (e) => e.preventDefault());
+
+// Save/restore state to localStorage
+function saveState() {
+  const blacked = allWords.map(w => w.classList.contains('blacked'));
+  localStorage.setItem('blackout-state', JSON.stringify({ blacked, testMode }));
+}
+
+function restoreState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('blackout-state'));
+    if (saved && saved.blacked && saved.blacked.length === allWords.length) {
+      saved.blacked.forEach((isBlacked, i) => {
+        if (isBlacked) {
+          allWords[i].classList.add('blacked');
+          blackedCount++;
+        }
+      });
+      if (saved.testMode) toggleTestMode();
+      updateProgress();
+    }
+  } catch(e) {}
+}
+
+// Auto-save every 2 seconds
+setInterval(saveState, 2000);
+
+// Init
+renderScript();
+restoreState();
+</script>
+
+</body>
+</html>
