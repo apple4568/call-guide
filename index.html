@@ -662,30 +662,25 @@ const CONTEXT_DOCKS = {
       warn: ''}
   ],
   V2_OPEN: [
-    { id: 'v2_busy', label: 'I\'m busy', hint: 'Bad timing vs not interested',
+    ...ALWAYS_ON_HANDLERS,
+    { id: 'v2_busy', label: 'I\'m busy (V2)', hint: 'Bad timing vs not interested',
       them: 'I\'m busy / Don\'t have time',
       you: '"Totally fair — is this a bad time, or is this just not for you?"',
-      warn: 'If bad timing: "When\'s better?" If not interested: exit gracefully.'},
-    { id: 'v2_sales', label: 'Is this a sales call?', hint: 'Defuse the frame',
-      them: 'Are you trying to sell me something?',
-      you: '"Not really — I built something and I genuinely want to see if it\'s useful. 30 seconds, then you decide."',
-      warn: ''}
+      warn: 'If bad timing: "When\'s better?" If not interested: exit gracefully.'}
   ],
   V2_DISCOVER_OWNER: [
-    { id: 'v2_busy', label: 'I\'m busy', hint: 'Bad timing',
-      them: 'I\'m busy / Make it quick',
-      you: '"Totally fair — just one question: when a customer calls after hours and you can\'t answer, what happens to that call?"',
+    ...ALWAYS_ON_HANDLERS,
+    { id: 'already_have', label: 'Already got an answering service', hint: 'Differentiation',
+      them: 'We have a service for that',
+      you: '"An answering service just takes a name and number. This qualifies the call and texts you the full picture so you call back ready to close."',
       warn: ''},
     { id: 'v2_fine', label: 'We\'re fine / Got it handled', hint: 'No perceived gap',
       them: 'We\'re good, we don\'t miss calls',
       you: '"That\'s great. So what happens at 9 PM on a Friday — those go to voicemail or do you have something catching them?"',
-      warn: 'If they engage, they DO have a gap. If truly handled, exit gracefully.'},
-    { id: 'v2_already', label: 'Already have a service', hint: 'Differentiation',
-      them: 'We already have an answering service',
-      you: '"Nice. Are they qualifying the calls and texting you details, or just taking a name and number?"',
-      warn: ''}
+      warn: 'If they engage, they DO have a gap. If truly handled, exit gracefully.'}
   ],
   V2_DISCOVER_GK: [
+    ...ALWAYS_ON_HANDLERS,
     { id: 'v2_cant_decide', label: 'Can\'t make that decision', hint: 'Classic gatekeeper deflection',
       them: 'I don\'t make those decisions',
       you: '"Totally understand. I wouldn\'t want to bother him unless you think it\'s worth it. Can I send a quick audio clip? You listen — if it\'s garbage, you saved his time."',
@@ -693,35 +688,37 @@ const CONTEXT_DOCKS = {
     { id: 'v2_email', label: 'Just send an email', hint: 'Brush-off',
       them: 'Just send us an email',
       you: '"I could, but those always end up in spam. Would you be opposed to a 30-second audio clip instead? Way easier to judge."',
-      warn: ''},
-    { id: 'v2_not_interested', label: 'He\'s not interested', hint: 'Speaking for the owner',
-      them: 'He wouldn\'t be interested in that',
-      you: '"That\'s fair — you know him better than I do. What does he usually do about the after-hours calls?"',
-      warn: 'Re-opening discovery through the gatekeeper. If they engage, keep going.'}
+      warn: ''}
   ],
   V2_OFFER_OWNER: [
+    ...ALWAYS_ON_HANDLERS,
+    { id: 'expensive', label: 'Too expensive', hint: 'Anchor to loss',
+      them: 'Too expensive',
+      you: '"What are you paying for an answering service? And think about your average ticket — one missed call is what, $3,500? This catches 2-3 a week."',
+      warn: ''},
+    { id: 'tiers', label: 'What\'s the difference?', hint: 'Pro vs Lite',
+      them: 'Difference between tiers?',
+      you: 'Pro: bilingual, ServiceTitan booking, 24/7 or after-hours. Lite: $600/mo, after-hours only, no bilingual, no ServiceTitan.',
+      warn: ''},
+    { id: 'guarantee', label: 'What if it doesn\'t work?', hint: 'Zero risk',
+      them: 'What if it doesn\'t work?',
+      you: '"95% answer rate in 30 days or full refund. You keep everything we built — the AI, the phone number. Zero risk."',
+      warn: ''},
+    { id: 'time', label: 'No time for setup', hint: '10 minutes',
+      them: 'I don\'t have time for setup',
+      you: '"Setup is 10 minutes on your end — total. You answer a few questions, I build it, you don\'t touch it again."',
+      warn: ''},
     { id: 'v2_already_o', label: 'Already have something', hint: 'Differentiation',
       them: 'We have something for that',
       you: '"An answering service takes a name and number. This qualifies the call and texts you the full picture so you call back ready to close."',
-      warn: ''},
-    { id: 'v2_how', label: 'How does it work?', hint: 'Curiosity — good sign',
-      them: 'How does that work exactly?',
-      you: '"Answers the call, asks qualifying questions, texts you a summary — job type, urgency, contact info. You call back ready to close."',
-      warn: 'Keep it brief. Don\'t oversell.'},
-    { id: 'v2_cost', label: 'How much?', hint: 'Buying signal',
-      them: 'What does it cost?',
-      you: '"Founding rate is twelve thousand for the year. Only offering that to the first 3 shops — after that, eighteen with a setup fee."',
-      warn: 'If they wince, anchor to their average ticket cost.'}
+      warn: ''}
   ],
   V2_OFFER_GK: [
+    ...ALWAYS_ON_HANDLERS,
     { id: 'v2_cant_gk', label: 'Not my call to make', hint: 'Deflection',
       them: 'That\'s not my call to make',
       you: '"100%. That\'s exactly why I\'m not asking you to decide — just listen to a 1-minute clip and tell me if it\'s worth his time."',
       warn: ''},
-    { id: 'v2_email_gk', label: 'Just email it', hint: 'Brush-off',
-      them: 'Just send it to our email',
-      you: '"I can — what\'s the best email? I\'ll send the audio clip and a one-liner."',
-      warn: 'If they give the email, that IS the win. Take it and exit.'},
     { id: 'v2_call_owner', label: 'Talk to the owner', hint: 'They want you to bypass them',
       them: 'You should call back and talk to him directly',
       you: '"When\'s the best time to catch him?"',
@@ -1439,18 +1436,20 @@ const steps = {
   },
 
   // ========================================
-  // V2 — "30-Second Permission" Pathway
-  // ========================================
-
-  v2_branch: {
+  // V2   v2_branch: {
     phase: 'V2_OPEN',
     idx: 1,
     render: () => `
-      <div class="label">Who picked up? <span class="v2-tag">V2</span></div>
+      <div class="label" style="background:var(--purple-muted);color:var(--purple);">The Universal Intro <span class="v2-tag">V2</span></div>
       <div class="tone">TONE: Calm, confident</div>
-      <div class="actions col">
-        <button type="button" class="btn primary" onclick="goTo('v2_owner_open')">Owner / Decision-maker</button>
-        <button type="button" class="btn" onclick="goTo('v2_gk_open')">Gatekeeper / Receptionist</button>
+      <div class="dialogue">
+        "Hey <strong>${prospectName || '[Name]'}</strong>, I know you're slammed today. Just give me thirty seconds, and you can hang up if you aren't interested. Sound fair?"
+      </div>
+      <div class="note">Wait for them to say "Sure" or "Go ahead."</div>
+      
+      <div class="actions col" style="margin-top:40px;">
+        <button type="button" class="btn primary" onclick="goTo('v2_owner_hook')">Path A: Talking to the Owner</button>
+        <button type="button" class="btn" onclick="goTo('v2_gk_hook')">Path B: Talking to the Gatekeeper</button>
         <button type="button" class="btn ghost" onclick="goTo('openE')">No answer → Leave VM</button>
       </div>
     `
@@ -1458,184 +1457,159 @@ const steps = {
 
   // --- V2 Owner Path ---
 
-  v2_owner_open: {
-    phase: 'V2_OPEN',
-    idx: 1,
-    render: () => `
-      <div class="label">Say this <span class="v2-tag">V2 — OWNER</span></div>
-      <div class="tone">TONE: Casual, direct, unhurried</div>
-      <div class="dialogue">
-        "Hey, I know you're busy and people call all the time. I just need <strong>thirty seconds</strong>, and then you can decide whether or not to hang up. Does that sound fair?"
-      </div>
-      <div class="note">Wait for agreement. Don't continue until they say yes or give permission.</div>
-      
-      <div class="actions">
-        <button type="button" class="btn primary" onclick="goTo('v2_owner_question')">They agreed → Ask</button>
-        <button type="button" class="btn" onclick="goTo('exit_no_gap')">Hard no → Exit</button>
-      </div>
-    `
-  },
-
-  v2_owner_question: {
+  v2_owner_hook: {
     phase: 'V2_DISCOVER_OWNER',
     idx: 2,
     render: () => `
-      <div class="label">Discover <span class="v2-tag">V2 — OWNER</span></div>
-      <div class="tone">TONE: Genuine curiosity</div>
-      <div class="dialogue">
-        "Can I ask you a quick question about how your shop handles after-hours calls?"
-        <span class="beat">Pause — let them process</span>
-      </div>
-      <div class="dialogue">
-        "When a customer calls after hours and you can't answer, <strong>what does that actually cost you?</strong>"
-      </div>
-      <div class="note">Shut up and listen. Let them talk about losing jobs to competitors, missed revenue, etc.</div>
-      
-      <div class="actions">
-        <button type="button" class="btn primary" onclick="goTo('v2_owner_pitch')">They talked about pain → Pitch</button>
-        <button type="button" class="btn" onclick="goTo('exit_no_gap')">No gap → Exit</button>
-      </div>
-    `
-  },
-
-  v2_owner_pitch: {
-    phase: 'V2_OFFER_OWNER',
-    idx: 4,
-    render: () => `
-      <div class="label">Bridge to offer <span class="v2-tag">V2 — OWNER</span></div>
+      <div class="label">The Hook <span class="v2-tag">Path A — OWNER</span></div>
       <div class="tone">TONE: Matter-of-fact, connecting the dots</div>
-      <div class="dialogue">
-        "That makes sense. That's actually why I called. We help HVAC shops <strong>manage exactly that</strong>."
-        <span class="beat">Pause</span>
+      <div class="dialogue" style="font-size:28px;">
+        "May and June are right around the corner, and I know it's about to get crazy for you guys. When peak season hits and your lines are busy, a missed call is a missed job. If customers can't reach you right away, they go somewhere else."
       </div>
       <div class="dialogue">
-        "Would it make sense to spend <strong>five minutes</strong> showing you what we've built for this?"
+        "<strong>${prospectName || '[Name]'}</strong>, how much revenue is slipping through the cracks right now just from missed calls?"
       </div>
-      <div class="note">If they say yes → book demo. If "no time right now" → schedule callback.</div>
+      <div class="note" style="margin-bottom:24px;">Listen to their answer. If they object, use handlers below.</div>
       
-      <div class="actions">
-        <button type="button" class="btn primary" onclick="goTo('close_demo')">They want to see it → Demo</button>
-        <button type="button" class="btn" onclick="goTo('v2_owner_schedule')">No time right now</button>
-        <button type="button" class="btn" onclick="goTo('close_clip')">Send clip instead</button>
-        <button type="button" class="btn ghost" onclick="goTo('exit_after_nos')">Not interested → Exit</button>
-      </div>
-    `
-  },
+      <div class="q-grid">
+        <div class="q-card" onclick="this.classList.toggle('active')">
+          <div class="q-text" style="font-size: 20px;">Objection 1: "We don't measure it / I don't know."</div>
+          <div class="q-when">IF THEY ARE UNSURE</div>
+          <div class="inline-resp">
+            <div class="inline-item">
+              <div class="ii-you">"Totally fair, almost nobody has time to measure that when it's crazy. But even if it's just two or three missed jobs a week during the summer... what does an average ticket usually run you guys?"</div>
+            </div>
+            <div class="inline-item">
+              <div class="ii-them">*(They answer: "Usually around $800.")*</div>
+              <div class="ii-you">"Got it. So even on the low end, you're looking at a couple grand walking out the door every week just from missing a few calls. If we could put a system in place before the summer rush so you actually <strong>bring that money in</strong>, would you be opposed to seeing how it works?"</div>
+            </div>
+          </div>
+        </div>
 
-  v2_owner_schedule: {
-    phase: 'CLOSE',
-    idx: 6,
-    render: () => `
-      <div class="label">Schedule callback <span class="v2-tag">V2 — OWNER</span></div>
-      <div class="dialogue">
-        "Totally fair. <strong>When's a better time to reach you?</strong>"
+        <div class="q-card" onclick="this.classList.toggle('active')">
+          <div class="q-text" style="font-size: 20px;">Objection 2: "We don't miss calls."</div>
+          <div class="q-when">IF THEY CLAIM PERFECT COVERAGE</div>
+          <div class="inline-resp">
+            <div class="inline-item">
+              <div class="ii-you" style="margin-bottom:16px;">"That’s awesome. Most shops can’t pull that off when peak season hits. Are you guys handling all those calls in-house with a massive team, or do you use an answering service for the overflow?"</div>
+              
+              <div class="ii-them">If "Answering Service":</div>
+              <div class="ii-you" style="margin-bottom:16px;font-size:18px;">"Got it. When they pick up, are they actually booking the job on your calendar right then, or are they just taking a message and making you call the customer back?"</div>
+              
+              <div class="ii-them">If "Forward to Cell Phones":</div>
+              <div class="ii-you" style="font-size:18px;">"Man, that sounds exhausting. Do you guys end up having to take calls while you're on a job or trying to have dinner just to keep up?"</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="note">Get the time. Repeat it back. That's the call.</div>
-      <div class="dialogue-sm">
-        "Perfect — I'll call you [DAY] at [TIME]. Appreciate the 30 seconds, ${prospectName || '[NAME]'}."
-      </div>
-      <div class="note warn">Stop talking. You got the callback time. That's a win.</div>
       
-      <div class="actions">
-        <button type="button" class="btn primary" onclick="goTo('done')">Got the time → Done</button>
+      <div class="actions" style="margin-top:24px;">
+        <button type="button" class="btn primary" onclick="goTo('v2_calendar_close')">They are interested → Close</button>
+        <button type="button" class="btn" onclick="goTo('exit_no_gap')">Hard no → Exit</button>
       </div>
     `
   },
 
   // --- V2 Gatekeeper Path ---
 
-  v2_gk_open: {
-    phase: 'V2_OPEN',
-    idx: 1,
-    render: () => `
-      <div class="label">Say this <span class="v2-tag">V2 — GATEKEEPER</span></div>
-      <div class="tone">TONE: Empathetic, peer-to-peer</div>
-      <div class="dialogue">
-        "Hey, I know you're swamped, and people pitch you all day. I just need <strong>thirty seconds</strong>, and then you can hang up on me if you hate it. Does that sound fair?"
-      </div>
-      <div class="note">Wait for "okay, go ahead" or similar agreement.</div>
-      
-      <div class="actions">
-        <button type="button" class="btn primary" onclick="goTo('v2_gk_pain')">They agreed → Pain</button>
-        <button type="button" class="btn" onclick="goTo('exit_no_gap')">Shut down → Exit</button>
-      </div>
-    `
-  },
-
-  v2_gk_pain: {
+  v2_gk_hook: {
     phase: 'V2_DISCOVER_GK',
     idx: 2,
     render: () => `
-      <div class="label">Discover pain <span class="v2-tag">V2 — GATEKEEPER</span></div>
-      <div class="tone">TONE: Empathetic, curious</div>
-      <div class="dialogue">
-        "I know how chaotic it gets when the lines are tied up, especially during <strong>peak seasons like June</strong>."
-        <span class="beat">Brief pause</span>
+      <div class="label">The Hook <span class="v2-tag">Path B — GATEKEEPER</span></div>
+      <div class="tone">TONE: Empathetic, peer-to-peer</div>
+      <div class="dialogue" style="font-size:28px;">
+        "May and June are right around the corner, and I know it's about to get crazy for you guys. When peak season hits, the lines get tied up, people are on hold, and I know it’s honestly stressful trying to answer every single call with a happy tone."
       </div>
-      <div class="dialogue">
-        "When the phones are ringing off the hook and you can't get to every call, <strong>how much of a headache does that create for you the next morning?</strong>"
+      <div class="dialogue" style="font-size:28px;">
+        "We actually set things up to catch just the overflow, so you aren't drowning in calls on top of everything else on your plate."
       </div>
-      <div class="note">Let them vent. Angry voicemails, stressed mornings, missed calls — whatever they say, catch it.</div>
       
-      <div class="actions">
-        <button type="button" class="btn primary" onclick="goTo('v2_gk_mirror')">They shared pain → Mirror</button>
-        <button type="button" class="btn" onclick="goTo('exit_no_gap')">No pain → Exit</button>
-      </div>
-    `
-  },
-
-  v2_gk_mirror: {
-    phase: 'V2_DISCOVER_GK',
-    idx: 3,
-    render: () => `
-      <div class="label">Mirror technique <span class="v2-tag">V2 — GATEKEEPER</span></div>
-      <div class="tone">TONE: Soft, reflecting. Like a therapist.</div>
-      <div class="dialogue" style="font-size:28px; color:var(--text-secondary);">
-        Repeat the <strong>last 1–3 words</strong> of their complaint as a question.
-      </div>
       <div class="q-grid">
         <div class="q-card" onclick="this.classList.toggle('active')">
-          <div class="q-text">"Angry voicemails...?"</div>
-          <div class="q-when">IF THEY MENTIONED VOICEMAILS</div>
+          <div class="q-text" style="font-size: 20px;">If you DO know the Owner's Name</div>
+          <div class="inline-resp">
+            <div class="inline-item">
+              <div class="ii-you" style="font-size: 22px;">"<strong>${prospectName || '[Name]'}</strong>, is this something I should bring up to <strong>[Owner's Name]</strong>, or would it be a waste of his time?"</div>
+            </div>
+          </div>
         </div>
+        
         <div class="q-card" onclick="this.classList.toggle('active')">
-          <div class="q-text">"Calling the competitor...?"</div>
-          <div class="q-when">IF THEY MENTIONED LOSING JOBS</div>
-        </div>
-        <div class="q-card" onclick="this.classList.toggle('active')">
-          <div class="q-text">"Every single morning...?"</div>
-          <div class="q-when">IF THEY MENTIONED MORNING STRESS</div>
+          <div class="q-text" style="font-size: 20px;">If you DON'T know the Owner's Name</div>
+          <div class="inline-resp">
+            <div class="inline-item">
+              <div class="ii-you" style="font-size: 22px;">"Is this something worth bringing up to whoever handles the business side, or would I just be wasting their time?"</div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="note">They will elaborate further. Let them. The more they talk, the more they sell the problem.</div>
       
-      <div class="actions">
-        <button type="button" class="btn primary" onclick="goTo('v2_gk_offer')">They elaborated → Offer</button>
+      <div class="actions" style="margin-top:24px;">
+        <button type="button" class="btn primary" onclick="goTo('v2_gk_video_close')">They pass it on → Send Video</button>
+        <button type="button" class="btn" onclick="goTo('close_clip')">Send clip instead</button>
+        <button type="button" class="btn ghost" onclick="goTo('exit_no_gap')">No pain → Exit</button>
       </div>
     `
   },
 
-  v2_gk_offer: {
+  v2_gk_video_close: {
     phase: 'V2_OFFER_GK',
     idx: 4,
     render: () => `
-      <div class="label">The ask <span class="v2-tag">V2 — GATEKEEPER</span></div>
-      <div class="tone">TONE: Collaborative, not pitching</div>
-      <div class="dialogue">
-        "That makes total sense. We built a system specifically to catch only those <strong>overflow and missed after-hours calls</strong> so you don't have to deal with that."
+      <div class="label">The Gatekeeper Close <span class="v2-tag">Handling "Yes, I'll pass it on"</span></div>
+      <div class="tone">TONE: Collaborative, respecting their time</div>
+      <div class="dialogue" style="font-size:26px;">
+        "Perfect. Rather than bugging him while he's busy, how about I just shoot you a quick video showing how it works?"
       </div>
-      <div class="dialogue">
-        "Would you be opposed to me sending over a quick <strong>1-minute audio clip</strong> of what a customer actually hears when they call?"
+      <div class="dialogue" style="font-size:26px;">
+        "You can take a look, and if you think it'll actually help you guys out, you can show it to him when he is free. And honestly, if it looks like garbage, you don't even need to bother bringing it up."
       </div>
+      <div class="note" style="margin-top:24px;">If they agree, get the email and stop.</div>
       <div class="dialogue-sm">
-        "You can give it a listen and tell me if it's even worth putting in front of him. I really don't want to blindly pitch the owner if you think it's a bad fit."
+        "What's the best email for you?"
       </div>
-      <div class="note warn">You're making the gatekeeper the decision-maker. They feel respected, not bypassed.</div>
       
-      <div class="actions">
-        <button type="button" class="btn primary" onclick="goTo('close_clip')">They said yes → Get email</button>
-        <button type="button" class="btn" onclick="goTo('v2_owner_schedule')">Talk to owner later → Schedule</button>
-        <button type="button" class="btn ghost" onclick="goTo('exit_after_nos')">No → Exit</button>
+      <div class="actions" style="margin-top:24px;">
+        <button type="button" class="btn primary" onclick="goTo('done')">Got Email → Done</button>
+        <button type="button" class="btn" onclick="goTo('v2_owner_schedule')">Call back later -> Schedule</button>
+        <button type="button" class="btn ghost" onclick="goTo('exit_after_nos')">Shut down → Exit</button>
+      </div>
+    `
+  },
+
+  v2_calendar_close: {
+    phase: 'V2_OFFER_OWNER',
+    idx: 4,
+    render: () => `
+      <div class="label">The Calendar Close <span class="v2-tag">Handling "How much?"</span></div>
+      <div class="tone">TONE: Defuse tension, focus on the meeting</div>
+      <div class="note" style="margin-bottom:24px;">Use these when they ask about price to instantly defuse the tension and secure the meeting.</div>
+      
+      <div class="q-grid">
+        <div class="q-card" onclick="this.classList.toggle('active')">
+          <div class="q-text" style="font-size: 20px;">Pivot 1: The "Prove It" (Zero Risk)</div>
+          <div class="inline-resp">
+            <div class="inline-item">
+              <div class="ii-you" style="font-size: 20px;">"Honestly, we actually start shops off on a free trial because we want to prove it catches your overflow before you pay a dime. Rather than taking up any more of your time right now, if you have 5 minutes next week, I can just show you how the free trial works. If you hate it, we part as friends. Sound fair?"</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="q-card" onclick="this.classList.toggle('active')">
+          <div class="q-text" style="font-size: 20px;">Pivot 2: The "Custom" (Logical)</div>
+          <div class="inline-resp">
+            <div class="inline-item">
+              <div class="ii-you" style="font-size: 20px;">"It really depends on your call volume, but the best part is we actually do a free trial so you can test it out risk-free. Are you open to a quick 5-minute call next week to see if it even makes sense for you?"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="actions" style="margin-top:24px;">
+        <button type="button" class="btn primary" onclick="goTo('done')">Meeting Booked → Done</button>
+        <button type="button" class="btn" onclick="goTo('v2_owner_schedule')">Call back later -> Schedule</button>
+        <button type="button" class="btn ghost" onclick="goTo('exit_after_nos')">Shut down → Exit</button>
       </div>
     `
   }

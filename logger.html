@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cold Call Logger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #09090b;
+            --bg-card: #18181b;
+            --bg-input: #27272a;
+            --bg-input-hover: #3f3f46;
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --accent-primary: #3b82f6;
+            --accent-hover: #2563eb;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #eab308;
+            --border-color: #3f3f46;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --font-family: 'Inter', sans-serif;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Header & Stats */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff, #a1a1aa);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: var(--bg-input-hover);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border-color: rgba(239, 68, 68, 0.2);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-edit {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--accent-primary);
+            border-color: rgba(59, 130, 246, 0.2);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-edit:hover {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            flex: 1;
+            min-width: 150px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .stat-title {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        /* Main Content Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-header,
+            main {
+                display: none !important;
+            }
+            
+            body {
+                padding: 1rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+            }
+
+            .container {
+                width: 100%;
+                gap: 1rem;
+                margin: 0;
+            }
+
+            #stats-container {
+                width: 100%;
+                max-width: 450px;
+                margin: 0 auto;
+                gap: 0.5rem;
+            }
+
+            #stats-container .stat-card {
+                padding: 0.5rem 0.75rem;
+                min-width: 0;
+                flex: 1 1 calc(50% - 0.25rem);
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.5rem;
+            }
+
+            #stats-container .stat-value {
+                font-size: 1.1rem;
+            }
+
+            #stats-container .stat-title {
+                font-size: 0.65rem !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+                width: 100%;
+                max-width: 450px; /* Constrains form width perfectly in center */
+                margin: 0 auto;
+            }
+
+            aside {
+                width: 100%;
+            }
+
+            .card {
+                padding: 1.75rem;
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .form-group {
+                margin-bottom: 1.25rem;
+                width: 100%; /* Ensure input containers don't stretch weirdly */
+            }
+        }
+
+        /* Forms */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-family: var(--font-family);
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background-color: var(--bg-card);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-actions {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .form-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        #btn-cancel-edit {
+            display: none;
+        }
+
+        /* Table Structure */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #121214;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tr {
+            transition: var(--transition);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .cell-notes {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .badge-recon { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .badge-cold { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-demo { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
+        .badge-followup { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        .o-voicemail { background: rgba(161, 161, 170, 0.15); color: #a1a1aa; border: 1px solid rgba(161, 161, 170, 0.3); }
+        .o-gatekeeper { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
+        .o-not-interested { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .o-callback { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+        .o-demo-booked { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .o-closed { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+        .o-hung-up { background: rgba(225, 29, 72, 0.15); color: #fb7185; border: 1px solid rgba(225, 29, 72, 0.3); }
+        .o-wrong-number { background: rgba(107, 114, 128, 0.15); color: #9ca3af; border: 1px solid rgba(107, 114, 128, 0.3); }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .hidden { display: none !important; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--bg-input-hover); }
+
+        /* ===== QUOTA HERO ===== */
+        .quota-hero {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .quota-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), #8b5cf6);
+            transition: background 0.5s;
+        }
+
+        .quota-hero.quota-done::before {
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+        }
+
+        .quota-hero.quota-low::before {
+            background: linear-gradient(90deg, #eab308, #f59e0b);
+            animation: pulse-bar 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-bar {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .quota-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .quota-number-wrap {
+            position: relative;
+        }
+
+        .quota-number {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            color: var(--text-primary);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .quota-hero.quota-low .quota-number {
+            color: #eab308;
+        }
+
+        .quota-hero.quota-done .quota-number {
+            color: #22c55e;
+            animation: celebrate-pulse 0.6s ease-out;
+        }
+
+        .quota-hero.quota-bonus .quota-number {
+            color: #a78bfa;
+        }
+
+        @keyframes celebrate-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .quota-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .quota-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .quota-hero.quota-done .quota-label {
+            color: #22c55e;
+        }
+
+        .quota-sublabel {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .quota-target-edit {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            cursor: pointer;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 1px;
+            transition: var(--transition);
+        }
+
+        .quota-target-edit:hover {
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        .quota-target-input {
+            width: 50px !important;
+            padding: 2px 6px !important;
+            font-size: 0.85rem !important;
+            text-align: center;
+            border-radius: 4px !important;
+        }
+
+        .quota-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        /* Streak */
+        .streak-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(251, 146, 60, 0.1);
+            border: 1px solid rgba(251, 146, 60, 0.25);
+            border-radius: 12px;
+            padding: 0.6rem 1rem;
+            white-space: nowrap;
+        }
+
+        .streak-badge.no-streak {
+            background: rgba(161, 161, 170, 0.08);
+            border-color: rgba(161, 161, 170, 0.15);
+        }
+
+        .streak-icon {
+            font-size: 1.3rem;
+        }
+
+        .streak-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .streak-count {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fb923c;
+            line-height: 1;
+        }
+
+        .streak-badge.no-streak .streak-count {
+            color: var(--text-secondary);
+        }
+
+        .streak-text {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* Session Timer */
+        .session-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 0.6rem 1rem;
+            white-space: nowrap;
+        }
+
+        .session-icon {
+            font-size: 1.1rem;
+        }
+
+        .session-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .session-time {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+
+        .session-rate {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* Progress Bar */
+        .quota-progress-track {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-input);
+            border-radius: 3px;
+            margin-top: 0.75rem;
+            overflow: hidden;
+        }
+
+        .quota-progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), #8b5cf6);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .quota-hero.quota-done .quota-progress-fill {
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+        }
+
+        .quota-hero.quota-low .quota-progress-fill {
+            background: linear-gradient(90deg, #eab308, #f59e0b);
+        }
+
+        /* Celebration overlay */
+        .celebration-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .confetti-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            animation: confetti-fall linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Mobile quota adjustments */
+        @media (max-width: 1200px) {
+            .quota-hero {
+                flex-direction: column;
+                padding: 1.5rem;
+                gap: 1rem;
+                text-align: center;
+                max-width: 450px;
+                margin: 0 auto;
+                width: 100%;
+            }
+
+            .quota-left {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .quota-number {
+                font-size: 3.5rem;
+            }
+
+            .quota-right {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="dashboard-header">
+        <div class="header-title">
+            <h1>Cold Call Logger</h1>
+            <p>Track your outreach and crush your quota.</p>
+        </div>
+        <div class="actions">
+            <!-- Hidden file input for import -->
+            <input type="file" id="import-file" accept=".csv" class="hidden">
+            <button class="btn" onclick="document.getElementById('import-file').click()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m0-16l-4 4m4-4l4 4"/></svg>
+                Import CSV
+            </button>
+            <button class="btn" onclick="exportCSV()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 20V4m0 16l-4-4m4 4l4-4"/></svg>
+                Export CSV
+            </button>
+        </div>
+    </header>
+
+    <!-- Quota Hero -->
+    <div class="quota-hero" id="quota-hero">
+        <div class="quota-left">
+            <div class="quota-number-wrap">
+                <div class="quota-number" id="quota-number">30</div>
+            </div>
+            <div class="quota-meta">
+                <div class="quota-label" id="quota-label">REMAINING</div>
+                <div class="quota-sublabel">
+                    of <span class="quota-target-edit" id="quota-target-display" onclick="startEditQuota()" title="Click to edit target">30 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; opacity: 0.5;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></span> / session
+                </div>
+                <div class="quota-progress-track">
+                    <div class="quota-progress-fill" id="quota-progress" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="quota-right">
+            <div class="streak-badge no-streak" id="streak-badge">
+                <span class="streak-icon">🔥</span>
+                <div class="streak-info">
+                    <span class="streak-count" id="streak-count">0</span>
+                    <span class="streak-text">day streak</span>
+                </div>
+            </div>
+            <div class="session-container" style="display: flex; gap: 0.75rem; align-items: center; justify-content: center; flex-wrap: wrap;">
+                <div class="session-badge" id="session-badge">
+                    <span class="session-icon">⏱</span>
+                    <div class="session-info">
+                        <span class="session-time" id="session-time">00:00:00</span>
+                        <span class="session-rate" id="session-rate">0.0 calls/hr</span>
+                    </div>
+                </div>
+                <div class="session-controls" id="session-controls" style="display: flex; flex-direction: column; gap: 0.3rem;">
+                    <button class="btn btn-primary" id="btn-start-session" onclick="startSession()" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Start Session</button>
+                    <button class="btn btn-danger hidden" id="btn-end-session" onclick="endSession()" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">End Session</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-grid" id="stats-container">
+        <!-- Rendered via JS -->
+    </div>
+
+    <!-- Celebration overlay -->
+    <div class="celebration-overlay" id="celebration-overlay"></div>
+
+    <div class="main-grid">
+        <!-- Quick Add Form -->
+        <aside>
+            <div class="card">
+                <h2 id="form-title">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    Log New Call
+                </h2>
+                <form id="call-form">
+                    <input type="hidden" id="editing-id">
+                    
+                    <div class="form-group">
+                        <label for="call-date">Date & Time</label>
+                        <input type="datetime-local" id="call-date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="company">Company Name <span style="color:var(--danger)">*</span></label>
+                        <input type="text" id="company" required placeholder="e.g. Acme Corp">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contact">Contact Name</label>
+                            <input type="text" id="contact" placeholder="e.g. John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" placeholder="(555) 123-4567">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="call-type">Call Type</label>
+                            <select id="call-type">
+                                <option value="Cold Call" selected>Cold Call</option>
+                                <option value="Recon">Recon</option>
+                                <option value="Demo">Demo</option>
+                                <option value="Follow-up">Follow-up</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="outcome">Outcome <span style="color:var(--danger)">*</span></label>
+                            <select id="outcome" required>
+                                <option value="" disabled selected>Select Outcome...</option>
+                                <option value="Voicemail">Voicemail</option>
+                                <option value="Gatekeeper">Gatekeeper</option>
+                                <option value="DM - Not Interested">DM - Not Interested</option>
+                                <option value="DM - Callback">DM - Callback</option>
+                                <option value="DM - Demo Booked">DM - Demo Booked</option>
+                                <option value="DM - Closed">DM - Closed</option>
+                                <option value="Hung Up">Hung Up</option>
+                                <option value="Wrong Number">Wrong Number</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="followup">Follow-up Date</label>
+                        <input type="date" id="followup">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" placeholder="Any relevant details from the call..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn" id="btn-cancel-edit" onclick="cancelEdit()">Cancel Edit</button>
+                        <button type="submit" class="btn btn-primary" id="btn-submit">Save Call Log</button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Table View -->
+        <main>
+            <div class="card" style="padding: 0;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date/Time</th>
+                                <th>Company & Contact</th>
+                                <th>Type & Outcome</th>
+                                <th>Follow-up</th>
+                                <th>Notes</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Rendered via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'cold_call_log';
+    const QUOTA_KEY = 'call_quota_target';
+    const SESSION_KEY = 'call_session_start';
+    let calls = [];
+    let quotaTarget = 30;
+    let sessionTimerInterval = null;
+    let previousSessionCount = 0;
+    let currentSessionId = null;
+
+    // ===== INITIALIZATION =====
+    function init() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            try {
+                calls = JSON.parse(stored);
+            } catch (e) {
+                console.error('Failed to parse localStorage data', e);
+                calls = [];
+            }
+        }
+
+        // Load quota target
+        const savedQuota = localStorage.getItem(QUOTA_KEY);
+        if (savedQuota) quotaTarget = parseInt(savedQuota) || 30;
+
+        // Initialize session ID if available
+        const savedSession = localStorage.getItem(SESSION_KEY);
+        if (savedSession) {
+            try {
+                const s = JSON.parse(savedSession);
+                currentSessionId = s.id;
+            } catch (e) { }
+        }
+
+        // Track previous count for celebration detection
+        previousSessionCount = currentSessionId ? calls.filter(c => c.sessionId === currentSessionId).length : 0;
+        
+        setDefaultDate();
+        renderAll();
+        
+        if (currentSessionId) {
+            startSessionTimer();
+            const startBtn = document.getElementById('btn-start-session');
+            const endBtn = document.getElementById('btn-end-session');
+            if(startBtn) startBtn.classList.add('hidden');
+            if(endBtn) endBtn.classList.remove('hidden');
+        } else {
+            updateSessionDisplay();
+        }
+        
+        document.getElementById('company').focus();
+        document.getElementById('import-file').addEventListener('change', handleImport);
+    }
+
+    // ===== FORM HANDLER =====
+    document.getElementById('call-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const id = document.getElementById('editing-id').value;
+        const callData = {
+            id: id || crypto.randomUUID(),
+            date: document.getElementById('call-date').value,
+            company: document.getElementById('company').value.trim(),
+            contact: document.getElementById('contact').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            type: document.getElementById('call-type').value,
+            outcome: document.getElementById('outcome').value,
+            followup: document.getElementById('followup').value,
+            notes: document.getElementById('notes').value.trim(),
+            createdAt: id ? (calls.find(c => c.id === id)?.createdAt || Date.now()) : Date.now()
+        };
+
+        if (currentSessionId && !callData.sessionId) {
+            callData.sessionId = currentSessionId;
+        }
+
+        if (id) {
+            const index = calls.findIndex(c => c.id === id);
+            if (index > -1) {
+                if (calls[index].sessionId && !callData.sessionId) {
+                    callData.sessionId = calls[index].sessionId;
+                }
+                calls[index] = callData;
+            }
+            cancelEdit();
+        } else {
+            calls.push(callData);
+            this.reset();
+            setDefaultDate();
+            document.getElementById('company').focus();
+        }
+
+        saveToLocalStorage();
+
+        // Check for celebration BEFORE rendering (Session based)
+        const newSessionCount = currentSessionId ? calls.filter(c => c.sessionId === currentSessionId).length : 0;
+        if (currentSessionId && previousSessionCount < quotaTarget && newSessionCount >= quotaTarget && !id) {
+            triggerCelebration();
+        }
+        previousSessionCount = newSessionCount;
+
+        renderAll();
+    });
+
+    function editCall(id) {
+        const call = calls.find(c => c.id === id);
+        if (!call) return;
+
+        document.getElementById('editing-id').value = call.id;
+        document.getElementById('call-date').value = call.date;
+        document.getElementById('company').value = call.company;
+        document.getElementById('contact').value = call.contact;
+        document.getElementById('phone').value = call.phone;
+        document.getElementById('call-type').value = call.type;
+        document.getElementById('outcome').value = call.outcome;
+        document.getElementById('followup').value = call.followup;
+        document.getElementById('notes').value = call.notes;
+
+        document.getElementById('form-title').innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg> Edit Call Log';
+        document.getElementById('btn-submit').textContent = 'Update Call';
+        document.getElementById('btn-cancel-edit').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+        document.getElementById('editing-id').value = '';
+        document.getElementById('call-form').reset();
+        setDefaultDate();
+        
+        document.getElementById('form-title').innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg> Log New Call';
+        document.getElementById('btn-submit').textContent = 'Save Call Log';
+        document.getElementById('btn-cancel-edit').style.display = 'none';
+        document.getElementById('company').focus();
+    }
+
+    function deleteCall(id) {
+        if (confirm('Are you sure you want to delete this call log?')) {
+            calls = calls.filter(c => c.id !== id);
+            if (document.getElementById('editing-id').value === id) cancelEdit();
+            saveToLocalStorage();
+            previousSessionCount = currentSessionId ? calls.filter(c => c.sessionId === currentSessionId).length : 0;
+            renderAll();
+        }
+    }
+
+    // ===== RENDERING =====
+    function renderAll() {
+        calls.sort((a, b) => new Date(b.date) - new Date(a.date));
+        renderTable();
+        renderStats();
+        renderQuota();
+        renderStreak();
+        updateSessionDisplay();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = '';
+
+        if (calls.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:3rem;">No calls logged yet. Start dialing!</td></tr>';
+            return;
+        }
+
+        calls.forEach(call => {
+            const tr = document.createElement('tr');
+            const d = new Date(call.date);
+            const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+            const timeStr = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+            const typeBadgeClass = 'badge-' + call.type.toLowerCase().replace(/[^a-z]/g, '');
+            const outcomeBadgeClass = 'o-' + call.outcome.toLowerCase().replace(/[^a-z]/g, '-');
+
+            tr.innerHTML = `
+                <td>
+                    <div style="font-weight: 500">${dateStr}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary)">${timeStr}</div>
+                </td>
+                <td>
+                    <div style="font-weight: 500">${escapeHtml(call.company)}</div>
+                    ${call.contact ? `<div style="font-size: 0.85rem; color: var(--text-secondary)">👤 ${escapeHtml(call.contact)}</div>` : ''}
+                    ${call.phone ? `<div style="font-size: 0.85rem; color: var(--text-secondary)">📞 ${escapeHtml(call.phone)}</div>` : ''}
+                </td>
+                <td>
+                    <div style="margin-bottom: 0.4rem"><span class="badge ${typeBadgeClass}">${call.type}</span></div>
+                    <div><span class="badge ${outcomeBadgeClass}">${call.outcome}</span></div>
+                </td>
+                <td>
+                    ${call.followup ? `<span style="color:var(--text-primary); font-size: 0.85rem">📅 ${new Date(call.followup).toLocaleDateString()}</span>` : '<span style="color:var(--text-secondary); font-size: 0.85rem">-</span>'}
+                </td>
+                <td class="cell-notes" title="${escapeHtml(call.notes)}">
+                    <span style="font-size: 0.85rem; color:var(--text-secondary)">${escapeHtml(call.notes) || '-'}</span>
+                </td>
+                <td style="text-align: right;">
+                    <div class="table-actions" style="justify-content: flex-end;">
+                        <button class="btn btn-edit" onclick="editCall('${call.id}')">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteCall('${call.id}')">Del</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderStats() {
+        const todayStr = new Date().toDateString();
+        const todaysCalls = calls.filter(c => new Date(c.date).toDateString() === todayStr);
+        const sessionCalls = currentSessionId ? calls.filter(c => c.sessionId === currentSessionId) : todaysCalls;
+
+        let html = '';
+        
+        // Only show Session Calls explicitly if we have an active session
+        if (currentSessionId) {
+            html += `
+                <div class="stat-card" style="border-left: 4px solid var(--accent-primary)">
+                    <div class="stat-title">Session Calls</div>
+                    <div class="stat-value">${sessionCalls.length}</div>
+                </div>
+            `;
+        }
+
+        html += `
+            <div class="stat-card" style="border-left: 4px solid var(--accent-primary)">
+                <div class="stat-title">Total Today</div>
+                <div class="stat-value">${todaysCalls.length}</div>
+            </div>
+        `;
+
+        if (sessionCalls.length > 0) {
+            const counts = {};
+            sessionCalls.forEach(c => { counts[c.outcome] = (counts[c.outcome] || 0) + 1; });
+
+            const orderedOutcomes = [
+                'DM - Demo Booked', 'DM - Closed', 'DM - Callback', 'DM - Not Interested', 
+                'Gatekeeper', 'Voicemail', 'Hung Up', 'Wrong Number'
+            ];
+
+            let addedAdditional = 0;
+            // Limit additional outcomes to keep grid aesthetic
+            orderedOutcomes.forEach(out => {
+                if (counts[out] && addedAdditional < 4) {
+                    let colorCode = 'var(--text-secondary)';
+                    if(out.includes('Booked') || out.includes('Closed')) colorCode = 'var(--success)';
+                    else if(out.includes('Callback')) colorCode = 'var(--warning)';
+                    else if(out.includes('Not Interested') || out.includes('Hung Up')) colorCode = 'var(--danger)';
+
+                    html += `
+                        <div class="stat-card" style="border-left: 4px solid ${colorCode}">
+                            <div class="stat-title" style="font-size:0.75rem">${out}</div>
+                            <div class="stat-value">${counts[out]}</div>
+                        </div>
+                    `;
+                    addedAdditional++;
+                }
+            });
+        }
+
+        document.getElementById('stats-container').innerHTML = html;
+    }
+
+    // ===== QUOTA COUNTDOWN =====
+    function renderQuota() {
+        const sessionCount = currentSessionId ? calls.filter(c => c.sessionId === currentSessionId).length : 0;
+        const remaining = currentSessionId ? Math.max(0, quotaTarget - sessionCount) : quotaTarget;
+        const bonus = sessionCount > quotaTarget ? sessionCount - quotaTarget : 0;
+        const progress = currentSessionId ? Math.min(100, (sessionCount / quotaTarget) * 100) : 0;
+
+        const hero = document.getElementById('quota-hero');
+        const numEl = document.getElementById('quota-number');
+        const labelEl = document.getElementById('quota-label');
+        const progressEl = document.getElementById('quota-progress');
+        const sublabelEl = document.querySelector('.quota-sublabel');
+
+        // Remove all state classes
+        hero.classList.remove('quota-low', 'quota-done', 'quota-bonus');
+
+        if (!currentSessionId) {
+            // No active session
+            numEl.textContent = '-';
+            labelEl.textContent = 'NO ACTIVE SESSION';
+            if (sublabelEl) sublabelEl.style.display = 'none';
+        } else {
+            if (sublabelEl) sublabelEl.style.display = 'block';
+            if (sessionCount >= quotaTarget && bonus > 0) {
+                // Bonus mode
+                hero.classList.add('quota-bonus');
+                numEl.textContent = `+${bonus}`;
+                labelEl.textContent = '✦ BONUS CALLS';
+            } else if (sessionCount >= quotaTarget) {
+                // Just hit quota
+                hero.classList.add('quota-done');
+                numEl.textContent = '0';
+                labelEl.textContent = '✓ QUOTA CRUSHED';
+            } else if (remaining <= 5 && remaining > 0) {
+                // Almost there
+                hero.classList.add('quota-low');
+                numEl.textContent = remaining;
+                labelEl.textContent = 'ALMOST THERE';
+            } else {
+                // Normal
+                numEl.textContent = remaining;
+                labelEl.textContent = 'REMAINING';
+            }
+        }
+
+        progressEl.style.width = progress + '%';
+
+        // Update target display
+        const targetDisplay = document.getElementById('quota-target-display');
+        if (targetDisplay && !targetDisplay.querySelector('input')) {
+            targetDisplay.innerHTML = `${quotaTarget} <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; opacity: 0.5;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>`;
+        }
+    }
+
+    function startEditQuota() {
+        const el = document.getElementById('quota-target-display');
+        el.innerHTML = `<input type="number" class="quota-target-input" value="${quotaTarget}" min="1" max="200" id="quota-input" onkeydown="handleQuotaKey(event)" onblur="saveQuota()">`;
+        const input = document.getElementById('quota-input');
+        input.focus();
+        input.select();
+    }
+
+    function handleQuotaKey(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveQuota();
+        } else if (e.key === 'Escape') {
+            renderQuota();
+        }
+    }
+
+    function saveQuota() {
+        const input = document.getElementById('quota-input');
+        if (!input) return;
+        const val = parseInt(input.value);
+        if (val && val > 0 && val <= 200) {
+            quotaTarget = val;
+            localStorage.setItem(QUOTA_KEY, quotaTarget);
+        }
+        renderQuota();
+    }
+
+    // ===== STREAK TRACKER =====
+    function renderStreak() {
+        const streak = calculateStreak();
+        const badge = document.getElementById('streak-badge');
+        const countEl = document.getElementById('streak-count');
+
+        countEl.textContent = streak;
+
+        if (streak > 0) {
+            badge.classList.remove('no-streak');
+        } else {
+            badge.classList.add('no-streak');
+        }
+    }
+
+    function calculateStreak() {
+        let streak = 0;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const getDayCalls = (dateStr) => calls.filter(c => new Date(c.date).toDateString() === dateStr);
+        const dayMetQuota = (dateStr) => {
+            const dayCalls = getDayCalls(dateStr);
+            if (dayCalls.length === 0) return false;
+            const sessions = {};
+            let legacyCount = 0;
+            dayCalls.forEach(c => {
+                if (c.sessionId) sessions[c.sessionId] = (sessions[c.sessionId] || 0) + 1;
+                else legacyCount++;
+            });
+            if (legacyCount >= quotaTarget) return true;
+            return Object.values(sessions).some(count => count >= quotaTarget);
+        };
+
+        const todayStr = today.toDateString();
+        let checkDate = new Date(today);
+        
+        if (dayMetQuota(todayStr)) {
+            // Today counts
+        } else {
+            checkDate.setDate(checkDate.getDate() - 1);
+        }
+
+        for (let i = 0; i < 365; i++) {
+            const dateStr = checkDate.toDateString();
+            if (dayMetQuota(dateStr)) {
+                streak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+            } else {
+                break;
+            }
+        }
+        return streak;
+    }
+
+    // ===== SESSION TIMER =====
+    function startSession() {
+        if (currentSessionId) return;
+        
+        const newId = crypto.randomUUID();
+        const start = Date.now();
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+            id: newId,
+            start: start
+        }));
+        currentSessionId = newId;
+        previousSessionCount = 0;
+        
+        document.getElementById('btn-start-session').classList.add('hidden');
+        document.getElementById('btn-end-session').classList.remove('hidden');
+        
+        startSessionTimer();
+        renderAll();
+    }
+
+    function endSession() {
+        if (!currentSessionId) return;
+        localStorage.removeItem(SESSION_KEY);
+        currentSessionId = null;
+        if (sessionTimerInterval) {
+            clearInterval(sessionTimerInterval);
+            sessionTimerInterval = null;
+        }
+        
+        document.getElementById('btn-start-session').classList.remove('hidden');
+        document.getElementById('btn-end-session').classList.add('hidden');
+        
+        updateSessionDisplay();
+        renderAll();
+    }
+
+    function startSessionTimer() {
+        if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+        sessionTimerInterval = setInterval(updateSessionDisplay, 1000);
+        updateSessionDisplay();
+    }
+
+    function updateSessionDisplay() {
+        const timeEl = document.getElementById('session-time');
+        const rateEl = document.getElementById('session-rate');
+        
+        if (!currentSessionId) {
+            if(timeEl) timeEl.textContent = '00:00:00';
+            if(rateEl) rateEl.textContent = 'no active session';
+            return;
+        }
+
+        const saved = localStorage.getItem(SESSION_KEY);
+        if (!saved) {
+            if(timeEl) timeEl.textContent = '00:00:00';
+            if(rateEl) rateEl.textContent = 'no calls yet';
+            return;
+        }
+
+        try {
+            const session = JSON.parse(saved);
+            const elapsed = Date.now() - session.start;
+            const hours = Math.floor(elapsed / 3600000);
+            const mins = Math.floor((elapsed % 3600000) / 60000);
+            const secs = Math.floor((elapsed % 60000) / 1000);
+
+            if(timeEl) timeEl.textContent = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+            const sessionCalls = calls.filter(c => c.sessionId === currentSessionId);
+            const elapsedHours = elapsed / 3600000;
+            if (elapsedHours > 0.01) { // At least ~36 seconds
+                const rate = (sessionCalls.length / elapsedHours).toFixed(1);
+                if(rateEl) rateEl.textContent = `${rate} calls/hr`;
+            } else {
+                if(rateEl) rateEl.textContent = `${sessionCalls.length} calls`;
+            }
+        } catch(e) {
+            if(timeEl) timeEl.textContent = '00:00:00';
+            if(rateEl) rateEl.textContent = 'error';
+        }
+    }
+
+    // ===== CELEBRATION =====
+    function triggerCelebration() {
+        const overlay = document.getElementById('celebration-overlay');
+        const colors = ['#22c55e', '#4ade80', '#a78bfa', '#f59e0b', '#3b82f6', '#ec4899', '#f97316'];
+        const particleCount = 60;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'confetti-particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = '-10px';
+            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.width = (Math.random() * 8 + 4) + 'px';
+            particle.style.height = (Math.random() * 8 + 4) + 'px';
+            particle.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+            particle.style.animationDelay = (Math.random() * 0.8) + 's';
+            overlay.appendChild(particle);
+        }
+
+        // Clean up after animation
+        setTimeout(() => {
+            overlay.innerHTML = '';
+        }, 4000);
+    }
+
+    // ===== UTILITIES =====
+    function setDefaultDate() {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('call-date').value = now.toISOString().slice(0, 16);
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(calls));
+    }
+
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // ===== CSV EXPORT & IMPORT =====
+    function exportCSV() {
+        if (calls.length === 0) return alert('No data to export.');
+
+        const headers = ['id', 'date', 'company', 'contact', 'phone', 'type', 'outcome', 'followup', 'notes', 'createdAt', 'sessionId'];
+        const csvRows = [headers.join(',')];
+        
+        for (const call of calls) {
+            const row = headers.map(header => {
+                let cell = call[header] || '';
+                cell = cell.toString().replace(/"/g, '""');
+                return `"${cell}"`;
+            });
+            csvRows.push(row.join(','));
+        }
+
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `cold_call_log_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function handleImport(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const text = event.target.result;
+            const importedCalls = parseCSV(text);
+            
+            if (importedCalls.length > 0) {
+                const existingMap = new Map(calls.map(c => [c.id, c]));
+                importedCalls.forEach(ic => existingMap.set(ic.id, ic));
+                calls = Array.from(existingMap.values());
+                
+                saveToLocalStorage();
+                previousSessionCount = currentSessionId ? calls.filter(c => c.sessionId === currentSessionId).length : 0;
+                renderAll();
+                alert(`Successfully imported ${importedCalls.length} logs!`);
+            } else {
+                alert('No valid data found in CSV.');
+            }
+            e.target.value = '';
+        };
+        reader.readAsText(file);
+    }
+
+    function parseCSV(text) {
+        const rows = [];
+        let currentRow = [];
+        let curVal = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < text.length; i++) {
+            const c = text[i];
+            const nc = text[i+1];
+            if (c === '"' && inQuotes && nc === '"') {
+                curVal += '"';
+                i++;
+            } else if (c === '"') {
+                inQuotes = !inQuotes;
+            } else if (c === ',' && !inQuotes) {
+                currentRow.push(curVal);
+                curVal = '';
+            } else if (c === '\n' && !inQuotes) {
+                currentRow.push(curVal);
+                rows.push(currentRow);
+                currentRow = [];
+                curVal = '';
+            } else if (c === '\r' && !inQuotes) {
+                // ignore
+            } else {
+                curVal += c;
+            }
+        }
+        if (curVal !== '' || currentRow.length > 0) currentRow.push(curVal);
+        if (currentRow.length > 0) rows.push(currentRow);
+
+        if (rows.length < 2) return [];
+
+        const header = rows[0].map(h => h.trim());
+        const data = [];
+        
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (row.length === 1 && row[0] === '') continue;
+            const obj = {};
+            header.forEach((h, idx) => { obj[h] = row[idx] || ''; });
+            
+            if (!obj.company && !obj.outcome) continue;
+            if (!obj.id) obj.id = crypto.randomUUID();
+            if (!obj.type) obj.type = 'Cold Call';
+            if (!obj.createdAt) obj.createdAt = Date.now();
+            if (!obj.date) {
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                obj.date = now.toISOString().slice(0, 16);
+            }
+
+            data.push(obj);
+        }
+        return data;
+    }
+
+    // Run
+    init();
+
+</script>
+</body>
+</html>
