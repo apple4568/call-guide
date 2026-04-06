@@ -1481,10 +1481,6 @@ const steps = {
             <div class="inline-item">
               <div class="ii-you">"Totally fair, almost nobody has time to measure that when it's crazy. But even if it's just two or three missed jobs a week during the summer... what does an average ticket usually run you guys?"</div>
             </div>
-            <div class="inline-item">
-              <div class="ii-them">*(They answer: "Usually around $800.")*</div>
-              <div class="ii-you">"Got it. So even on the low end, you're looking at a couple grand walking out the door every week just from missing a few calls. If we could put a system in place before the summer rush so you actually <strong>bring that money in</strong>, would you be opposed to seeing how it works?"</div>
-            </div>
           </div>
         </div>
 
@@ -1506,8 +1502,40 @@ const steps = {
       </div>
       
       <div class="actions" style="margin-top:24px;">
-        <button type="button" class="btn primary" onclick="goTo('v2_calendar_close')">They are interested → Close</button>
+        <button type="button" class="btn primary" onclick="goTo('v2_owner_confirm')">Validate Pain → Bridge</button>
         <button type="button" class="btn" onclick="goTo('exit_no_gap')">Hard no → Exit</button>
+      </div>
+    `
+  },
+
+  v2_owner_confirm: {
+    phase: 'V2_DISCOVER_OWNER',
+    idx: 3,
+    render: () => `
+      <div class="label">The Bridge <span class="v2-tag">Path A — OWNER</span></div>
+      <div class="tone">TONE: Understanding but factual</div>
+      <div class="dialogue" style="font-style: italic; color: #888;">
+        *(They answer: "Usually around $800" or whatever their ticket is...)*
+      </div>
+      <div class="dialogue">
+        "Got it. So even on the low end, you're looking at a couple grand walking out the door every week just from missing a few calls."
+      </div>
+      <div class="dialogue">
+        "If we could put a system in place before the summer rush so you actually <strong>bring that money in</strong>, would you be opposed to seeing how it works?"
+      </div>
+
+      <div class="q-grid" style="margin-top: 24px;">
+        <div class="q-card" onclick="this.classList.toggle('active')">
+          <div class="q-text" style="font-size: 18px;">If they are hesitant / not interested</div>
+          <div class="inline-resp">
+            <div class="ii-you">"I totally get it. But what if something could just pick up those after-hours calls for you so you never have to worry about missing that revenue?"</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions" style="margin-top:24px;">
+        <button type="button" class="btn primary" onclick="goTo('v2_calendar_close')">Open to seeing it → Close</button>
+        <button type="button" class="btn ghost" onclick="goTo('exit_no_gap')">Still hard no → Exit</button>
       </div>
     `
   },
