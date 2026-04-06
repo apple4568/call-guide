@@ -1445,7 +1445,7 @@ const steps = {
       <div class="label" style="background:var(--purple-muted);color:var(--purple);">The Universal Intro <span class="v2-tag">V2</span></div>
       <div class="tone">TONE: Calm, confident</div>
       <div class="dialogue">
-        "Hey <strong>${prospectName || '[Name]'}</strong>, I know you're slammed today. Just give me thirty seconds, and you can hang up if you aren't interested. Sound fair?"
+        "Hey <strong>${prospectName || '[Name]'}</strong>, this is a cold call and I know you're slammed today. Just give me thirty seconds, and you can hang up if you aren't interested. Sound fair?"
       </div>
       <div class="note">Wait for them to say "Sure" or "Go ahead."</div>
       
@@ -1466,7 +1466,7 @@ const steps = {
       <div class="label">The Hook <span class="v2-tag">Path A — OWNER</span></div>
       <div class="tone">TONE: Matter-of-fact, connecting the dots</div>
       <div class="dialogue" style="font-size:28px;">
-        "May and June are right around the corner, and I know it's about to get crazy for you guys. When peak season hits and your lines are busy, a missed call is a missed job. If customers can't reach you right away, they go somewhere else."
+        "Look, the reason I'm reaching out specifically today is because I help businesses make sure their phones never get unanswered. And with May and June right around the corner, I know it's about to get crazy for you guys. When peak season hits and your lines are busy, a missed call is a missed job. If customers can't reach you right away, they go somewhere else."
       </div>
       <div class="dialogue">
         "<strong>${prospectName || '[Name]'}</strong>, how much revenue is slipping through the cracks right now just from missed calls?"
@@ -1521,7 +1521,7 @@ const steps = {
       <div class="label">The Hook <span class="v2-tag">Path B — GATEKEEPER</span></div>
       <div class="tone">TONE: Empathetic, peer-to-peer</div>
       <div class="dialogue" style="font-size:28px;">
-        "May and June are right around the corner, and I know it's about to get crazy for you guys. When peak season hits, the lines get tied up, people are on hold, and I know it’s honestly stressful trying to answer every single call with a happy tone."
+        "Look, the reason I'm reaching out specifically today is because I help businesses make sure their phones never get unanswered. And with May and June right around the corner, I know it's about to get crazy for you guys. When peak season hits, the lines get tied up, people are on hold, and I know it’s honestly stressful trying to answer every single call with a happy tone."
       </div>
       <div class="dialogue" style="font-size:28px;">
         "We actually set things up to catch just the overflow, so you aren't drowning in calls on top of everything else on your plate."
@@ -1612,6 +1612,26 @@ const steps = {
         <button type="button" class="btn primary" onclick="goTo('done')">Meeting Booked → Done</button>
         <button type="button" class="btn" onclick="goTo('v2_owner_schedule')">Call back later -> Schedule</button>
         <button type="button" class="btn ghost" onclick="goTo('exit_after_nos')">Shut down → Exit</button>
+      </div>
+    `
+  },
+
+  v2_owner_schedule: {
+    phase: 'CLOSE',
+    idx: 6,
+    render: () => `
+      <div class="label">Schedule callback <span class="v2-tag">V2</span></div>
+      <div class="dialogue">
+        "Totally fair. <strong>When's a better time to reach you?</strong>"
+      </div>
+      <div class="note">Get the time. Repeat it back. That's the call.</div>
+      <div class="dialogue-sm">
+        "Perfect — I'll call you [DAY] at [TIME]. Appreciate the 30 seconds, <strong>\${prospectName || '[NAME]'}</strong>."
+      </div>
+      <div class="note warn">Stop talking. You got the callback time. That's a win.</div>
+      
+      <div class="actions">
+        <button type="button" class="btn primary" onclick="goTo('done')">Got the time → Done</button>
       </div>
     `
   }
