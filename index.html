@@ -1535,6 +1535,7 @@ const steps = {
 
       <div class="actions" style="margin-top:24px;">
         <button type="button" class="btn primary" onclick="goTo('v2_calendar_close')">Open to seeing it → Close</button>
+        <button type="button" class="btn" onclick="goTo('v2_close_clip')">Send AI Clip instead</button>
         <button type="button" class="btn ghost" onclick="goTo('exit_no_gap')">Still hard no → Exit</button>
       </div>
     `
@@ -1577,7 +1578,7 @@ const steps = {
       
       <div class="actions" style="margin-top:24px;">
         <button type="button" class="btn primary" onclick="goTo('v2_gk_video_close')">They pass it on → Send Video</button>
-        <button type="button" class="btn" onclick="goTo('close_clip')">Send clip instead</button>
+        <button type="button" class="btn" onclick="goTo('v2_close_clip')">Send AI Clip instead</button>
         <button type="button" class="btn ghost" onclick="goTo('exit_no_gap')">No pain → Exit</button>
       </div>
     `
@@ -1638,8 +1639,46 @@ const steps = {
       
       <div class="actions" style="margin-top:24px;">
         <button type="button" class="btn primary" onclick="goTo('done')">Meeting Booked → Done</button>
+        <button type="button" class="btn" onclick="goTo('v2_close_clip')">Refusal → Send AI Clip</button>
         <button type="button" class="btn" onclick="goTo('v2_owner_schedule')">Call back later -> Schedule</button>
         <button type="button" class="btn ghost" onclick="goTo('exit_after_nos')">Shut down → Exit</button>
+      </div>
+    `
+  },
+
+  v2_close_clip: {
+    phase: 'V2_OFFER_OWNER',
+    idx: 4,
+    render: () => `
+      <div class="label">Send AI Clip <span class="v2-tag">V2</span></div>
+      <div class="tone">TONE: Confident, Data-Driven</div>
+      <div class="dialogue" style="font-size:24px;">
+        "Here is what it is: We build AI receptionists specifically for HVAC shops. It sounds exactly like a real person, and the data shows it successfully handles about 74% of calls entirely on its own."
+      </div>
+      <div class="dialogue" style="font-size:24px;">
+        "In fact, hundreds of thousands of AI receptionist interactions show that 99% of callers have a positive or neutral reaction to it—they don't get angry that they aren't speaking to a human."
+      </div>
+      <div class="dialogue" style="font-size:24px;">
+        "If you're open to it, I can shoot over a 30-second clip of the AI actually talking to a real customer so you can judge it yourself."
+      </div>
+      
+      <div class="note">If they agree, get the email and stop.</div>
+      <div class="dialogue-sm">
+        "What's the best email for you?"
+      </div>
+
+      <div class="q-grid" style="margin-top: 24px;">
+        <div class="q-card" onclick="this.classList.toggle('active')" style="border-left-color: var(--accent);">
+          <div class="q-text" style="font-size: 20px; color: var(--accent);">Gatekeeper Fear: "Will this replace me?"</div>
+          <div class="inline-resp">
+            <div class="ii-you" style="font-size: 20px;">"Also, I want to be super clear—I completely understand it might sound like a threat to your job, but it isn't. Your job is special, and that genuine human interaction in a service industry can never be replaced. We aren't trying to replace you; we're just trying to support you. We only handle the overflow, not every call, because we want to help the community, not replace jobs."</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="actions" style="margin-top:24px;">
+        <button type="button" class="btn primary" onclick="goTo('done')">Got Email → Done</button>
+        <button type="button" class="btn ghost" onclick="goTo('exit_after_nos')">Hard No → Exit</button>
       </div>
     `
   },
